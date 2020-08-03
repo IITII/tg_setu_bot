@@ -1,0 +1,17 @@
+{
+  "name": "tg_setu",
+  "version": "1.0.0",
+  "dependencies": {
+    "telegraf": "^3.38.0"
+  },
+  "main": "App.js",
+  "devDependencies": {},
+  "scripts": {
+    "start": "node  App.js",
+    "restart": "node --inspect=0.0.0.0:9229 --trace-deprecation --trace-warnings App.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "description": ""
+}
