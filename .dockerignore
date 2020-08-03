@@ -4,5 +4,7 @@
 .vscode
 node_modules/
 docs/
+tmp/
+logs/
 Dockerfile
 *.md

@@ -3,6 +3,8 @@
 .vs/
 # Logs
 logs
+tmp/
+examples/
 *.log
 npm-debug.log*
 yarn-debug.log*

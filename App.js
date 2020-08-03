@@ -1,32 +1,66 @@
-const {Telegraf} = require('telegraf')
-process.env.BOT_TOKEN = '1286442836:AAGkWV6wy4tBwCiGCC3K6BODeuqHmqd8AFo';
-process.env.NTBA_FIX_319 = 1;
-// BOT_TOKEN = '1286442836:AAGfewMokRQ-ymy8U8nErxaNmVc-YWquIpw';
-const bot = new Telegraf(process.env.BOT_TOKEN)
+'use strict';
+const Telegraf = require('telegraf'),
+  HttpsProxyAgent = require('https-proxy-agent'),
+  {logger, loggerMiddleware} = require('./middlewares/logger'),
+  commandsWithDeal = require('./libs/command'),
+  info = require('./libs/info'),
+  BOT_TOKEN = process.env.BOT_TOKEN,
+  PROXY = process.env.PROXY;
 
-// const bot = new Telegraf(BOT_TOKEN)
-bot.start((ctx) => ctx.reply('Welcome!'))
-bot.help((ctx) => ctx.reply('Send me a sticker'))
-bot.on('sticker', (ctx) => ctx.reply('👍'))
-bot.hears('hi', (ctx) => ctx.reply('Hey there'))
-bot.on('polling_error', (error) => {
-  var time = new Date();
-  console.log("TIME:", time);
-  console.log("CODE:", error.code);  // => 'EFATAL'
-  console.log("MSG:", error.message);
-  console.log("STACK:", error.stack);
-});
-bot.on('uncaughtException', (error) => {
-  var time = new Date();
-  console.log("TIME:", time);
-  console.log("NODE_CODE:", error.code);
-  console.log("MSG:", error.message);
-  console.log("STACK:", error.stack);
-});
-bot.catch((err, ctx) => {
-  console.log(`Ooops, encountered an error for ${ctx.updateType}`, err)
-})
-bot.launch()
+/**
+ * Checks if value is null or undefined or ''.
+ * @param object object
+ * @return {boolean} true for nil or ''
+ */
+function isNil(object) {
+  return (object == null) || (object === '');
+}
+
+/**
+ * Check variable before start
+ */
+function preStart() {
+  if (isNil(process.env.BOT_TOKEN)) {
+    logger.error(`Empty BOT_TOKEN`);
+    process.exit(1);
+  }
+}
+
+async function main() {
+  const bot = (() => {
+    // Using system proxy. For example: http://127.0.0.1:10809
+    if (isNil(PROXY)) {
+      return new Telegraf(BOT_TOKEN);
+    } else {
+      const agent = new HttpsProxyAgent(PROXY);
+      return new Telegraf(BOT_TOKEN, {
+        telegram: {agent}
+      });
+    }
+  })();
+  // logger
+  bot.use(loggerMiddleware);
+  bot.start((ctx) => ctx.reply('Hello'))
+  commandsWithDeal.forEach(deal => {
+    bot.command(deal.cmd, deal.func);
+  })
+  bot.on('text', ctx => {
+    info.help(ctx);
+  })
+  bot.on('message', ctx => {
+    info.errorInput(ctx);
+  });
+  bot.launch()
+    .then(() => {
+      logger.info(`Server Started...`);
+    })
+    .catch(e => {
+      logger.error(e);
+    });
+}
+
+preStart();
+main()
   .catch(e => {
-    console.error(e)
+    logger.error(e);
   })
