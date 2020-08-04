@@ -1,18 +1,19 @@
 FROM node:slim
 
 ENV PORT 3000
-ENV BOT_TOKEN null
-ENV PROXY null
-ENV APPEND_TO_FILE false
-ENV LOG_NAME 'tg_setu'
-ENV LOG_LEVEL 'debug'
-ENV LOG_DIR './logs/tg_setu.log'
+ENV BOT_TOKEN ""
+ENV PROXY ""
+ENV APPEND_TO_FILE ""
+ENV LOG_NAME ""
+ENV LOG_LEVEL ""
+ENV LOG_DIR ""
 
 COPY . /app
 
 WORKDIR /app
 
-RUN npm i
+RUN npm i && \
+date
 
 #RUN npm install -g pm2
 
