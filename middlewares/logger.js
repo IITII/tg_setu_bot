@@ -33,15 +33,16 @@ const loggerMiddleware = async (ctx, next) => {
   const start = new Date();
   return next()
     .then(() => {
+      let message = utils.isNil(ctx.update.message) ? ctx.update.edited_message : ctx.update.message;
       let log = {
-        cost: new Date() - start,
+        cost: `${new Date() - start}ms`,
         updateType: ctx.updateType,
-        username: `@${ctx.update.message.from.username}`,
-        name: `${ctx.update.message.from.first_name} ${ctx.update.message.from.last_name}`,
-        id: ctx.update.message.from.id,
-        chatType: ctx.update.message.chat.type,
+        username: `@${message.from.username}`,
+        name: `${message.from.first_name} ${message.from.last_name}`,
+        id: message.from.id,
+        chatType: message.chat.type,
         updateSubTypes: ctx.updateSubTypes,
-        content: ctx.update.message.text || 'Not a text message. See `updateType` & `updateSubTypes`'
+        content: message.text || 'Not a text message. See `updateType` & `updateSubTypes`'
       }
       logger.info(JSON.stringify(log));
     });

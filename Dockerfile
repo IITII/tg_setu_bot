@@ -2,6 +2,7 @@ FROM node:slim
 
 ENV PORT 3000
 ENV BOT_TOKEN '1286442836:AAGkWV6wy4tBwCiGCC3K6BODeuqHmqd8AFo'
+#ENV
 
 COPY . /app
 
@@ -15,4 +16,4 @@ RUN npm i
 
 EXPOSE 3000 9229
 
-CMD ["npm", "restart"]
+CMD ["npm", "start"]

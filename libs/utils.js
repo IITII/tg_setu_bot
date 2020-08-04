@@ -1,5 +1,6 @@
 module.exports = {
-  mkdir
+  mkdir,
+  isNil
 };
 
 const fs = require('fs');
@@ -27,4 +28,13 @@ function mkdir(dir, cb) {
   }
   
   next(index);
+}
+
+/**
+ * Checks if value is null or undefined or ''.
+ * @param object object
+ * @return {boolean} true for nil or ''
+ */
+function isNil(object) {
+  return (object == null) || (object === '');
 }

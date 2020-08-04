@@ -1,6 +1,8 @@
 'use strict';
 const Telegraf = require('telegraf'),
   HttpsProxyAgent = require('https-proxy-agent'),
+  session = require('telegraf/session'),
+  utils = require('./libs/utils'),
   {logger, loggerMiddleware} = require('./middlewares/logger'),
   commandsWithDeal = require('./libs/command'),
   info = require('./libs/info'),
@@ -8,19 +10,10 @@ const Telegraf = require('telegraf'),
   PROXY = process.env.PROXY;
 
 /**
- * Checks if value is null or undefined or ''.
- * @param object object
- * @return {boolean} true for nil or ''
- */
-function isNil(object) {
-  return (object == null) || (object === '');
-}
-
-/**
  * Check variable before start
  */
 function preStart() {
-  if (isNil(process.env.BOT_TOKEN)) {
+  if (utils.isNil(process.env.BOT_TOKEN)) {
     logger.error(`Empty BOT_TOKEN`);
     process.exit(1);
   }
@@ -29,7 +22,7 @@ function preStart() {
 async function main() {
   const bot = (() => {
     // Using system proxy. For example: http://127.0.0.1:10809
-    if (isNil(PROXY)) {
+    if (utils.isNil(PROXY)) {
       return new Telegraf(BOT_TOKEN);
     } else {
       const agent = new HttpsProxyAgent(PROXY);
@@ -40,22 +33,35 @@ async function main() {
   })();
   // logger
   bot.use(loggerMiddleware);
-  bot.start((ctx) => ctx.reply('Hello'))
-  commandsWithDeal.forEach(deal => {
+  // Register session middleware
+  bot.use(session())
+  bot.start((ctx) => {
+    return ctx.reply(`Hello ${ctx.update.message.from.first_name} ${ctx.update.message.from.last_name}`);
+  });
+  bot.help(ctx => {
+    return info.help(ctx);
+  });
+  commandsWithDeal.deal.forEach(deal => {
     bot.command(deal.cmd, deal.func);
-  })
+  });
+  bot.on('sticker', ctx => {
+    return ctx.replyWithSticker(ctx.update.message.sticker.file_id);
+  });
+  bot.on('photo', ctx => {
+    return info.noNSFW(ctx);
+  });
   bot.on('text', ctx => {
-    info.help(ctx);
-  })
+    return commandsWithDeal.taotuDeal(ctx);
+  });
   bot.on('message', ctx => {
-    info.errorInput(ctx);
+    return info.errorInput(ctx);
   });
   bot.launch()
     .then(() => {
-      logger.info(`Server Started...`);
+      logger.info(`Bot Started...`);
     })
     .catch(e => {
-      logger.error(e);
+      logger.fatal(e);
     });
 }
 
