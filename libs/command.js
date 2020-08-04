@@ -46,6 +46,8 @@ async function taotu(ctx) {
  */
 async function taotuDeal(ctx) {
   if (taotu_FLAG) {
+    taotu_FLAG = false;
+    await ctx.replyWithMarkdown(`在下了在下了...`);
     let msg = ctx.update.message.text;
     msg = msg.split(/\s+/);
     // Remove duplicate links

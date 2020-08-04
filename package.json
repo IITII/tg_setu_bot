@@ -14,7 +14,7 @@
   "main": "App.js",
   "devDependencies": {},
   "scripts": {
-    "start": "node --inspect=0.0.0.0:9229 --trace-deprecation --trace-warnings App.js",
+    "start": "node App.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
