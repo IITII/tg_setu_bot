@@ -14,7 +14,7 @@
 
 ```bash
 # No proxy
-docker run -d \ 
+docker run -d \
 --name tg_setu_bot \
 -e BOT_TOKEN=<BOT_TOKEN> \
 -e PROXY="" \
@@ -25,7 +25,7 @@ docker run -d \
 tg_setu:latest
 
 # With proxy
-docker run -d \ 
+docker run -d \
 --name tg_setu_bot \
 -e BOT_TOKEN=<BOT_TOKEN> \
 -e PROXY="http://192.168.1.1:1080" \
