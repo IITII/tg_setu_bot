@@ -13,7 +13,7 @@ const Telegraf = require('telegraf'),
  * Check variable before start
  */
 function preStart() {
-  if (utils.isNil(process.env.BOT_TOKEN)) {
+  if (utils.isNil(BOT_TOKEN)) {
     logger.error(`Empty BOT_TOKEN`);
     process.exit(1);
   }

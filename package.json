@@ -2,14 +2,18 @@
   "name": "tg_setu",
   "version": "1.0.0",
   "dependencies": {
+    "async": "^3.2.0",
     "cheerio": "^1.0.0-rc.3",
     "https-proxy-agent": "^5.0.0",
     "koa-log4": "^2.3.2",
     "lodash": "^4.17.19",
+    "moment": "^2.27.0",
     "node-fetch": "^2.6.0",
+    "selenium-webdriver": "^4.0.0-alpha.7",
     "simple-node-logger": "^18.12.24",
     "telegraf": "^3.38.0",
-    "telegraf-logger": "^3.0.0"
+    "telegraf-logger": "^3.0.0",
+    "uglify-js": "^3.10.1"
   },
   "main": "App.js",
   "devDependencies": {},

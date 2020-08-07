@@ -8,3 +8,4 @@ tmp/
 logs/
 Dockerfile
 *.md
+examples/
