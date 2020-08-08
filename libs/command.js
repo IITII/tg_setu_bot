@@ -7,10 +7,11 @@ const fetch = require('node-fetch'),
   info = require('./info'),
   _ = require('lodash'),
   HttpsProxyAgent = require('https-proxy-agent'),
+  {saveImg, IMG_TMP_DIR} = require('./pixivDownload'),
   PROXY = process.env.PROXY,
   PIXIV_USERNAME = process.env.PIXIV_USERNAME,
   PIXIV_PASSWORD = process.env.PIXIV_PASSWORD,
-  PIXIV_TMP_FILE = process.env.PIXIV_TMP_FILE || '../tmp/pixiv.json',
+  PIXIV_TMP_FILE = path.resolve(__dirname, process.env.PIXIV_TMP_FILE || '../tmp/pixiv.json'),
   {logger} = require('../middlewares/logger'),
   mediaGroup_MAXSIZE = 10,
   webdriver = require('selenium-webdriver'),
@@ -18,7 +19,8 @@ const fetch = require('node-fetch'),
   BROWSER = 'chrome',
   chrome = require(`selenium-webdriver/${BROWSER}`),
   until = webdriver.until,
-  SPLIT = '\n';
+  SPLIT = '\n',
+  date = require('moment')().format('YYYY-MM-DD');
 const commands = [
   'top',
   'taotu',
@@ -158,36 +160,41 @@ async function saveOrLoad(filePath, save, data = null) {
  * @param ctx Telegraf content
  */
 async function top(ctx) {
+  await ctx.replyWithMarkdown(`稍等稍等，我先找找啊~`);
+  if (fs.existsSync(PIXIV_TMP_FILE)) {
+    await ctx.replyWithMarkdown(`哇塞，找到了~`);
+    try {
+      let data = await saveOrLoad(PIXIV_TMP_FILE, false);
+      if (!utils.isNil(data)) {
+        try {
+          data = JSON.parse(data);
+          if (date === data.date) {
+            logger.debug(`Reply with tmp file's data.`);
+            for (const e of utils.splitArray(data.links, SPLIT)) {
+              await ctx.reply(e.join(SPLIT));
+            }
+            return;
+          }
+        } catch (e) {
+          await ctx.replyWithMarkdown(`哇塞，文件有问题，**问题很大~**`);
+          logger.error(e);
+        }
+      } else {
+        await ctx.replyWithMarkdown(`**咦~~**，文件居然是空的...`);
+        await ctx.replyWithMarkdown(`**不要慌**，_小场面_，问题不大~`);
+        logger.debug(`File is empty or with a error format!!!`);
+      }
+    } catch (e) {
+      logger.error(e);
+      return ctx.replyWithMarkdown(`凉了凉了，溜了`);
+    }
+  }
+  // Telegram sendPhoto() MAX_SIZE of photo is 5 MB, So just sending the url
   await ctx.replyWithMarkdown(`在下了在下了...`);
-  const date = require('moment')().format('YYYY-MM-DD');
+  
   if (utils.isNil(PIXIV_USERNAME) || utils.isNil(PIXIV_PASSWORD)) {
     logger.error(`Empty ${PIXIV_USERNAME || 'PIXIV_USERNAME'} ${PIXIV_USERNAME || 'PIXIV_USERNAME'}`);
     return ctx.replyWithMarkdown(`**被玩坏了呢~~~**`)
-  }
-  
-  if (fs.existsSync(PIXIV_TMP_FILE)) {
-    logger.debug(`File is exist ${PIXIV_TMP_FILE}`);
-    let data = await saveOrLoad(PIXIV_TMP_FILE, false);
-    if (!utils.isNil(data)) {
-      try {
-        data = JSON.parse(data);
-        if (date === data.date) {
-          //reply with data.mediaGroup
-          logger.debug(`Reply with tmp file's data.`);
-          for (const e of utils.splitArray(data.links, SPLIT)) {
-            await ctx.reply(e.join(SPLIT));
-          }
-          for (const subArray of _.chunk(data.mediaGroup, mediaGroup_MAXSIZE)) {
-            await ctx.replyWithMediaGroup(subArray);
-          }
-          return;
-        }
-      } catch (e) {
-        logger.error(e);
-      }
-    } else {
-      logger.debug(`File is empty or with a error format!!!`);
-    }
   }
   const driver = new webdriver.Builder()
     .forBrowser(BROWSER)
@@ -196,7 +203,7 @@ async function top(ctx) {
         "--start-maximized",
         "--disable-notifications",
         "--disable-infobars",
-        "--headless",
+        // "--headless",
         "--no-sandbox",
         "--disable-dev-shm-usage",
         "--disable-gpu"
@@ -204,39 +211,65 @@ async function top(ctx) {
     )
     .build();
   let rankUrls = await getDailyRankUrl();
-  let mediaGroup = [];
   let js = await fs.readFileSync(path.resolve(__dirname, '../libs/dom/img.js'), {
     encoding: 'utf-8'
   });
-  let tmpArray = [];
+  let data = {
+    date,
+    useragent: "",
+    links: [],
+    mediaGroup: [],
+  };
   await login(driver, PIXIV_USERNAME, PIXIV_PASSWORD);
+  data.useragent = await driver.executeScript(`return navigator.userAgent`);
+  let count = 0;
   for (const rankUrl of rankUrls) {
-    tmpArray = tmpArray.concat(await getRealImgUrl(driver, rankUrl, js));
-  }
-  tmpArray = _.uniq(tmpArray);
-  for (let i = 0; i < tmpArray.length; i++) {
-    let e = tmpArray[i];
-    mediaGroup.push({
-      media: e,
-      caption: i,
-      type: utils.mediaType(e)
+    let tmp = await getRealImgUrl(driver, rankUrl, js);
+    tmp.forEach(e => {
+      count++;
+      data.links.push({
+        url: e,
+        origin: rankUrl,
+        savePath: IMG_TMP_DIR + path.sep + count + path.extname(e)
+      });
+      data.mediaGroup.push({
+        media: e,
+        caption: `${date}-${count}`,
+        type: utils.mediaType(e)
+      });
     })
   }
   await driver.quit();
-  logger.debug(`Reply and save to file: ${PIXIV_TMP_FILE}`);
+  data.links = _.uniqBy(data.links, 'url');
+  data.mediaGroup = _.uniqBy(data.mediaGroup, 'media');
+  
+  logger.debug(`Reply and saving to file: ${PIXIV_TMP_FILE}`);
   // save to file
-  logger.debug(JSON.stringify(mediaGroup));
-  await saveOrLoad(PIXIV_TMP_FILE, true, JSON.stringify({
-    date,
-    links: tmpArray,
-    mediaGroup
-  }));
-  for (const e of utils.splitArray(tmpArray, SPLIT)) {
+  saveOrLoad(PIXIV_TMP_FILE, true, JSON.stringify(data))
+    .then(() => {
+      logger.debug(`Saved to file: ${PIXIV_TMP_FILE}`)
+    })
+    .catch(e => {
+      logger.error(`Unable to save data to file: ${PIXIV_TMP_FILE}`);
+      logger.error(e);
+    });
+  let links = (function () {
+    let tmp = [];
+    data.mediaGroup.forEach(e => {
+      tmp.push(e.media);
+    });
+    return tmp;
+  })();
+  for (const e of utils.splitArray(links, SPLIT)) {
     await ctx.reply(e.join(SPLIT));
   }
-  for (const subArray of _.chunk(mediaGroup, mediaGroup_MAXSIZE)) {
-    await ctx.replyWithMediaGroup(subArray);
-  }
+  // PIXIV image files usually large than 5M...
+  // for (const subArray of _.chunk(mediaGroup, mediaGroup_MAXSIZE)) {
+  //   await ctx.replyWithMediaGroup(subArray);
+  // }
+  await saveImg(data)
+  // remove files after zipped files
+  // utils.rm_rf(IMG_TMP_DIR);
 }
 
 async function taotu(ctx) {

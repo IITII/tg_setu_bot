@@ -2,13 +2,14 @@ module.exports = {
   mkdir,
   isNil,
   mediaType,
-  asyncLimit,
-  splitArray
+  splitArray,
+  spendTime,
+  zipDir,
+  rm_rf
 };
 
 const fs = require('fs');
 const path = require('path');
-const async = require('async');
 
 function mkdir(dir, cb) {
   let paths = dir.split(path.sep);
@@ -98,23 +99,6 @@ function mediaType(filename) {
 }
 
 /**
- * Concurrency
- * @param array InputArray
- * @param limit Concurrency
- * @param func Run function
- * @param args Arguments for func
- */
-async function asyncLimit(array, limit, func, ...args) {
-  return await new Promise(async (resolve) => {
-    await async.mapLimit(array, limit, async function (subArray, callback) {
-      await func.apply(this, subArray);
-      return callback();
-    });
-    return resolve();
-  })
-}
-
-/**
  * telegram sendMessage() method maximum message length is 4096 characters
  * @param array array
  * @param limit MAX_LENGTH, default 4096
@@ -151,4 +135,91 @@ function splitArray(array, split, limit = 4096, start = 0, end = 0) {
   }
   console.log(subArray.length)
   return subArray;
+}
+
+/**
+ * Calc how much time spent on run function.
+ * @param func Run function
+ * @param args function's args
+ */
+async function spendTime(func, ...args) {
+  return await new Promise(async (resolve, reject) => {
+    let start = new Date();
+    try {
+      await func.apply(this, args);
+      return resolve();
+    } catch (e) {
+      console.error(e);
+      return reject();
+    } finally {
+      let cost = new Date() - start;
+      let logInfo = cost > 1000 ? cost / 1000 + 's' : cost + 'ms';
+      console.info(`Total spent ${logInfo}.`);
+    }
+  });
+}
+
+/**
+ * only compress dir under given `dirname`
+ * @param dirName compress dirname
+ * @param zipFileName compressed filename
+ * @see https://github.com/cthackers/adm-zip
+ * @description docs is out-of-date
+ * Unsupported chinese folder name
+ */
+async function zipDir(dirName, zipFileName) {
+  return await new Promise(async (resolve, reject) => {
+    try {
+      const adm_zip = require("adm-zip"),
+        zip = new adm_zip();
+      
+      // let files = fs.readdirSync(dirName);
+      // for (const file of files) {
+      //   let filePath = dirName + path.sep + file;
+      //   if (fs.lstatSync(filePath).isDirectory()) {
+      //     await zip.addLocalFolder(filePath, path.relative(dirName, filePath));
+      //   }
+      // }
+      await zip.addLocalFolder(dirName);
+      zip.writeZip(zipFileName, (err) => {
+        if (err) {
+          console.error(`Compress to ${zipFileName} failed...`);
+          return;
+        }
+        console.info(`Compress to ${zipFileName} success.`)
+      });
+      return resolve();
+    } catch (e) {
+      return reject(e);
+    }
+  })
+}
+
+/**
+ * remove a dir or a file, just like: rm -rf ${path}
+ * @param deletePath {String} file path to be delete,(absolute or relative)
+ */
+function rm_rf(deletePath) {
+  let absDeletePath = path.resolve(__dirname, deletePath);
+  if (fs.existsSync(absDeletePath)) {
+    if (fs.statSync(absDeletePath).isDirectory()) {
+      let files = fs.readdirSync(absDeletePath);
+      // if dir is empty, direct delete it
+      if (files.length === 0) {
+        return fs.rmdirSync(absDeletePath);
+      }
+      files.forEach(file => {
+        let tmp = absDeletePath + path.sep + file;
+        if (fs.statSync(tmp).isDirectory()) {
+          rm_rf(tmp);
+        } else {
+          fs.unlinkSync(tmp);
+        }
+      });
+    } else {
+      fs.unlinkSync(absDeletePath);
+    }
+  } else {
+    console.log(`${absDeletePath} is not exist. \nNothing to do.`)
+  }
 }

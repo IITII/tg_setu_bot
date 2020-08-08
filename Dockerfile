@@ -19,7 +19,7 @@ WORKDIR /app
 RUN npm i && \
 apt-get update && \
 apt install -y chromedriver chromium && \
-apt clean && rm -rf /tmp/* && \
+apt autoremove -y && apt clean -y && rm -rf /tmp/* && \
 date
 
 #RUN npm install -g pm2
