@@ -177,7 +177,14 @@ async function top(ctx) {
           data = JSON.parse(data);
           if (date === data.date) {
             logger.debug(`Reply with tmp file's data.`);
-            for (const e of utils.splitArray(data.links, SPLIT)) {
+            let links = (function () {
+              let tmp = [];
+              data.mediaGroup.forEach(e => {
+                tmp.push(e.media);
+              });
+              return tmp;
+            })();
+            for (const e of utils.splitArray(links, SPLIT)) {
               await ctx.reply(e.join(SPLIT));
             }
             return;
@@ -194,6 +201,8 @@ async function top(ctx) {
     } catch (e) {
       logger.error(e);
       return ctx.replyWithMarkdown(`凉了凉了，溜了`);
+    } finally {
+      flag.top_flag = false;
     }
   }
   // Telegram sendPhoto() MAX_SIZE of photo is 5 MB, So just sending the url
@@ -201,6 +210,7 @@ async function top(ctx) {
   
   if (utils.isNil(PIXIV_USERNAME) || utils.isNil(PIXIV_PASSWORD)) {
     logger.error(`Empty ${PIXIV_USERNAME || 'PIXIV_USERNAME'} ${PIXIV_USERNAME || 'PIXIV_USERNAME'}`);
+    flag.top_flag = false;
     return ctx.replyWithMarkdown(`**被玩坏了呢~~~**`)
   }
   const driver = new webdriver.Builder()
