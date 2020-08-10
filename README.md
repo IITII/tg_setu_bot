@@ -27,6 +27,18 @@ help - Help
 |SAVE_DIR|Directory to save downloaded pixiv images and zipped file|`../tmp/`|
 |LIMIT| Concurrency limit when downloading pixiv images|`10`|
 
+#RUN
+```bash
+# Using npm
+npm i && npm start
+# Using pm2
+npm i pm2 -g
+pm2 [start|restart|stop|delete] ecosystem.config.js
+pm2 start ecosystem.config.js --only TG_SETU_BOT
+pm2 deploy ecosystem.config.js staging
+pm2 deploy ecosystem.config.js production setup && pm2 deploy ecosystem.config.js production
+```
+
 ```bash
 # No proxy
 docker run -d \
