@@ -113,7 +113,7 @@ function mediaType(filename) {
  */
 function splitArray(array, split, limit = 4096, start = 0, end = 0) {
   if (array.join(split).length < limit) {
-    return array;
+    return [array];
   }
   const ARRAY_LENGTH = array.length;
   let subArray = [];
@@ -133,7 +133,7 @@ function splitArray(array, split, limit = 4096, start = 0, end = 0) {
       end -= 1;
     }
   }
-  console.log(subArray.length)
+  console.log(`Split to ${subArray.length} parts.`);
   return subArray;
 }
 
