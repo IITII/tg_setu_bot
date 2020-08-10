@@ -1,6 +1,16 @@
 # tg_setu_bot
 > A bot for telegram  
 
+# Command
+> Bot father ⇒ Edit Bot ⇒ Edit Commands  
+
+```text
+top - Pixiv Daily Ranking
+taotu - Link
+echo - Echo bot
+help - Help
+```
+
 # ENV
 
 |Name|Des|Default|
@@ -11,6 +21,11 @@
 |LOG_NAME|logger category name|`tg_setu`|
 |LOG_LEVEL|logger level|`debug`|
 |LOG_DIR|logger file path|`./logs/tg_setu.log`|
+|PIXIV_USERNAME|PIXIV USERNAME|`NULL`|
+|PIXIV_PASSWORD|PIXIV PASSWORD|`NULL`|
+|PIXIV_TMP_FILE|Temp file to save pixiv daily ranking data|`../tmp/pixiv.json`|
+|SAVE_DIR|Directory to save downloaded pixiv images and zipped file|`../tmp/`|
+|LIMIT| Concurrency limit when downloading pixiv images|`10`|
 
 ```bash
 # No proxy
