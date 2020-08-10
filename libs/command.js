@@ -24,12 +24,14 @@ const fetch = require('node-fetch'),
 const commands = [
   'top',
   'taotu',
-  'help'
+  'help',
+  'echo'
 ]
 const deal = [];
 let flag = {
   taotu_flag: false,
-  top_flag: false
+  top_flag: false,
+  echo: false
 };
 
 /**
@@ -291,7 +293,7 @@ async function top(ctx) {
 }
 
 async function taotu(ctx) {
-  flag.taotu_flag = flag.taotu_flag || true;
+  flag.taotu_flag = flipFlag(flag.taotu_flag);
   return ctx.replyWithMarkdown(`**我听着呢...**`)
 }
 
@@ -300,6 +302,9 @@ async function taotu(ctx) {
  * @param ctx Telegraf content
  */
 async function taotuDeal(ctx) {
+  if (flag.echo) {
+    return ctx.telegram.sendCopy(ctx.chat.id, ctx.message);
+  }
   if (flag.taotu_flag) {
     flag.taotu_flag = false;
     await ctx.replyWithMarkdown(`在下了在下了...`);
@@ -345,6 +350,25 @@ async function taotuDeal(ctx) {
   return info.errorInput(ctx);
 }
 
+function echo(ctx) {
+  flag.echo = flipFlag(flag.echo);
+  return ctx.replyWithMarkdown(flag.echo ? `复读姬ing...` : `复读，完了...`);
+}
+
+/**
+ * Flip flag
+ * @param inputFlag {Boolean}
+ * @return {*|boolean} !inputFlag
+ */
+function flipFlag(inputFlag) {
+  let tmp = inputFlag;
+  // Prevent duplicate request
+  for (let subFlag in flag) {
+    flag[subFlag] = false;
+  }
+  return !tmp;
+}
+
 deal.push({
   cmd: commands[0],
   func: top
@@ -356,7 +380,11 @@ deal.push({
 deal.push({
   cmd: commands[2],
   func: info.help
-})
+});
+deal.push({
+  cmd: commands[3],
+  func: echo
+});
 module.exports = {
   deal,
   taotuDeal
