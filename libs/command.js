@@ -27,7 +27,10 @@ const commands = [
   'help'
 ]
 const deal = [];
-let taotu_FLAG = false;
+let flag = {
+  taotu_flag: false,
+  top_flag: false
+};
 
 /**
  * return dom base on url
@@ -160,6 +163,10 @@ async function saveOrLoad(filePath, save, data = null) {
  * @param ctx Telegraf content
  */
 async function top(ctx) {
+  if (flag.top_flag) {
+    return ctx.replyWithMarkdown(`_早就在下了_，*不要急哈~*`)
+  }
+  flag.top_flag = true;
   await ctx.replyWithMarkdown(`稍等稍等，我先找找啊~`);
   if (fs.existsSync(PIXIV_TMP_FILE)) {
     await ctx.replyWithMarkdown(`哇塞，找到了~`);
@@ -203,7 +210,7 @@ async function top(ctx) {
         "--start-maximized",
         "--disable-notifications",
         "--disable-infobars",
-        // "--headless",
+        "--headless",
         "--no-sandbox",
         "--disable-dev-shm-usage",
         "--disable-gpu"
@@ -268,12 +275,13 @@ async function top(ctx) {
   //   await ctx.replyWithMediaGroup(subArray);
   // }
   await saveImg(data)
+  flag.top_flag = false;
   // remove files after zipped files
   // utils.rm_rf(IMG_TMP_DIR);
 }
 
 async function taotu(ctx) {
-  taotu_FLAG = taotu_FLAG || true;
+  flag.taotu_flag = flag.taotu_flag || true;
   return ctx.replyWithMarkdown(`**我听着呢...**`)
 }
 
@@ -282,8 +290,8 @@ async function taotu(ctx) {
  * @param ctx Telegraf content
  */
 async function taotuDeal(ctx) {
-  if (taotu_FLAG) {
-    taotu_FLAG = false;
+  if (flag.taotu_flag) {
+    flag.taotu_flag = false;
     await ctx.replyWithMarkdown(`在下了在下了...`);
     let msg = ctx.update.message.text;
     msg = msg.split(/\s+/);

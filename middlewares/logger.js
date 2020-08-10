@@ -42,7 +42,7 @@ const loggerMiddleware = async (ctx, next) => {
         id: message.from.id,
         chatType: message.chat.type,
         updateSubTypes: ctx.updateSubTypes,
-        content: message.text || 'Not a text message. See `updateType` & `updateSubTypes`'
+        content: message.text || null
       }
       logger.info(JSON.stringify(log));
     });
