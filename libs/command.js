@@ -128,9 +128,6 @@ async function getRealImgUrl(driver, imgUrl, js) {
  */
 async function saveOrLoad(filePath, save, data = null) {
   return await new Promise(resolve => {
-    if (!fs.existsSync(filePath)) {
-      return resolve(null);
-    }
     if (save) {
       if (data !== null) {
         try {
@@ -145,6 +142,9 @@ async function saveOrLoad(filePath, save, data = null) {
         return resolve(null);
       }
     } else {
+      if (!fs.existsSync(filePath)) {
+        return resolve(null);
+      }
       try {
         let data = fs.readFileSync(filePath, {
           encoding: 'utf-8'
@@ -153,7 +153,7 @@ async function saveOrLoad(filePath, save, data = null) {
       } catch (e) {
         return resolve(null);
       }
-      
+  
     }
   });
 }
