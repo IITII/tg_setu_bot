@@ -1,7 +1,7 @@
 # tg_setu_bot
 > A bot for telegram  
 
-# Command
+## Command
 > Bot father ⇒ Edit Bot ⇒ Edit Commands  
 
 ```text
@@ -11,7 +11,7 @@ echo - Echo bot
 help - Help
 ```
 
-# ENV
+## ENV
 
 |Name|Des|Default|
 |:--:|:--:|:--:|
@@ -27,7 +27,8 @@ help - Help
 |SAVE_DIR|Directory to save downloaded pixiv images and zipped file|`../tmp/`|
 |LIMIT| Concurrency limit when downloading pixiv images|`10`|
 
-#RUN
+## RUN
+
 ```bash
 # Using npm
 npm i && npm start
@@ -39,6 +40,9 @@ pm2 deploy ecosystem.config.js staging
 pm2 deploy ecosystem.config.js production setup && pm2 deploy ecosystem.config.js production
 ```
 
+### Docker
+> docker build -t tg_setu:latest .  
+> docker pull tg_setu:latest
 ```bash
 # No proxy
 docker run -d \
