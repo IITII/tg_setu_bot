@@ -325,13 +325,14 @@ async function taotuDeal(ctx) {
         });
         // Remove duplicate
         tmpArray = _.uniq(tmpArray);
-        tmpArray.forEach(tmpUrl => {
+        for (let i = 0; i < tmpArray.length; i++) {
+          let tmpUrl = tmpArray[i];
           mediaGroup.push({
             media: origin + tmpUrl,
-            caption: title,
+            caption: `${title}-${i + 1}`,
             type: utils.mediaType(tmpUrl)
           });
-        });
+        }
         await ctx.replyWithMarkdown(title);
         for (const e of utils.splitArray(tmpArray, SPLIT)) {
           await ctx.reply(e.join(SPLIT));

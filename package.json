@@ -19,7 +19,7 @@
     "start": "node App.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "",
+  "author": "IITII (https://github.com/IITII)",
   "license": "ISC",
   "description": ""
 }
