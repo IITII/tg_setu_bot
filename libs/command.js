@@ -1,25 +1,25 @@
 'use strict';
 const fetch = require('node-fetch'),
-    cheerio = require('cheerio'),
-    fs = require('fs'),
-    path = require('path'),
-    utils = require('./utils'),
-    info = require('./info'),
-    _ = require('lodash'),
-    HttpsProxyAgent = require('https-proxy-agent'),
-    {saveImg, SAVE_DIR, getDate} = require('./pixivDownload'),
-    PROXY = process.env.PROXY,
-    PIXIV_USERNAME = process.env.PIXIV_USERNAME,
-    PIXIV_PASSWORD = process.env.PIXIV_PASSWORD,
-    PIXIV_TMP_FILE = path.resolve(__dirname, process.env.PIXIV_TMP_FILE || '../tmp/pixiv.json'),
-    {logger} = require('../middlewares/logger'),
-    mediaGroup_MAXSIZE = 10,
-    webdriver = require('selenium-webdriver'),
-    By = webdriver.By,
-    BROWSER = 'chrome',
-    chrome = require(`selenium-webdriver/${BROWSER}`),
-    until = webdriver.until,
-    SPLIT = '\n';
+  cheerio = require('cheerio'),
+  fs = require('fs'),
+  path = require('path'),
+  utils = require('./utils'),
+  info = require('./info'),
+  _ = require('lodash'),
+  HttpsProxyAgent = require('https-proxy-agent'),
+  {saveImg, SAVE_DIR, getDate} = require('./pixivDownload'),
+  PROXY = process.env.PROXY,
+  PIXIV_USERNAME = process.env.PIXIV_USERNAME,
+  PIXIV_PASSWORD = process.env.PIXIV_PASSWORD,
+  PIXIV_TMP_FILE = path.resolve(__dirname, process.env.PIXIV_TMP_FILE || '../tmp/pixiv.json'),
+  {logger} = require('../middlewares/logger'),
+  mediaGroup_MAXSIZE = 10,
+  webdriver = require('selenium-webdriver'),
+  By = webdriver.By,
+  BROWSER = 'chrome',
+  chrome = require(`selenium-webdriver/${BROWSER}`),
+  until = webdriver.until,
+  SPLIT = '\n';
 const commands = [
   'top',
   'taotu',
@@ -189,6 +189,13 @@ async function top(ctx) {
             for (const e of utils.splitArray(links, SPLIT)) {
               await ctx.reply(e.join(SPLIT));
             }
+            /**
+             *  PIXIV image files usually large than 5M...
+             *  @see https://core.telegram.org/bots/api#sending-files
+             */
+            for (const subArray of _.chunk(data.mediaGroup, mediaGroup_MAXSIZE)) {
+              await ctx.replyWithMediaGroup(subArray);
+            }
             return;
           }
         } catch (e) {
@@ -283,10 +290,13 @@ async function top(ctx) {
   for (const e of utils.splitArray(links, SPLIT)) {
     await ctx.reply(e.join(SPLIT));
   }
-  // PIXIV image files usually large than 5M...
-  // for (const subArray of _.chunk(mediaGroup, mediaGroup_MAXSIZE)) {
-  //   await ctx.replyWithMediaGroup(subArray);
-  // }
+  /**
+   *  PIXIV image files usually large than 5M...
+   *  @see https://core.telegram.org/bots/api#sending-files
+   */
+  for (const subArray of _.chunk(data.mediaGroup, mediaGroup_MAXSIZE)) {
+    await ctx.replyWithMediaGroup(subArray);
+  }
   await saveImg(data)
   flag.top_flag = false;
   // remove files after zipped files
