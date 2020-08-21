@@ -3,17 +3,19 @@ const fetch = require('node-fetch'),
   path = require('path'),
   async = require('async'),
   HttpsProxyAgent = require('https-proxy-agent'),
-  util = require('util'),
-  fs = require('fs'),
-  streamPipeline = util.promisify(require('stream').pipeline),
-  utils = require('./utils'),
-  date = require('moment')().format('YYYY-MM-DD'),
-  PROXY = process.env.PROXY,
-  SAVE_DIR = process.env.SAVE_DIR || path.resolve(__dirname, '../tmp/'),
-  IMG_TMP_DIR = SAVE_DIR + path.sep + date,
-  {logger} = require('../middlewares/logger'),
-  LIMIT = process.env.LIMIT || 10;
+    util = require('util'),
+    fs = require('fs'),
+    streamPipeline = util.promisify(require('stream').pipeline),
+    utils = require('./utils'),
+    PROXY = process.env.PROXY,
+    SAVE_DIR = process.env.SAVE_DIR || path.resolve(__dirname, '../tmp/'),
+    {logger} = require('../middlewares/logger'),
+    LIMIT = process.env.LIMIT || 10;
 let User_Agent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/84.0.4147.105 Safari/537.36';
+
+function getDate() {
+  return require('moment')().format('YYYY-MM-DD');
+}
 
 async function fetchImg(url, referer = null, user_agent = null) {
   return await new Promise(async (resolve, reject) => {
@@ -71,6 +73,7 @@ async function downImg(imgSrc, callback) {
 }
 
 async function saveImg(data) {
+  let IMG_TMP_DIR = SAVE_DIR + path.sep + getDate()
   User_Agent = data.useragent;
   utils.mkdir(IMG_TMP_DIR, () => {
     logger.info(`Create un-exist path: ${IMG_TMP_DIR}`);
@@ -83,7 +86,7 @@ async function saveImg(data) {
       })
       .then(() => {
         logger.info(`Compressing files...`);
-        let zipPath = path.resolve(SAVE_DIR, date + '.zip');
+        let zipPath = path.resolve(SAVE_DIR, getDate() + '.zip');
         utils.zipDir(IMG_TMP_DIR, zipPath)
           .then(() => {
             logger.info(`Compress completed!!! Save to ${zipPath}`);
@@ -102,5 +105,6 @@ async function saveImg(data) {
 
 module.exports = {
   saveImg,
-  IMG_TMP_DIR
+  SAVE_DIR,
+  getDate
 }

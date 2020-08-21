@@ -1,26 +1,25 @@
 'use strict';
 const fetch = require('node-fetch'),
-  cheerio = require('cheerio'),
-  fs = require('fs'),
-  path = require('path'),
-  utils = require('./utils'),
-  info = require('./info'),
-  _ = require('lodash'),
-  HttpsProxyAgent = require('https-proxy-agent'),
-  {saveImg, IMG_TMP_DIR} = require('./pixivDownload'),
-  PROXY = process.env.PROXY,
-  PIXIV_USERNAME = process.env.PIXIV_USERNAME,
-  PIXIV_PASSWORD = process.env.PIXIV_PASSWORD,
-  PIXIV_TMP_FILE = path.resolve(__dirname, process.env.PIXIV_TMP_FILE || '../tmp/pixiv.json'),
-  {logger} = require('../middlewares/logger'),
-  mediaGroup_MAXSIZE = 10,
-  webdriver = require('selenium-webdriver'),
-  By = webdriver.By,
-  BROWSER = 'chrome',
-  chrome = require(`selenium-webdriver/${BROWSER}`),
-  until = webdriver.until,
-  SPLIT = '\n',
-  date = require('moment')().format('YYYY-MM-DD');
+    cheerio = require('cheerio'),
+    fs = require('fs'),
+    path = require('path'),
+    utils = require('./utils'),
+    info = require('./info'),
+    _ = require('lodash'),
+    HttpsProxyAgent = require('https-proxy-agent'),
+    {saveImg, SAVE_DIR, getDate} = require('./pixivDownload'),
+    PROXY = process.env.PROXY,
+    PIXIV_USERNAME = process.env.PIXIV_USERNAME,
+    PIXIV_PASSWORD = process.env.PIXIV_PASSWORD,
+    PIXIV_TMP_FILE = path.resolve(__dirname, process.env.PIXIV_TMP_FILE || '../tmp/pixiv.json'),
+    {logger} = require('../middlewares/logger'),
+    mediaGroup_MAXSIZE = 10,
+    webdriver = require('selenium-webdriver'),
+    By = webdriver.By,
+    BROWSER = 'chrome',
+    chrome = require(`selenium-webdriver/${BROWSER}`),
+    until = webdriver.until,
+    SPLIT = '\n';
 const commands = [
   'top',
   'taotu',
@@ -165,6 +164,7 @@ async function saveOrLoad(filePath, save, data = null) {
  * @param ctx Telegraf content
  */
 async function top(ctx) {
+  const date = require('moment')().format('YYYY-MM-DD');
   if (flag.top_flag) {
     return ctx.replyWithMarkdown(`_早就在下了_，*不要急哈~*`)
   }
@@ -242,6 +242,7 @@ async function top(ctx) {
   await login(driver, PIXIV_USERNAME, PIXIV_PASSWORD);
   data.useragent = await driver.executeScript(`return navigator.userAgent`);
   let count = 0;
+  let IMG_TMP_DIR = SAVE_DIR + path.sep + getDate();
   for (const rankUrl of rankUrls) {
     let tmp = await getRealImgUrl(driver, rankUrl, js);
     tmp.forEach(e => {
@@ -306,7 +307,6 @@ async function taotuDeal(ctx) {
     return ctx.telegram.sendCopy(ctx.chat.id, ctx.message);
   }
   if (flag.taotu_flag) {
-    flag.taotu_flag = false;
     await ctx.replyWithMarkdown(`在下了在下了...`);
     let msg = ctx.update.message.text;
     msg = msg.split(/\s+/);
@@ -328,15 +328,15 @@ async function taotuDeal(ctx) {
         for (let i = 0; i < tmpArray.length; i++) {
           let tmpUrl = tmpArray[i];
           mediaGroup.push({
-            media: origin + tmpUrl,
+            media: tmpUrl,
             caption: `${title}-${i + 1}`,
             type: utils.mediaType(tmpUrl)
           });
         }
         await ctx.replyWithMarkdown(title);
-        for (const e of utils.splitArray(tmpArray, SPLIT)) {
-          await ctx.reply(e.join(SPLIT));
-        }
+        // for (const e of utils.splitArray(tmpArray, SPLIT)) {
+        //   await ctx.reply(e.join(SPLIT));
+        // }
         // mediaGroup 一次最大数量为 10
         for (const subArray of _.chunk(mediaGroup, mediaGroup_MAXSIZE)) {
           await ctx.replyWithMediaGroup(subArray);
@@ -346,7 +346,7 @@ async function taotuDeal(ctx) {
         await ctx.replyWithMarkdown(`Invalid URL: ${url}`);
       }
     }
-    return;
+    flag.taotu_flag = false;
   }
   return info.errorInput(ctx);
 }
