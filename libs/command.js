@@ -193,19 +193,19 @@ async function top(ctx) {
              *  PIXIV image files usually large than 5M...
              *  @see https://core.telegram.org/bots/api#sending-files
              */
-            for (const subArray of _.chunk(data.mediaGroup, mediaGroup_MAXSIZE)) {
-              await ctx.replyWithMediaGroup(subArray);
-            }
+            // for (const subArray of _.chunk(data.mediaGroup, mediaGroup_MAXSIZE)) {
+            //   await ctx.replyWithMediaGroup(subArray);
+            // }
             return;
           }
         } catch (e) {
-          await ctx.replyWithMarkdown(`哇塞，文件有问题，**问题很大~**`);
           logger.error(e);
+          return ctx.replyWithMarkdown(`哇塞，文件有问题，**问题很大~**`);
         }
       } else {
-        await ctx.replyWithMarkdown(`**咦~~**，文件居然是空的...`);
-        await ctx.replyWithMarkdown(`**不要慌**，_小场面_，问题不大~`);
         logger.debug(`File is empty or with a error format!!!`);
+        await ctx.replyWithMarkdown(`**咦~~**，文件居然是空的...`);
+        return ctx.replyWithMarkdown(`**不要慌**，_小场面_，问题不大~`);
       }
     } catch (e) {
       logger.error(e);
@@ -287,20 +287,19 @@ async function top(ctx) {
     });
     return tmp;
   })();
+  await ctx.reply(`#${date} Start...`)
   for (const e of utils.splitArray(links, SPLIT)) {
     await ctx.reply(e.join(SPLIT));
   }
-  /**
-   *  PIXIV image files usually large than 5M...
-   *  @see https://core.telegram.org/bots/api#sending-files
-   */
-  for (const subArray of _.chunk(data.mediaGroup, mediaGroup_MAXSIZE)) {
-    await ctx.replyWithMediaGroup(subArray);
-  }
+  // PIXIV image files usually large than 5M...
+  // for (const subArray of _.chunk(mediaGroup, mediaGroup_MAXSIZE)) {
+  //   await ctx.replyWithMediaGroup(subArray);
+  // }
   await saveImg(data)
   flag.top_flag = false;
   // remove files after zipped files
   // utils.rm_rf(IMG_TMP_DIR);
+  return ctx.reply(`#${date} End...`)
 }
 
 async function taotu(ctx) {
@@ -343,7 +342,7 @@ async function taotuDeal(ctx) {
             type: utils.mediaType(tmpUrl)
           });
         }
-        await ctx.replyWithMarkdown(title);
+        await ctx.reply(`#${title} Start...`);
         // for (const e of utils.splitArray(tmpArray, SPLIT)) {
         //   await ctx.reply(e.join(SPLIT));
         // }
@@ -351,12 +350,14 @@ async function taotuDeal(ctx) {
         for (const subArray of _.chunk(mediaGroup, mediaGroup_MAXSIZE)) {
           await ctx.replyWithMediaGroup(subArray);
         }
+        flag.taotu_flag = false;
+        return ctx.reply(`#${title} End...`)
       } else {
         logger.warn(`Invalid URL: ${url}`);
-        await ctx.replyWithMarkdown(`Invalid URL: ${url}`);
+        flag.taotu_flag = false;
+        return ctx.replyWithMarkdown(`Invalid URL: ${url}`);
       }
     }
-    flag.taotu_flag = false;
   }
   return info.errorInput(ctx);
 }

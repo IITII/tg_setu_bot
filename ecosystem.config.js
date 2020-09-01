@@ -21,7 +21,26 @@ module.exports = {
   apps: [{
     name: "TG_SETU_BOT",
     script: 'App.js',
-    watch: '.',
+    watch: true,
+    ignore_watch: [
+      '.idea', '.vscode',
+      '.vs', 'logs',
+      'tmp', 'examples',
+      '*.log', 'npm-debug.log*',
+      'yarn-debug.log*', 'yarn-error.log*',
+      'pids', '*.pid',
+      '*.seed', '*.pid.lock',
+      'lib-cov', 'coverage',
+      '.nyc_output', '.grunt',
+      'bower_components', '.lock-wscript',
+      'build', 'node_modules',
+      'jspm_packages', 'typings',
+      '.npm', '.eslintcache',
+      '.node_repl_history', '*.tgz',
+      '.yarn-integrity', '.env',
+      '.next'
+    ],
+    instance: 1,
     env: {
       "NODE_ENV": "development",
     },
