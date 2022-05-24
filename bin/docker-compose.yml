@@ -1,0 +1,11 @@
+version: '2'
+services:
+  web:
+    container_name: redis
+    hostname: redis
+    image: redis:latest
+    ports:
+      - "0.0.0.0:6379:6379"
+    restart: unless-stopped
+    entrypoint: ["redis-server", "--requirepass", "review_pic"]
+    network_mode: bridge

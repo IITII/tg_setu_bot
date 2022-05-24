@@ -2,8 +2,10 @@
 .vscode/
 .vs/
 # Logs
-logs
+logs/*
+!logs/.git_keep
 tmp/
+tmp[0-9]*/
 examples/
 *.log
 npm-debug.log*
