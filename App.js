@@ -51,20 +51,26 @@ async function main() {
 // Error Handling
 main()
   .then(bot => {
-    // Enable graceful stop
-    process.on('uncaughtException', (err) => {
+    function lis_err(err) {
       logger.error(err)
-    })
-    process.on('unhandledRejection', (err) => {
-      logger.error(err)
-    })
-    process.on('SIGINT' || 'SIGTERM', () => {
+      if (err.message && err.message.includes('Bot stopped')) {
+        process.exit(0)
+      }
+    }
+
+    function lis_stop() {
       const stopped = `Bot stopped at ${new Date()}`
       logger.info(stopped)
       return bot.telegram.sendMessage(ADMIN_ID, stopped)
         .then(_ => bot.stop())
-        .then(_ => process.exit(0))
-    })
+        .finally(_ => {
+          process.exit(0)
+        })
+    }
+
+    // Enable graceful stop
+    process.on('uncaughtException' || 'unhandledRejection', lis_err)
+    process.on('SIGINT' || 'SIGTERM', lis_stop)
     return bot.launch().then(_ => bot)
   })
   .then(bot => {
