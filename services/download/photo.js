@@ -59,7 +59,8 @@ function message_decode(message) {
   if (isSupport(message.text)) {
     const text = message.text
     urls = urls.concat(text.split('\n').filter(_ => isSupport(_)))
-  } else if (message.entities) {
+  }
+  if (message.entities) {
     const all_u = message.entities
       .filter(_ => _.type === 'text_link')
       .map(_ => _.url)
@@ -67,8 +68,6 @@ function message_decode(message) {
     if (all_u.length > 0) {
       urls = urls.concat(all_u)
     }
-  } else {
-    return []
   }
   urls = uniq(urls).filter(_ => _.startsWith(supported[0]))
   return urls
