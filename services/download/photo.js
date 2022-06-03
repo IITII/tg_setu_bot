@@ -115,14 +115,19 @@ async function handle_queue(bot, chat_id, session, urls) {
     const ph = photos[i]
     const title = ph.title
     const start = new Date()
-    await bot.telegram.sendMessage(chat_id, `${title} download started`)
+    const s = `${title} download started`
+    logger.info(s)
+    await bot.telegram.sendMessage(chat_id, s)
     await currMapLimit(ph.imgs, clip.currLimit, ac_json)
       .then(_ => {
         const s = `${title} download done, ${ph.imgs.length} in ${((new Date() - start) / 1000).toFixed(2)}s`
+        logger.info(s)
         return bot.telegram.sendMessage(chat_id, s)
       })
       .catch(e => {
-        bot.telegram.sendMessage(chat_id, `${title} download failed, ${e.message}`)
+        const s = `${title} download failed, ${e.message}`
+        logger.error(s)
+        bot.telegram.sendMessage(chat_id, s)
         logger.error(e)
       })
     if (session && session.review === 2) {
@@ -143,6 +148,7 @@ async function handle_queue(bot, chat_id, session, urls) {
                 msg = msg.substring(0, telegram.maxMessageLength)
               })
           }
+          logger.info(msg)
           return bot.telegram.sendMessage(chat_id, msg)
             .then(() => _)
         })

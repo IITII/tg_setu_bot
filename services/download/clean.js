@@ -5,8 +5,9 @@
 'use strict'
 
 const fs = require('fs')
-const {clip} = require('../../config/config')
 const path = require('path')
+const {clip} = require('../../config/config')
+const {logger} = require('../../middlewares/logger')
 
 async function clean(bot, chat_id, dir) {
   const rm = fs.rm || fs.rmdir
@@ -16,6 +17,7 @@ async function clean(bot, chat_id, dir) {
     if (err) {
       msg = `${relative} dirs/files clean error: ${err.message}`
     }
+    logger.info(`chat_id: ${chat_id}, dir: ${dir}, ${msg}`)
     return bot.telegram.sendMessage(chat_id, msg)
   })
 }

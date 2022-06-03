@@ -44,7 +44,7 @@ function mkdir(dir) {
 async function downloadFile(url, filePath, logger) {
   return await new Promise((resolve, reject) => {
     const writeStream = fs.createWriteStream(filePath)
-    logger.info(`Downloading ${url}...`)
+    logger.debug(`Downloading ${url}...`)
     axios.get(url, {
       responseType: "stream",
     })
@@ -53,7 +53,7 @@ async function downloadFile(url, filePath, logger) {
         writeStream.on('error', reject)
         res.data.pipe(writeStream)
       })
-      .then(() => logger.info(`Downloaded ${url} to ${filePath}`))
+      .then(() => logger.debug(`Downloaded ${url} to ${filePath}`))
       .catch(e => {
         logger.error(`Download error: ${e.message}`)
         logger.error(e)
