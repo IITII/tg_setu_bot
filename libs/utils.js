@@ -70,10 +70,12 @@ async function downloadFile(url, filePath, logger) {
  * @param func 消费数组内每个对象的函数
  * @param array 数据数组
  * @param duration 每次执行的时间间隔
+ * @param forceWait
  * @param limit 并发上限
  * @param random 是否添加随机延迟 默认：0-100 ms
  */
 async function reqRateLimit(func, array, duration = 1000,
+                         forceWait = false,
                          limit = 1, random = true) {
   return mapLimit(array, limit, async (item, cb) => {
     const start = new Date()
@@ -83,7 +85,10 @@ async function reqRateLimit(func, array, duration = 1000,
       .then(async _ => {
         const spent = new Date() - start
         if (spent < duration) {
-          let sleepTime = duration - spent
+          let sleepTime = duration
+          if (!forceWait) {
+            sleepTime -= spent
+          }
           if (random) {
             sleepTime += Math.random() * 100
           }

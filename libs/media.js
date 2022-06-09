@@ -74,7 +74,7 @@ async function sendMediaGroup(bot, chat_id, urls, captionType = 'filename', show
     return res
   }
   const grouped = chunk(urls, maxMediaGroupLength)
-  return reqRateLimit(func, grouped, 1500)
+  return reqRateLimit(func, grouped, 1100, true)
 }
 
 module.exports = {
