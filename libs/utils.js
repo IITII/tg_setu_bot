@@ -65,27 +65,34 @@ async function downloadFile(url, filePath, logger) {
   })
 }
 
-// TODO: rateLimit
-async function rateLimit(maxRequest, duration, func, ...args) {
-  const reqQueue = []
-
-  let start = new Date()
-  let count = 0
-  while (true) {
-    try {
-      await func.apply(this, args)
-      count++
-      if (count >= maxRequest) {
-        return
-      }
-    } catch (e) {
-      console.error(e)
-    }
-    if (new Date() - start > duration) {
-      return
-    }
-    await sleep(1000)
-  }
+/**
+ * 爬虫速率限制
+ * @param func 消费数组内每个对象的函数
+ * @param array 数据数组
+ * @param duration 每次执行的时间间隔
+ * @param limit 并发上限
+ * @param random 是否添加随机延迟 默认：0-100 ms
+ */
+async function reqRateLimit(func, array, duration = 1000,
+                         limit = 1, random = true) {
+  return mapLimit(array, limit, async (item, cb) => {
+    const start = new Date()
+    return await Promise.resolve()
+      .then(async () => await func(item))
+      // return await func(item)
+      .then(async _ => {
+        const spent = new Date() - start
+        if (spent < duration) {
+          let sleepTime = duration - spent
+          if (random) {
+            sleepTime += Math.random() * 100
+          }
+          await sleep(sleepTime)
+        }
+        return _
+      })
+      .finally(cb)
+  })
 }
 
 module.exports = {
@@ -94,4 +101,5 @@ module.exports = {
   spendTime,
   sleep,
   currMapLimit,
+  reqRateLimit,
 }

@@ -7,7 +7,7 @@ const fs = require('fs'),
   path = require('path'),
   {chunk} = require('lodash'),
   {maxMediaGroupLength, maxMessageRate} = require('../config/config').telegram
-const {sleep, currMapLimit} = require('./utils')
+const {reqRateLimit} = require('./utils')
 
 function sendPhoto(source, caption = undefined) {
   switch (typeof source) {
@@ -71,14 +71,10 @@ async function sendMediaGroup(bot, chat_id, urls, captionType = 'filename', show
     } else {
       res = bot.telegram.sendPhoto(chat_id, sendPhoto(sub[0], cap))
     }
-    // 简单的 rate limit for telegram
-    return res.then(async _ => {
-      await sleep(1000 / maxMessageRate)
-      return _
-    })
+    return res
   }
   const grouped = chunk(urls, maxMediaGroupLength)
-  return currMapLimit(grouped, maxMessageRate, func)
+  return reqRateLimit(func, grouped, 1000 / maxMessageRate)
 }
 
 module.exports = {
