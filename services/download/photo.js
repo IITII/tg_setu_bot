@@ -14,10 +14,9 @@ const {clip, telegram} = require('../../config/config'),
     download = require('../../libs/download'),
     bot = require('../../libs/TelegramBot'),
     {logger} = require('../../middlewares/logger'),
-    {sendMediaGroup} = require('../../libs/media'),
     Storage = require('../../libs/storage'),
     clean = require('./clean')
-const {send_text} = require("../telegram_msg_sender");
+const {send_text, sendMediaGroup} = require("../telegram_msg_sender");
 
 const supported = ['https://telegra.ph/']
 let busy = false

@@ -1,6 +1,8 @@
 'use strict'
 
 const {timeout} = require('../config/config')
+const {maxMediaGroupLength} = require('../config/config').telegram
+
 const EventEmitter = require('events'),
     events = new EventEmitter(),
     eventName = 'msg_send'
@@ -9,9 +11,10 @@ const queueName = 'telegram_msg_sender',
     storage = new Storage(queueName),
     {logger} = require("../middlewares/logger"),
     {sendPhoto, getGroupMedia} = require("../libs/media"),
-    {sleep} = require("../libs/utils")
+    {sleep, reqRateLimit} = require("../libs/utils")
 const bot = require("../libs/TelegramBot"),
     telegram = bot.telegram
+const {chunk} = require("lodash");
 
 const TypeEnum = {
     text: 'text',
@@ -126,10 +129,36 @@ async function send_photo(chat_id, sub, cap) {
     return storage.rpush({chat_id, type, sub, cap})
 }
 
+
+async function sendMediaGroup(bot, chat_id, urls, captionType = 'filename', showProgress = true) {
+    if (!Array.isArray(urls)) {
+        urls = [].concat(urls)
+    }
+    let {cur, total} = {cur: 0, total: urls.length}
+    async function func(sub) {
+        let res
+        cur += sub.length
+        let cap = captionType
+        if (showProgress) {
+            cap = `${captionType} ${cur}/${total}`
+        }
+        if (sub.length > 1) {
+            res = send_media(chat_id, sub, cap)
+        } else {
+            res = send_photo(chat_id, sub, cap)
+        }
+        return res
+    }
+    const grouped = chunk(urls, maxMediaGroupLength)
+    // 线性处理
+    return reqRateLimit(func, grouped, 1, false)
+}
+
 module.exports = {
     send_text,
     send_photo,
     send_media,
+    sendMediaGroup,
     start,
     stop,
 }

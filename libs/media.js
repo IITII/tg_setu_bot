@@ -4,11 +4,7 @@
  */
 'use strict'
 const fs = require('fs'),
-  path = require('path'),
-  {chunk} = require('lodash'),
-  {maxMediaGroupLength, maxMessageRate} = require('../config/config').telegram
-const {reqRateLimit} = require('./utils')
-const {send_photo, send_media} = require('../services/telegram_msg_sender')
+  path = require('path')
 
 function sendPhoto(source, caption = undefined) {
   switch (typeof source) {
@@ -55,32 +51,7 @@ function getGroupMedia(sources, captionType = 'filename') {
   // return chunk(res, maxMediaGroupLength)
 }
 
-async function sendMediaGroup(bot, chat_id, urls, captionType = 'filename', showProgress = true) {
-  if (!Array.isArray(urls)) {
-    urls = [].concat(urls)
-  }
-  let {cur, total} = {cur: 0, total: urls.length}
-  async function func(sub) {
-    let res
-    cur += sub.length
-    let cap = captionType
-    if (showProgress) {
-      cap = `${captionType} ${cur}/${total}`
-    }
-    if (sub.length > 1) {
-      res = send_media(chat_id, sub, cap)
-    } else {
-      res = send_photo(chat_id, sub, cap)
-    }
-    return res
-  }
-  const grouped = chunk(urls, maxMediaGroupLength)
-  // 线性处理
-  return reqRateLimit(func, grouped, 1, false)
-}
-
 module.exports = {
   getGroupMedia,
   sendPhoto,
-  sendMediaGroup,
 }
