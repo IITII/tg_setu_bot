@@ -183,7 +183,7 @@ async function sendMediaGroup(bot, chat_id, urls, captionType = 'filename', show
         if (sub.length > 1) {
             res = send_media(chat_id, sub, cap)
         } else {
-            res = send_photo(chat_id, sub, cap)
+            res = send_photo(chat_id, sub[0], cap)
         }
         return res
     }
