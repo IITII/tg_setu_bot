@@ -8,6 +8,7 @@ const fs = require('fs'),
   {chunk} = require('lodash'),
   {maxMediaGroupLength, maxMessageRate} = require('../config/config').telegram
 const {reqRateLimit} = require('./utils')
+const {send_photo, send_media} = require('../services/telegram_msg_sender')
 
 function sendPhoto(source, caption = undefined) {
   switch (typeof source) {
@@ -67,17 +68,19 @@ async function sendMediaGroup(bot, chat_id, urls, captionType = 'filename', show
       cap = `${captionType} ${cur}/${total}`
     }
     if (sub.length > 1) {
-      res = bot.telegram.sendMediaGroup(chat_id, getGroupMedia(sub, cap))
+      res = send_media(chat_id, sub, cap)
     } else {
-      res = bot.telegram.sendPhoto(chat_id, sendPhoto(sub[0], cap))
+      res = send_photo(chat_id, sub, cap)
     }
     return res
   }
   const grouped = chunk(urls, maxMediaGroupLength)
-  return reqRateLimit(func, grouped, 1100, true)
+  // 线性处理
+  return reqRateLimit(func, grouped, 1, false)
 }
 
 module.exports = {
+  getGroupMedia,
   sendPhoto,
   sendMediaGroup,
 }

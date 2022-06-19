@@ -11,6 +11,9 @@ const config = {
   // ADMIN_ID : process.env.ADMIN_ID,
   ADMIN_ID: process.env.ADMIN_ID,
   PROXY: process.env.PROXY,
+  timeout: {
+    sendMsg: 1000
+  },
   telegram: {
     maxMediaGroupLength: 10, // 2-10
     maxMessageRate: 1, // 1
