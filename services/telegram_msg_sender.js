@@ -99,34 +99,34 @@ async function handle_429(msg) {
 async function handle_text(msg) {
     const {chat_id, text} = msg
     return telegram.sendMessage(chat_id, text)
-        .then(_ => events.emit(eventName, _))
 }
 
 async function handle_photo(msg) {
     const {chat_id, sub, cap} = msg
     return telegram.sendPhoto(chat_id, sendPhoto(sub, cap))
-        .then(_ => events.emit(eventName, _))
 }
 
 async function handle_media_group(msg) {
     const {chat_id, sub, cap} = msg
     return telegram.sendMediaGroup(chat_id, getGroupMedia(sub, cap))
-        .then(_ => events.emit(eventName, _))
 }
 
 async function send_text(chat_id, text) {
     const type = TypeEnum.text
     return storage.rpush({chat_id, type, text})
+        .then(_ => events.emit(eventName, _))
 }
 
 async function send_media(chat_id, sub, cap) {
     const type = TypeEnum.media_group
     return storage.rpush({chat_id, type, sub, cap})
+        .then(_ => events.emit(eventName, _))
 }
 
 async function send_photo(chat_id, sub, cap) {
     const type = TypeEnum.photo
     return storage.rpush({chat_id, type, sub, cap})
+        .then(_ => events.emit(eventName, _))
 }
 
 
@@ -152,6 +152,7 @@ async function sendMediaGroup(bot, chat_id, urls, captionType = 'filename', show
     const grouped = chunk(urls, maxMediaGroupLength)
     // 线性处理
     return reqRateLimit(func, grouped, 1, false)
+        .then(_ => events.emit(eventName, _))
 }
 
 module.exports = {
