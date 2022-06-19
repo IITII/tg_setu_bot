@@ -54,15 +54,17 @@ async function handle_msg() {
     let len = await storage.llen()
     while (len > 0) {
         let msg
+        let jMsg
         try {
             msg = await storage.lpop()
-            logger.debug(`handle msg: ${JSON.stringify(msg)}`)
+            jMsg = JSON.stringify(msg)
+            logger.debug(`handle msg: ${jMsg}`)
             await handle_429(msg)
                 // rate limit
                 .then(_ => sleep(timeout.sendMsg))
             len = await storage.llen()
         } catch (e) {
-            logger.error(`Handle ${msg} error, ${e.message}`)
+            logger.error(`Handle ${jMsg} error, ${e.message}`)
             logger.error(e)
         }
     }

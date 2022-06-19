@@ -56,12 +56,15 @@ async function lis_add() {
     let len = await storage.llen()
     while (len > 0) {
         let msg
+        let jMsg
         try {
             msg = await storage.lpop()
+            jMsg = JSON.stringify(msg)
+            logger.debug(`handle msg: ${jMsg}`)
             await handle_queue(bot, msg.chat_id, msg.session, msg.urls)
             len = await storage.llen()
         } catch (e) {
-            logger.error(`Handle ${msg} error, ${e.message}`)
+            logger.error(`Handle ${jMsg} error, ${e.message}`)
             logger.error(e)
         }
     }
