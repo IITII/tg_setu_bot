@@ -9,14 +9,13 @@ const fs = require('fs'),
     EventEmitter = require('events'),
     events = new EventEmitter(),
     {uniq} = require('lodash')
-const {clip, telegram} = require('../../config/config'),
-    {currMapLimit, downloadFile, sleep} = require('../../libs/utils'),
+const {clip} = require('../../config/config'),
+    {currMapLimit, downloadFile} = require('../../libs/utils'),
     download = require('../../libs/download'),
     bot = require('../../libs/TelegramBot'),
     {logger} = require('../../middlewares/logger'),
-    Storage = require('../../libs/storage'),
-    clean = require('./clean')
-const {send_text, sendMediaGroup} = require("../telegram_msg_sender");
+    Storage = require('../../libs/storage')
+const {send_text, sendMediaGroup, send_del_file} = require("../telegram_msg_sender");
 
 const supported = ['https://telegra.ph/']
 let busy = false
@@ -151,30 +150,18 @@ async function handle_queue(bot, chat_id, session, urls) {
         if (session && session.review === 2) {
             const need_send = ph.imgs.map(_ => _.savePath).flat(Infinity)
             await sendMediaGroup(bot, chat_id, need_send, title)
-                // .then(_ => {
-                //   const s = `${title} send finished, total: ${need_send.length}, failed: ${_.length}, ${JSON.stringify(_)}`.substring(0, telegram.maxMessageLength)
-                //   return bot.telegram.sendMessage(chat_id, s)
-                // })
-                .then(async _ => {
-                    // await sleep(1500)
-                    return _
-                })
                 .catch(e => {
                     logger.error(e)
                 })
                 .finally(async () => {
                     let msg = `${title} send finished, total: ${need_send.length}`
+                    let need_del = []
                     if (session && session.del === 1) {
-                        const need_del = uniq(need_send.map(_ => path.dirname(_)))
-                        await Promise.allSettled(need_del.map(_ => clean(bot, chat_id, _)))
-                            .then(_ => {
-                                const failed = _.filter(_ => _.status === 'rejected').map(_ => _.reason.message)
-                                msg += `\n${title} clean finished, total: ${need_del.length}, failed: ${failed.length}, ${JSON.stringify(failed)}`
-                                msg = msg.substring(0, telegram.maxMessageLength)
-                            })
+                        need_del = uniq(need_send.map(_ => path.dirname(_)))
+                        msg += `\n${title} clean finished, total: ${need_del.length}`
                     }
                     logger.info(msg)
-                    return send_text(chat_id, msg)
+                    return send_del_file(chat_id, need_del, msg)
                 })
         }
     }

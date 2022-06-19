@@ -1,7 +1,9 @@
 'use strict'
 
-const {timeout} = require('../config/config')
-const {maxMediaGroupLength} = require('../config/config').telegram
+const fs = require('fs')
+const path = require("path")
+const {timeout, clip} = require('../config/config')
+const {maxMediaGroupLength, maxMessageLength} = require('../config/config').telegram
 
 const EventEmitter = require('events'),
     events = new EventEmitter(),
@@ -14,12 +16,13 @@ const queueName = 'telegram_msg_sender',
     {sleep, reqRateLimit} = require("../libs/utils")
 const bot = require("../libs/TelegramBot"),
     telegram = bot.telegram
-const {chunk} = require("lodash");
+const {chunk} = require("lodash")
 
 const TypeEnum = {
     text: 'text',
     photo: 'photo',
     media_group: 'media_group',
+    del_file: 'del_file',
 }
 
 let busy = false
@@ -66,7 +69,7 @@ async function handle_msg() {
     busy = false
 }
 
-async function handle_429(msg) {
+async function handle_429(msg, retry = 0) {
     const msg_429 = 'Too Many Requests: retry after'
     let res
     try {
@@ -80,6 +83,9 @@ async function handle_429(msg) {
             case TypeEnum.media_group:
                 res = await handle_media_group(msg)
                 break
+            case TypeEnum.del_file:
+                res = await handle_del_file(msg)
+                break
         }
     } catch (e) {
         const eMsg = e.message
@@ -88,7 +94,12 @@ async function handle_429(msg) {
             const sleepTimeRaw = eMsg.substring(index + msg_429.length)
             const sleepTime = parseInt(sleepTimeRaw) + 1
             await sleep(sleepTime * 1000)
-            return handle_429(eMsg)
+            if (msg.type === TypeEnum.photo || msg.type === TypeEnum.media_group) {
+                if (msg.cap) {
+                    msg.cap += `(retry ${retry + 1}`
+                }
+            }
+            return handle_429(msg, retry + 1)
         } else {
             throw e
         }
@@ -111,9 +122,34 @@ async function handle_media_group(msg) {
     return telegram.sendMediaGroup(chat_id, getGroupMedia(sub, cap))
 }
 
+async function handle_del_file(msg) {
+    let {chat_id, dirs, text} = msg
+    const rm = fs.rm || fs.rmdir
+    dirs.forEach(dir => {
+        rm(dir, {recursive: true}, err => {
+            const relative = path.relative(clip.baseDir, dir) || 'Temp'
+            let msg = `${relative} dirs/files cleaned`
+            if (err) {
+                msg = `${relative} dirs/files clean error: ${err.message}`
+            }
+            logger.info(`chat_id: ${chat_id}, dir: ${dir}, ${msg}`)
+            text += `\n${text}`
+        })
+    })
+    text = text.substring(0, maxMessageLength)
+    logger.debug(`${chat_id}: ${text}`)
+    return telegram.sendMessage(chat_id, text)
+}
+
 async function send_text(chat_id, text) {
     const type = TypeEnum.text
     return storage.rpush({chat_id, type, text})
+        .then(_ => events.emit(eventName, _))
+}
+
+async function send_photo(chat_id, sub, cap) {
+    const type = TypeEnum.photo
+    return storage.rpush({chat_id, type, sub, cap})
         .then(_ => events.emit(eventName, _))
 }
 
@@ -123,9 +159,9 @@ async function send_media(chat_id, sub, cap) {
         .then(_ => events.emit(eventName, _))
 }
 
-async function send_photo(chat_id, sub, cap) {
-    const type = TypeEnum.photo
-    return storage.rpush({chat_id, type, sub, cap})
+async function send_del_file(chat_id, dirs, text) {
+    const type = TypeEnum.del_file
+    return storage.rpush({chat_id, type, dirs, text})
         .then(_ => events.emit(eventName, _))
 }
 
@@ -159,6 +195,7 @@ module.exports = {
     send_text,
     send_photo,
     send_media,
+    send_del_file,
     sendMediaGroup,
     start,
     stop,
