@@ -61,7 +61,7 @@ async function lis_add() {
             msg = await storage.lpop()
             jMsg = JSON.stringify(msg)
             logger.debug(`handle msg: ${jMsg}`)
-            await handle_queue(bot, msg.chat_id, msg.session, msg.urls)
+            await handle_queue(bot, msg)
             len = await storage.llen()
         } catch (e) {
             logger.error(`Handle ${jMsg} error, ${e.message}`)
@@ -103,6 +103,7 @@ async function handle_ctx(ctx) {
     }
     const v = {
         chat_id: message.chat.id,
+        message_id: message.message_id,
         session: ctx.session,
         urls: urls,
     }
@@ -123,7 +124,8 @@ async function debounce(ctx, len) {
     }, url_add.delay)
 }
 
-async function handle_queue(bot, chat_id, session, urls) {
+async function handle_queue(bot, msg) {
+    const {chat_id, message_id, session, urls} = msg
     let photos = await currMapLimit(urls, clip.currLimit * 20, download.dl_tg)
     photos = photos.filter(_ => _.imgs.length > 0)
 
@@ -164,7 +166,7 @@ async function handle_queue(bot, chat_id, session, urls) {
                         msg += `\n${title} clean finished, total: ${need_del.length}`
                     }
                     logger.info(msg)
-                    return send_del_file(chat_id, need_del, msg)
+                    return send_del_file(chat_id, need_del, msg, message_id)
                 })
         }
     }

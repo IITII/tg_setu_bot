@@ -125,7 +125,7 @@ async function handle_media_group(msg) {
 }
 
 async function handle_del_file(msg) {
-    let {chat_id, dirs, text} = msg
+    let {chat_id, dirs, text, message_id} = msg
     const rm = fs.rm || fs.rmdir
     dirs.forEach(dir => {
         rm(dir, {recursive: true}, err => {
@@ -140,7 +140,13 @@ async function handle_del_file(msg) {
     })
     text = text.substring(0, maxMessageLength)
     logger.debug(`${chat_id}: ${text}`)
-    return telegram.sendMessage(chat_id, text)
+    const opts = message_id ? {
+        reply_to_message_id: message_id,
+        disable_web_page_preview: true,
+        // disable_notification: true,
+        // protect_content: true
+    } : undefined
+    return telegram.sendMessage(chat_id, text, opts)
 }
 
 async function send_text(chat_id, text) {
@@ -161,9 +167,9 @@ async function send_media(chat_id, sub, cap) {
         .then(_ => events.emit(eventName, _))
 }
 
-async function send_del_file(chat_id, dirs, text) {
+async function send_del_file(chat_id, dirs, text, message_id = undefined) {
     const type = TypeEnum.del_file
-    return storage.rpush({chat_id, type, dirs, text})
+    return storage.rpush({chat_id, type, dirs, text, message_id})
         .then(_ => events.emit(eventName, _))
 }
 
