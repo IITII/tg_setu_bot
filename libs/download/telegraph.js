@@ -7,7 +7,7 @@ const path = require('path'),
   fs = require('fs')
 const axios = require('../axios_client'),
   {load} = require('cheerio'),
-  {uniq} = require('lodash'),
+  {uniqBy} = require('lodash'),
   {logger} = require('../../middlewares/logger'),
   {clip} = require('../../config/config'),
   {mkdir} = require('../utils')
@@ -31,7 +31,8 @@ async function getImageArray(url) {
             savePath: path.resolve(saveDir + path.sep + (index + 1) + path.extname(item.attribs.src)),
           })
         })
-        return resolve({title: title, imgs: uniq(imgSrc), original: url})
+        const imgs = uniqBy(imgSrc, 'url')
+        return resolve({title, imgs, original: url})
       })
       .catch(e => {
         logger.debug(`Get ImageArray failed, url: ${url}`)

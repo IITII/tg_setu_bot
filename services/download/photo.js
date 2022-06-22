@@ -17,7 +17,8 @@ const {clip} = require('../../config/config'),
     Storage = require('../../libs/storage')
 const {send_text, sendMediaGroup, send_del_file} = require("../telegram_msg_sender");
 
-const supported = ['https://telegra.ph/']
+const supported = ['https://telegra.ph/', 'https://everia.club/']
+const supportHandle = [download.dl_tg, download.dl_eve]
 let busy = false
 let firstStart = true
 let started = false
@@ -59,9 +60,11 @@ async function lis_add() {
         let jMsg
         try {
             msg = await storage.lpop()
-            jMsg = JSON.stringify(msg)
-            logger.debug(`handle msg: ${jMsg}`)
-            await handle_queue(bot, msg)
+            if (msg) {
+                jMsg = JSON.stringify(msg)
+                logger.debug(`handle msg: ${jMsg}`)
+                await handle_queue(bot, msg)
+            }
             len = await storage.llen()
         } catch (e) {
             logger.error(`Handle ${jMsg} error, ${e.message}`)
@@ -90,7 +93,7 @@ function message_decode(message) {
             urls = urls.concat(all_u)
         }
     }
-    urls = uniq(urls).filter(_ => _.startsWith(supported[0]))
+    urls = uniq(urls).filter(_ => supported.some(s => _.startsWith(s)))
     return urls
 }
 
@@ -124,9 +127,17 @@ async function debounce(ctx, len) {
     }, url_add.delay)
 }
 
+function handle_sup_url(url) {
+    const idx = supported.findIndex(_ => url.startsWith(_))
+    if (idx === -1) {
+        throw new Error(`No support handle for this url: ${url}`)
+    }
+    return supportHandle[idx](url)
+}
+
 async function handle_queue(bot, msg) {
     const {chat_id, message_id, session, urls} = msg
-    let photos = await currMapLimit(urls, clip.currLimit * 20, download.dl_tg)
+    let photos = await currMapLimit(urls, clip.currLimit * 20, handle_sup_url)
     photos = photos.filter(_ => _.imgs.length > 0)
 
     async function ac_json(json) {

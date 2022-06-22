@@ -57,11 +57,13 @@ async function handle_msg() {
         let jMsg
         try {
             msg = await storage.lpop()
-            jMsg = JSON.stringify(msg)
-            logger.debug(`handle msg: ${jMsg}`)
-            await handle_429(msg)
-                // rate limit
-                .then(_ => sleep(timeout.sendMsg))
+            if (msg) {
+                jMsg = JSON.stringify(msg)
+                logger.debug(`handle msg: ${jMsg}`)
+                await handle_429(msg)
+                    // rate limit
+                    .then(_ => sleep(timeout.sendMsg))
+            }
             len = await storage.llen()
         } catch (e) {
             logger.error(`Handle ${jMsg} error, ${e.message}`)
