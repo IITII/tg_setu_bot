@@ -53,7 +53,7 @@ function lis_err(err) {
     logger.error(err)
     const exitArr = [
         'Bot stopped',
-        'TelegramError: 409: Conflict: terminated by other getUpdates request',
+        '409: Conflict: terminated by other getUpdates request',
     ]
     if (err.message && exitArr.some(_ => err.message.includes(_))) {
         process.exit(0)
