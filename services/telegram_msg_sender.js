@@ -112,8 +112,16 @@ async function handle_429(msg, retry = 0) {
 }
 
 async function handle_text(msg) {
-    const {chat_id, text} = msg
-    return telegram.sendMessage(chat_id, text)
+    let {chat_id, text, message_id} = msg
+    text = text.substring(0, maxMessageLength)
+    logger.debug(`${chat_id}: ${text}`)
+    const opts = message_id ? {
+        reply_to_message_id: message_id,
+        disable_web_page_preview: true,
+        // disable_notification: true,
+        // protect_content: true
+    } : undefined
+    return telegram.sendMessage(chat_id, text, opts)
 }
 
 async function handle_photo(msg) {
@@ -151,9 +159,9 @@ async function handle_del_file(msg) {
     return telegram.sendMessage(chat_id, text, opts)
 }
 
-async function send_text(chat_id, text) {
+async function send_text(chat_id, text, message_id = undefined) {
     const type = TypeEnum.text
-    return storage.rpush({chat_id, type, text})
+    return storage.rpush({chat_id, type, text, message_id})
         .then(_ => events.emit(eventName, _))
 }
 

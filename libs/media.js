@@ -7,18 +7,27 @@ const fs = require('fs'),
   path = require('path')
 
 function sendPhoto(source, caption = undefined) {
+  const res = {}
+  if (caption) {
+    res['caption'] = {caption}
+  }
   switch (typeof source) {
     case 'string':
+      let key
       if (source.startsWith('http')) {
-        return {url: source}
+        key = 'url'
       } else {
-        return {source: source}
+        key = 'source'
       }
+      res[key] = source
+      break
     case 'object':
-      return {source: fs.createReadStream(source)}
+      res['source'] = fs.createReadStream(source)
+      break
     default:
       throw new Error('Invalid source type')
   }
+  return res
 }
 
 function singleMedia(source, caption = undefined) {
