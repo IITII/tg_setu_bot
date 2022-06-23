@@ -115,7 +115,8 @@ async function handle_ctx(ctx) {
   const message = ctx.message || ctx.update.message
   const urls = message_decode(message)
   if (urls.length === 0) {
-    const msg = `no url in message: ${JSON.stringify(message)}`
+    // const msg = `no url in message: ${JSON.stringify(message)}`
+    const msg = `无法解析消息: ${JSON.stringify(message)}`
     return ctx.reply(msg)
   }
   const v = {
@@ -135,7 +136,8 @@ async function debounce(ctx, len) {
   }
   url_add.count += len
   url_add.timer = setTimeout(() => {
-    const s = `total ${url_add.count} urls added to queue`
+    // const s = `total ${url_add.count} urls added to queue`
+    const s = `添加 ${url_add.count} 条链接到队列`
     url_add.count = 0
     ctx.reply(s)
   }, url_add.delay)
@@ -168,18 +170,21 @@ async function handle_queue(bot, msg) {
     const {title, meta, tags, imgs, original} = ph
     const start = new Date()
     const mkHead = `[${title}](${original}) `
-    const sMsg = `${mkHead}download started`
+    // const sMsg = `${mkHead}download started`
+    const sMsg = `${mkHead}下载开始`
     logger.info(sMsg)
     await send_text(chat_id, sMsg)
     let dlMsg = mkHead
     await currMapLimit(imgs, clip.downloadLimit, ac_json)
       .then(_ => {
         const cost = ((new Date() - start) / 1000).toFixed(2)
-        dlMsg += `download done, ${imgs.length} in ${cost}s\n`
+        // dlMsg += `download done, ${imgs.length} in ${cost}s\n`
+        dlMsg += `下载完成, ${imgs.length} in ${cost}s\n`
         logger.info(dlMsg)
       })
       .catch(e => {
-        dlMsg += `download failed, ${e.message}\n`
+        // dlMsg += `download failed, ${e.message}\n`
+        dlMsg += `下载失败, ${e.message}\n`
         logger.error(e)
       })
       .finally(async () => {
@@ -191,17 +196,20 @@ async function handle_queue(bot, msg) {
       const need_send = imgs.map(_ => _.savePath).flat(Infinity)
       await sendMediaGroup(bot, chat_id, need_send, title)
         .then(_ => {
-          reviewMsg += `Send total: ${need_send.length}\n`
+          // reviewMsg += `Send total: ${need_send.length}\n`
+          reviewMsg += `共发送: ${need_send.length}\n`
         })
         .catch(e => {
-          reviewMsg += `Send failed, ${e.message}\n`
+          // reviewMsg += `Send failed, ${e.message}\n`
+          reviewMsg += `发送失败, ${e.message}\n`
           logger.error(reviewMsg)
           logger.error(e)
         })
         .finally(async () => {
           if (session && session.del === 1) {
             need_del = uniq(need_send.map(_ => path.dirname(_)))
-            reviewMsg += `Clean total: ${need_del.length}\n`
+            // reviewMsg += `Clean total: ${need_del.length}\n`
+            reviewMsg += `删除文件夹数目: ${need_del.length}\n`
           }
         })
     }
@@ -212,7 +220,7 @@ async function handle_queue(bot, msg) {
     if (tags) {
       endMsg += `\n${tags.join(', ')}`
     }
-    endMsg += `\n#MarkAsDone`
+    endMsg += `\n\n#MarkAsDone`
     logger.debug(endMsg)
     await send_del_file(chat_id, need_del, endMsg, message_id)
   }
