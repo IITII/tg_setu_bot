@@ -8,7 +8,7 @@ const axios = require('../../axios_client'),
   {uniqBy} = require('lodash')
 const {clip} = require('../../../config/config'),
   {logger} = require('../../../middlewares/logger'),
-  {currMapLimit} = require('../../utils'),
+  {currMapLimit, titleFormat} = require('../../utils'),
   dl_eve = require('../everia')
 
 async function getTagImageArray(url) {
@@ -22,7 +22,7 @@ async function getTagImageArray(url) {
       .then(res => res.data)
       .then(doc => load(doc))
       .then($ => {
-        const title = $('.nv-page-title').text()
+        const title = titleFormat($('.nv-page-title').text())
         const images = $('.posts-wrapper .entry-title a').map((index, el) => {
           return {index, url: el.attribs.href, title: $(el).text()}
         }).get()

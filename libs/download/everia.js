@@ -11,7 +11,7 @@ const axios = require('../axios_client'),
     {uniqBy} = require('lodash'),
     {logger} = require('../../middlewares/logger'),
     {clip} = require('../../config/config'),
-    {mkdir} = require('../utils')
+    {mkdir, titleFormat} = require('../utils')
 
 async function getImageArray(url) {
     return await new Promise((resolve) => {
@@ -25,7 +25,7 @@ async function getImageArray(url) {
             .then($ => {
                 const urlOrigin = new URL(url).origin
 
-                const title = $('.entry-header .title').text()
+                const title = titleFormat($('.entry-header .title').text())
                 const meta = $('.entry-header ul a').map((i, el) => $(el).text()).get()
                 const tags = $('.nv-tags-list a').map((i, el) => $(el).text()).get()
 

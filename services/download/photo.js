@@ -191,13 +191,13 @@ async function handle_queue(bot, msg) {
         return send_text(chat_id, dlMsg)
       })
     let need_del = []
-    let reviewMsg = `[${title}](${original})\n`
+    let reviewMsg = `${mkHead}\n`
     if (session && session.review === 2) {
       const need_send = imgs.map(_ => _.savePath).flat(Infinity)
       await sendMediaGroup(bot, chat_id, need_send, title)
         .then(_ => {
           // reviewMsg += `Send total: ${need_send.length}\n`
-          reviewMsg += `共发送: ${need_send.length}\n`
+          reviewMsg += `共发送图片: ${need_send.length}\n`
         })
         .catch(e => {
           // reviewMsg += `Send failed, ${e.message}\n`

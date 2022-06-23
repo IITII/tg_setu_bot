@@ -10,7 +10,7 @@ const axios = require('../axios_client'),
   {uniqBy} = require('lodash'),
   {logger} = require('../../middlewares/logger'),
   {clip} = require('../../config/config'),
-  {mkdir} = require('../utils')
+  {mkdir, titleFormat} = require('../utils')
 
 async function getImageArray(url) {
   return await new Promise((resolve) => {
@@ -21,7 +21,7 @@ async function getImageArray(url) {
       .then(res => res.data)
       .then(doc => load(doc))
       .then($ => {
-        const title = $('header h1').text()
+        const title = titleFormat($('header h1').text())
         const saveDir = path.resolve(clip.baseDir + path.sep + title)
         mkdir(saveDir)
         const imgSrc = []
