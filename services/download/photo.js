@@ -12,13 +12,24 @@ const fs = require('fs'),
 const {clip} = require('../../config/config'),
   {currMapLimit, downloadFile} = require('../../libs/utils'),
   download = require('../../libs/download'),
-  bot = require('../../libs/TelegramBot'),
+  bot = require('../../libs/telegram_bot'),
   {logger} = require('../../middlewares/logger'),
   Storage = require('../../libs/storage')
 const {send_text, sendMediaGroup, send_del_file} = require("../telegram_msg_sender")
 
-const supported = ['https://telegra.ph/', 'https://everia.club/']
-const supportHandle = [download.dl_tg, download.dl_eve]
+const supported = [
+  'https://telegra.ph/',
+  'https://everia.club/tag/',
+  'https://everia.club/category/',
+  'https://everia.club/',
+]
+const supportHandle = [
+  download.dl_tg,
+  download.dl_eve_tag,
+  download.dl_eve_tag,
+  download.dl_eve,
+]
+const special_url = /^https?:\/\/everia.club\/?$/
 let busy = false
 let firstStart = true
 let started = false
@@ -128,7 +139,12 @@ async function debounce(ctx, len) {
 }
 
 function handle_sup_url(url) {
-  const idx = supported.findIndex(_ => url.startsWith(_))
+  let idx = -1
+  if (url.match(special_url)) {
+    idx = 1
+  } else {
+    idx = supported.findIndex(_ => url.startsWith(_))
+  }
   if (idx === -1) {
     throw new Error(`No support handle for this url: ${url}`)
   }
@@ -137,8 +153,8 @@ function handle_sup_url(url) {
 
 async function handle_queue(bot, msg) {
   const {chat_id, message_id, session, urls} = msg
-  let photos = await currMapLimit(urls, clip.currLimit * 20, handle_sup_url)
-  photos = photos.filter(_ => _.imgs.length > 0)
+  let photos = await currMapLimit(urls, clip.webLimit, handle_sup_url)
+  photos = photos.flat(Infinity).filter(_ => _.imgs.length > 0)
 
   async function ac_json(json) {
     return downloadFile(json.url, json.savePath, logger)
@@ -146,13 +162,13 @@ async function handle_queue(bot, msg) {
 
   for (let i = 0; i < photos.length; i++) {
     const ph = photos[i]
-    const {title, imgs, original} = ph
+    const {title, meta, tags, imgs, original} = ph
     const start = new Date()
-    const s = `${title} download started`
-    logger.info(s)
-    await send_text(chat_id, s)
+    const sMsg = `${title} download started`
+    logger.info(sMsg)
+    await send_text(chat_id, sMsg)
     let dlMsg = ''
-    await currMapLimit(imgs, clip.currLimit, ac_json)
+    await currMapLimit(imgs, clip.downloadLimit, ac_json)
       .then(_ => {
         const cost = ((new Date() - start) / 1000).toFixed(2)
         dlMsg += `${title} download done, ${imgs.length} in ${cost}s`
@@ -160,16 +176,12 @@ async function handle_queue(bot, msg) {
       })
       .catch(e => {
         dlMsg += `${title} download failed, ${e.message}`
-        logger.error(dlMsg)
         logger.error(e)
       })
-      .finally(async () => {
-        dlMsg += `\n${original}`
-        return send_text(chat_id, dlMsg, message_id)
-      })
+    let need_del = []
+    let reviewMsg = ''
     if (session && session.review === 2) {
       const need_send = imgs.map(_ => _.savePath).flat(Infinity)
-      let reviewMsg = ''
       await sendMediaGroup(bot, chat_id, need_send, title)
         .then(_ => {
           reviewMsg += `${title} send finished, total: ${need_send.length}`
@@ -180,16 +192,22 @@ async function handle_queue(bot, msg) {
           logger.error(e)
         })
         .finally(async () => {
-          let need_del = []
           if (session && session.del === 1) {
             need_del = uniq(need_send.map(_ => path.dirname(_)))
             reviewMsg += `\n${title} clean finished, total: ${need_del.length}`
           }
-          logger.debug(reviewMsg)
-          reviewMsg += `\n${original}`
-          return send_del_file(chat_id, need_del, reviewMsg, message_id)
         })
     }
+    let endMsg = `${dlMsg}\n${reviewMsg}`
+    if (meta) {
+      endMsg += `\n${meta.join(', ')}`
+    }
+    if (tags) {
+      endMsg += `\n${tags.join(', ')}`
+    }
+    endMsg += `\n${original}`
+    logger.debug(endMsg)
+    await send_del_file(chat_id, need_del, endMsg, message_id)
   }
 }
 

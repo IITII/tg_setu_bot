@@ -4,17 +4,15 @@ const fs = require('fs'),
 
 const {session} = require('telegraf'),
     {ADMIN_ID, clip} = require('./config/config'),
-    TelegramBot = require('./libs/TelegramBot'),
     {logger, loggerMiddleware} = require('./middlewares/logger'),
     clean = require('./services/download/clean'),
-    bot = require("./libs/TelegramBot")
+    bot = require("./libs/telegram_bot")
 
 const photo = require('./services/download/photo'),
     telegram_msg_sender = require('./services/telegram_msg_sender')
 
 // bot commands
 async function main() {
-    const bot = TelegramBot
     bot.use(session())
     bot.use(loggerMiddleware)
     bot.start((ctx) => {

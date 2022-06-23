@@ -43,6 +43,10 @@ function mkdir(dir) {
 
 async function downloadFile(url, filePath, logger) {
   return await new Promise((resolve, reject) => {
+    if (fs.existsSync(filePath)) {
+      logger.warn(`File ${filePath} already exists`)
+      return resolve(filePath)
+    }
     const writeStream = fs.createWriteStream(filePath)
     logger.debug(`Downloading ${url}...`)
     axios.get(url, {

@@ -38,7 +38,9 @@ const config = {
     url: process.env.REDIS_URL || 'redis://:review_pic@127.0.0.1:6379',
   },
   clip: {
-    currLimit: 10,
+    webLimit: 5,
+    tagLimit: 1,
+    downloadLimit: 10,
     baseDir: '../tmp',
   },
 }

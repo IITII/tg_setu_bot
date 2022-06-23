@@ -14,7 +14,7 @@ const queueName = 'telegram_msg_sender',
     {logger} = require("../middlewares/logger"),
     {sendPhoto, getGroupMedia} = require("../libs/media"),
     {sleep, reqRateLimit} = require("../libs/utils")
-const bot = require("../libs/TelegramBot"),
+const bot = require("../libs/telegram_bot"),
     telegram = bot.telegram
 const {chunk} = require("lodash")
 
@@ -153,6 +153,7 @@ async function handle_del_file(msg) {
     const opts = message_id ? {
         reply_to_message_id: message_id,
         disable_web_page_preview: true,
+        // parse_mode: 'Markdown',
         // disable_notification: true,
         // protect_content: true
     } : undefined
