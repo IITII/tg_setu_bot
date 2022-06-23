@@ -96,15 +96,18 @@ function message_decode(message) {
     urls = urls.concat(text.split('\n').filter(_ => isSupport(_)))
   }
   if (message.entities) {
-    const all_u = message.entities
-      .filter(_ => _.type === 'text_link')
-      .map(_ => _.url)
-      .filter(_ => isSupport(_))
-    if (all_u.length > 0) {
-      urls = urls.concat(all_u)
-    }
+    const text_link = message.entities
+        .filter(_ => _.type === 'text_link')
+        .map(_ => _.url)
+        .filter(_ => isSupport(_))
+    urls = urls.concat(text_link)
+    const url = message.entities
+        .filter(_ => _.type === 'url')
+        .map(os => message.text.substring(os.offset, os.offset + os.length))
+        .filter(_ => isSupport(_))
+    urls = urls.concat(url)
   }
-  urls = uniq(urls).filter(_ => supported.some(s => _.startsWith(s)))
+  urls = uniq(urls.flat(Infinity)).filter(_ => supported.some(s => _.startsWith(s)))
   return urls
 }
 

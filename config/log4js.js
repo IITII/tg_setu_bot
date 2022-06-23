@@ -22,7 +22,7 @@ let config = {
       "filename": `${logDir}/app.log`,
       "pattern": "-yyyy-MM-dd",
       "maxLogSize": 10485760,
-      "numBackups": 1,
+      "numBackups": 0,
       "category": "http",
       compress: false,
     },
