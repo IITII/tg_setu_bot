@@ -44,6 +44,8 @@ const config = {
     baseDir: '../tmp',
   },
 }
+
+// DO NOT TOUCH UNLESS YOU KNOW WHAT YOU ARE DOING
 config.clip.baseDir = path.resolve(__dirname, config.clip.baseDir)
 const proxy = process.env.PROXY?.replace(/https?:\/\//, '')
 if (proxy) {
@@ -54,7 +56,7 @@ if (proxy) {
 }
 const dir = config.clip.baseDir
 if (!fs.existsSync(dir)) {
-  fs.mkdirSync(dir, {recursive: true})
+  fs.mkdirSync(dir, { recursive: true })
   console.log(`mkdir ${dir}`)
 }
 module.exports = config
