@@ -164,22 +164,23 @@ async function handle_queue(bot, msg) {
     const ph = photos[i]
     const {title, meta, tags, imgs, original} = ph
     const start = new Date()
-    const sMsg = `${title} download started`
+    const mkHead = `[${title}](${original}) `
+    const sMsg = `${mkHead}download started`
     logger.info(sMsg)
     await send_text(chat_id, sMsg)
-    let dlMsg = `[${title}](${original})\n`
+    let dlMsg = mkHead
     await currMapLimit(imgs, clip.downloadLimit, ac_json)
       .then(_ => {
         const cost = ((new Date() - start) / 1000).toFixed(2)
-        dlMsg += `Download done, ${imgs.length} in ${cost}s\n`
+        dlMsg += `download done, ${imgs.length} in ${cost}s\n`
         logger.info(dlMsg)
       })
       .catch(e => {
-        dlMsg += `Download failed, ${e.message}\n`
+        dlMsg += `download failed, ${e.message}\n`
         logger.error(e)
       })
       .finally(async () => {
-        return send_text(chat_id, dlMsg, message_id)
+        return send_text(chat_id, dlMsg)
       })
     let need_del = []
     let reviewMsg = `[${title}](${original})\n`
@@ -187,7 +188,7 @@ async function handle_queue(bot, msg) {
       const need_send = imgs.map(_ => _.savePath).flat(Infinity)
       await sendMediaGroup(bot, chat_id, need_send, title)
         .then(_ => {
-          reviewMsg += `Send finished, total: ${need_send.length}\n`
+          reviewMsg += `Send total: ${need_send.length}\n`
         })
         .catch(e => {
           reviewMsg += `Send failed, ${e.message}\n`
@@ -197,17 +198,18 @@ async function handle_queue(bot, msg) {
         .finally(async () => {
           if (session && session.del === 1) {
             need_del = uniq(need_send.map(_ => path.dirname(_)))
-            reviewMsg += `Clean finished, total: ${need_del.length}\n`
+            reviewMsg += `Clean total: ${need_del.length}\n`
           }
         })
     }
-    let endMsg = `${reviewMsg}Mark as done\n`
+    let endMsg = reviewMsg
     if (meta) {
       endMsg += `\n${meta.join(', ')}`
     }
     if (tags) {
       endMsg += `\n${tags.join(', ')}`
     }
+    endMsg += `\n#MarkAsDone`
     logger.debug(endMsg)
     await send_del_file(chat_id, need_del, endMsg, message_id)
   }

@@ -136,13 +136,13 @@ async function handle_del_file(msg) {
 async function handle_text_msg(chat_id, text, message_id) {
     text = text.substring(0, maxMessageLength)
     logger.debug(`${chat_id}: ${text}`)
-    const opts = message_id ? {
+    const opts = {
         reply_to_message_id: message_id,
         disable_web_page_preview: true,
         parse_mode: 'Markdown',
         // disable_notification: true,
         // protect_content: true
-    } : undefined
+    }
     return telegram.sendMessage(chat_id, text, opts)
 }
 
