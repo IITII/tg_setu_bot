@@ -153,7 +153,7 @@ async function handle_del_file(msg) {
     const opts = message_id ? {
         reply_to_message_id: message_id,
         disable_web_page_preview: true,
-        // parse_mode: 'Markdown',
+        parse_mode: 'Markdown',
         // disable_notification: true,
         // protect_content: true
     } : undefined

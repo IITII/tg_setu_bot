@@ -167,45 +167,47 @@ async function handle_queue(bot, msg) {
     const sMsg = `${title} download started`
     logger.info(sMsg)
     await send_text(chat_id, sMsg)
-    let dlMsg = ''
+    let dlMsg = `[${title}](${original})\n`
     await currMapLimit(imgs, clip.downloadLimit, ac_json)
       .then(_ => {
         const cost = ((new Date() - start) / 1000).toFixed(2)
-        dlMsg += `${title} download done, ${imgs.length} in ${cost}s`
+        dlMsg += `Download done, ${imgs.length} in ${cost}s\n`
         logger.info(dlMsg)
       })
       .catch(e => {
-        dlMsg += `${title} download failed, ${e.message}`
+        dlMsg += `Download failed, ${e.message}\n`
         logger.error(e)
       })
+      .finally(async () => {
+        return send_text(chat_id, dlMsg, message_id)
+      })
     let need_del = []
-    let reviewMsg = ''
+    let reviewMsg = `[${title}](${original})\n`
     if (session && session.review === 2) {
       const need_send = imgs.map(_ => _.savePath).flat(Infinity)
       await sendMediaGroup(bot, chat_id, need_send, title)
         .then(_ => {
-          reviewMsg += `${title} send finished, total: ${need_send.length}`
+          reviewMsg += `Send finished, total: ${need_send.length}\n`
         })
         .catch(e => {
-          reviewMsg += `${title} send failed, ${e.message}`
+          reviewMsg += `Send failed, ${e.message}\n`
           logger.error(reviewMsg)
           logger.error(e)
         })
         .finally(async () => {
           if (session && session.del === 1) {
             need_del = uniq(need_send.map(_ => path.dirname(_)))
-            reviewMsg += `\n${title} clean finished, total: ${need_del.length}`
+            reviewMsg += `Clean finished, total: ${need_del.length}\n`
           }
         })
     }
-    let endMsg = `${dlMsg}\n${reviewMsg}`
+    let endMsg = `${reviewMsg}Mark as done\n`
     if (meta) {
       endMsg += `\n${meta.join(', ')}`
     }
     if (tags) {
       endMsg += `\n${tags.join(', ')}`
     }
-    endMsg += `\n${original}`
     logger.debug(endMsg)
     await send_del_file(chat_id, need_del, endMsg, message_id)
   }

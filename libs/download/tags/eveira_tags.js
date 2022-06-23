@@ -41,8 +41,9 @@ async function getTagImageArray(url) {
 
 async function getImageArray(url) {
   let {title, imgs, original} = await getTagImageArray(url)
-  logger.debug(`Get ${title} total ${imgs.length} urls from tag ${original}`)
-  return await currMapLimit(imgs, clip.tagLimit, dl_eve)
+  const urls = imgs.map(img => img.url)
+  logger.debug(`Get ${title} total ${urls.length} urls from tag ${original}`)
+  return await currMapLimit(urls, clip.tagLimit, dl_eve)
 }
 
 
