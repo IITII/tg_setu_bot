@@ -25,7 +25,7 @@ function sendPhoto(source, caption = undefined) {
       res['source'] = fs.createReadStream(source)
       break
     default:
-      throw new Error('Invalid source type')
+      throw new Error(`Invalid source type: ${source}`)
   }
   return res
 }

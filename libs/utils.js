@@ -7,7 +7,7 @@ const {mapLimit} = require('async')
 const fs = require('fs'),
   path = require('path')
 const axios = require('./axios_client')
-const {fileTypeFromUrlHead, fileTypeFromUrl} = require('./file_type')
+const {fileTypeFromUrlHead, fileTypeFromUrl, NO_CONTENT_TYPE_E_MSG} = require('./file_type')
 
 /**
  * Calc how much time spent on run function.
@@ -118,7 +118,13 @@ async function extFormat(imgUrl) {
     }
     await fileTypeFromUrlHead(imgUrl)
       .then(ex => resolve(`.${ex.ext}`))
-      .catch(e => fileTypeFromUrl(imgUrl))
+      .catch(e => {
+        if (e.message.includes(NO_CONTENT_TYPE_E_MSG)) {
+          return fileTypeFromUrl(imgUrl)
+        } else {
+          return reject(e)
+        }
+      })
       .then(ex => resolve(`.${ex.ext}`))
       .catch(e => reject(e))
   })

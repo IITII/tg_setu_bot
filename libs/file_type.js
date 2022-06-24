@@ -4,6 +4,7 @@
  */
 'use strict'
 const axios = require('./axios_client')
+const NO_CONTENT_TYPE_E_MSG = 'no-content-type'
 let file_type = null
 
 async function init() {
@@ -21,7 +22,7 @@ async function fileTypeFromUrlHead(url) {
         const type = contentType.split('/')[1]
         return {ext: type, mime: contentType}
       }
-      throw new Error('No content-type')
+      throw new Error(NO_CONTENT_TYPE_E_MSG)
     })
 }
 
@@ -46,4 +47,5 @@ module.exports = {
   fileTypeFromUrl,
   fileTypeFromBuffer,
   fileTypeFromFile,
+  NO_CONTENT_TYPE_E_MSG,
 }
