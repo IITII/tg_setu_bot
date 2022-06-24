@@ -20,12 +20,12 @@ async function getImageArray(url) {
     })
       .then(res => res.data)
       .then(doc => load(doc))
-      .then($ => {
+      .then(async $ => {
         const title = titleFormat($('header h1').text())
         const saveDir = path.resolve(clip.baseDir + path.sep + title)
         mkdir(saveDir)
         const imgSrc = []
-        $("img").each(async (index, item) => {
+        await $("img").each(async (index, item) => {
           const ext = await extFormat(item.attribs.src)
           imgSrc.push({
             url: new URL(url).origin + item.attribs.src,
