@@ -8,7 +8,7 @@ const fs = require('fs'),
   eventName = 'add_url',
   EventEmitter = require('events'),
   events = new EventEmitter(),
-  {uniq} = require('lodash')
+  {uniq, difference} = require('lodash')
 const {clip} = require('../../config/config'),
   {currMapLimit, downloadFile} = require('../../libs/utils'),
   download = require('../../libs/download'),
@@ -160,22 +160,52 @@ async function handle_queue(bot, msg) {
   const {chat_id, message_id, session, urls} = msg
   let photos = await currMapLimit(urls, clip.webLimit, handle_sup_url)
   photos = photos.flat(Infinity).filter(_ => _.imgs.length > 0)
-
-  async function ac_json(json) {
-    return downloadFile(json.url, json.savePath, logger)
+  const diff = difference(photos.map(_ => _.original), urls)
+    .map(u => photos.find(_ => _.original === u))
+  if (diff.length > 0) {
+    let diff_msg = `额外新增链接条数：${diff.length}\n`
+    diff_msg += diff.map(_ => `[${_.title}](${_.original})`).join('\n')
+    await send_text(chat_id, diff_msg, message_id)
   }
 
+  let need_del = []
+  let reviewMsg = ""
   for (let i = 0; i < photos.length; i++) {
     const ph = photos[i]
     const {title, meta, tags, imgs, original} = ph
-    const start = new Date()
     const mkHead = `[${title}](${original}) `
     // const sMsg = `${mkHead}download started`
     const sMsg = `${mkHead}下载开始`
+
+    need_del = []
+    reviewMsg = `${mkHead}\n`
+
     logger.info(sMsg)
     await send_text(chat_id, sMsg)
-    let dlMsg = mkHead
-    await currMapLimit(imgs, clip.downloadLimit, ac_json)
+    await downloadImgs(mkHead, imgs)
+    if (session && session.review === 2) {
+      const need_send = imgs.map(_ => _.savePath).flat(Infinity)
+      await sendCopyDel(need_send, title)
+    }
+    let endMsg = reviewMsg
+    if (meta) {
+      endMsg += `\n${meta.join(', ')}`
+    }
+    if (tags) {
+      endMsg += `\n${tags.join(', ')}`
+    }
+    endMsg += `\n\n#MarkAsDone`
+    logger.debug(endMsg)
+    await send_del_file(chat_id, need_del, endMsg, message_id)
+  }
+  async function ac_json(json) {
+    return downloadFile(json.url, json.savePath, logger)
+  }
+  async function downloadImgs(dlMsg, imgs,
+                              limit = clip.downloadLimit,
+                              start = new Date(),
+                              handle = ac_json) {
+    return currMapLimit(imgs, limit, handle)
       .then(_ => {
         const cost = ((new Date() - start) / 1000).toFixed(2)
         // dlMsg += `download done, ${imgs.length} in ${cost}s\n`
@@ -190,39 +220,26 @@ async function handle_queue(bot, msg) {
       .finally(async () => {
         return send_text(chat_id, dlMsg)
       })
-    let need_del = []
-    let reviewMsg = `${mkHead}\n`
-    if (session && session.review === 2) {
-      const need_send = imgs.map(_ => _.savePath).flat(Infinity)
-      await sendMediaGroup(bot, chat_id, need_send, title)
-        .then(_ => {
-          // reviewMsg += `Send total: ${need_send.length}\n`
-          reviewMsg += `共发送图片: ${need_send.length}\n`
-        })
-        .catch(e => {
-          // reviewMsg += `Send failed, ${e.message}\n`
-          reviewMsg += `发送失败, ${e.message}\n`
-          logger.error(reviewMsg)
-          logger.error(e)
-        })
-        .finally(async () => {
-          if (session && session.del === 1) {
-            need_del = uniq(need_send.map(_ => path.dirname(_)))
-            // reviewMsg += `Clean total: ${need_del.length}\n`
-            reviewMsg += `删除文件夹数目: ${need_del.length}\n`
-          }
-        })
-    }
-    let endMsg = reviewMsg
-    if (meta) {
-      endMsg += `\n${meta.join(', ')}`
-    }
-    if (tags) {
-      endMsg += `\n${tags.join(', ')}`
-    }
-    endMsg += `\n\n#MarkAsDone`
-    logger.debug(endMsg)
-    await send_del_file(chat_id, need_del, endMsg, message_id)
+  }
+  async function sendCopyDel(need_send, title) {
+    await sendMediaGroup(bot, chat_id, need_send, title)
+      .then(_ => {
+        // reviewMsg += `Send total: ${need_send.length}\n`
+        reviewMsg += `共发送图片: ${need_send.length}\n`
+      })
+      .catch(e => {
+        // reviewMsg += `Send failed, ${e.message}\n`
+        reviewMsg += `发送失败, ${e.message}\n`
+        logger.error(reviewMsg)
+        logger.error(e)
+      })
+      .finally(async () => {
+        if (session && session.del === 1) {
+          need_del = uniq(need_send.map(_ => path.dirname(_)))
+          // reviewMsg += `Clean total: ${need_del.length}\n`
+          reviewMsg += `删除文件夹数目: ${need_del.length}\n`
+        }
+      })
   }
 }
 
