@@ -140,27 +140,21 @@ async function extFormat(imgUrl) {
 }
 
 function time_human_readable(mills, frac = 2) {
-  const seconds = 1000,
-    minutes = seconds * 60,
-    hours = minutes * 60,
-    days = hours * 24
+  const seconds = 1000
+  const units = [
+    {unit: 'd', value: 24 * 60 * 60 * seconds},
+    {unit: 'h', value: 60 * 60 * seconds},
+    {unit: 'm', value: 60 * seconds},
+  ]
   let res = ""
   let time = mills
-  if (time >= days) {
-    res += `${Math.floor(time / days)}d`
-    time %= days
-  }
-  if (time >= hours) {
-    res += `${Math.floor(time / hours)}h`
-    time %= hours
-  }
-  if (time >= minutes) {
-    res += `${Math.floor(time / minutes)}m`
-    time %= minutes
-  }
-  if (time >= seconds) {
-    res += `${(time / seconds).toFixed(frac)}s`
-  }
+  units.forEach(u => {
+    if (time >= u.value) {
+      res += `${Math.floor(time / u.value)}${u.unit}`
+      time %= u.value
+    }
+  })
+  res += `${(time / seconds).toFixed(frac)}s`
   return res
 }
 

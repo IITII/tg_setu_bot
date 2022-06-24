@@ -204,7 +204,7 @@ async function handle_queue(bot, msg) {
     if (tags) {
       endMsg += `\n${tags.join(', ')}`
     }
-    endMsg += `\n\n#MarkAsDone`
+    endMsg += `\n#MarkAsDone`
     logger.debug(endMsg)
     await send_del_file(chat_id, need_del, endMsg, message_id)
   }
