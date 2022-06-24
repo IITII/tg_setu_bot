@@ -14,6 +14,7 @@ const axios = require('../axios_client'),
 async function getImageArray(url) {
   return await new Promise((resolve) => {
     logger.debug(`Getting image urls from ${url}`)
+    const start = new Date()
     axios.get(url, {
       responseType: "document",
     })
@@ -28,19 +29,20 @@ async function getImageArray(url) {
         const imgSrc = []
         for (let i = 0; i < absISrcs.length; i++) {
           const absISrc = absISrcs[i]
-          const ext = await extFormat(absISrc)
+          const ext = await extFormat(absISrc, logger)
           imgSrc.push({
             url: absISrc,
             savePath: path.resolve(saveDir + path.sep + (i + 1) + ext),
           })
         }
         const imgs = imgSrc
-        return resolve({title, imgs, original: url})
+        const cost = new Date() - start
+        return resolve({title, imgs, original: url, cost})
       })
       .catch(e => {
         logger.debug(`Get ImageArray failed, url: ${url}`)
         logger.debug(e)
-        return resolve({title: '', imgs: [], original: url})
+        return resolve({title: '', imgs: [], original: url, cost: 0})
       })
   })
 }

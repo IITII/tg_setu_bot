@@ -10,7 +10,7 @@ const fs = require('fs'),
   events = new EventEmitter(),
   {uniq, difference} = require('lodash')
 const {clip} = require('../../config/config'),
-  {currMapLimit, downloadFile} = require('../../libs/utils'),
+  {currMapLimit, downloadFile, time_human_readable} = require('../../libs/utils'),
   download = require('../../libs/download'),
   bot = require('../../libs/telegram_bot'),
   {logger} = require('../../middlewares/logger'),
@@ -156,17 +156,27 @@ function handle_sup_url(url) {
   return supportHandle[idx](url)
 }
 
+function log_ph(phs) {
+  return phs.map(ph => {
+    const {title, imgs, original, cost} = ph
+    return `[${title}](${original}) crawl ${imgs.length} images in ${time_human_readable(cost)}`
+  }).join('\n')
+}
+
 async function handle_queue(bot, msg) {
   const {chat_id, message_id, session, urls} = msg
+  const crawlStart = new Date()
   let photos = await currMapLimit(urls, clip.webLimit, handle_sup_url)
   photos = photos.flat(Infinity).filter(_ => _.imgs.length > 0)
+  let handle_summary = `**嗅探详情: ${photos.length} in ${time_human_readable(new Date() - crawlStart)}\n\n**`
+  handle_summary += log_ph(photos)
   const diff = difference(photos.map(_ => _.original), urls)
     .map(u => photos.find(_ => _.original === u))
   if (diff.length > 0) {
-    let diff_msg = `额外新增链接条数：${diff.length}\n`
-    diff_msg += diff.map(_ => `[${_.title}](${_.original})`).join('\n')
-    await send_text(chat_id, diff_msg, message_id)
+    handle_summary += `\n**额外新增链接条数：${diff.length}\n**`
+    handle_summary += log_ph(diff)
   }
+  await send_text(chat_id, handle_summary, message_id)
 
   let need_del = []
   let reviewMsg = ""
@@ -207,7 +217,7 @@ async function handle_queue(bot, msg) {
                               handle = ac_json) {
     return currMapLimit(imgs, limit, handle)
       .then(_ => {
-        const cost = ((new Date() - start) / 1000).toFixed(2)
+        const cost = time_human_readable(new Date() - start)
         // dlMsg += `download done, ${imgs.length} in ${cost}s\n`
         dlMsg += `下载完成, ${imgs.length} in ${cost}s\n`
         logger.info(dlMsg)

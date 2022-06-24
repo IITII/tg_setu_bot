@@ -110,16 +110,18 @@ function titleFormat(title, banWords = /[\[\]()+*.\\/]/g) {
   return title.replace(banWords, '')
 }
 
-async function extFormat(imgUrl) {
+async function extFormat(imgUrl, logger) {
   return await new Promise(async (resolve, reject) => {
     const suffix = path.extname(imgUrl)
     if (suffix) {
+      logger.debug(`File suffix get from path.extname: ${suffix}`)
       return resolve(suffix)
     }
     await fileTypeFromUrlHead(imgUrl)
       .then(ex => resolve(`.${ex.ext}`))
       .catch(e => {
         if (e.message.includes(NO_CONTENT_TYPE_E_MSG)) {
+          logger.debug(`File suffix get from fileTypeFromUrlHead failed: ${e.message}, try fileTypeFromUrl`)
           return fileTypeFromUrl(imgUrl)
         } else {
           return reject(e)
@@ -128,6 +130,17 @@ async function extFormat(imgUrl) {
       .then(ex => resolve(`.${ex.ext}`))
       .catch(e => reject(e))
   })
+}
+
+function time_human_readable(mills, unit = 's', frac = 2) {
+  let unitTime = 1
+  switch(unit) {
+    case 's': unitTime *= 1000; break
+    case 'm': unitTime *= 1000 * 60; break
+    case 'h': unitTime *= 1000 * 60 * 60; break
+    case 'd': unitTime *= 1000 * 60 * 60 * 24; break
+  }
+  return `${(mills / unitTime).toFixed(frac)}${unit}`
 }
 
 module.exports = {
@@ -139,4 +152,5 @@ module.exports = {
   reqRateLimit,
   titleFormat,
   extFormat,
+  time_human_readable,
 }
