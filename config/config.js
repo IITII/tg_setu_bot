@@ -41,6 +41,7 @@ const config = {
     webLimit: 5,
     tagLimit: 1,
     downloadLimit: 10,
+    headLimit: 20,
     baseDir: '../tmp',
   },
 }

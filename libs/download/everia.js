@@ -10,7 +10,7 @@ const axios = require('../axios_client'),
   {uniq} = require('lodash'),
   {logger} = require('../../middlewares/logger'),
   {clip} = require('../../config/config'),
-  {mkdir, titleFormat, extFormat} = require('../utils')
+  {mkdir, titleFormat, extFormat, zipWithIndex, currMapLimit} = require('../utils')
 
 async function getImageArray(url) {
   return await new Promise((resolve) => {
@@ -33,16 +33,17 @@ async function getImageArray(url) {
         mkdir(saveDir)
         let absISrcs = $('.entry-content img').map((_, el) => urlN.resolve(urlOrigin, el.attribs.src)).get()
         absISrcs = uniq(absISrcs)
-        const imgSrc = []
-        for (let i = 0; i < absISrcs.length; i++) {
-          const absISrc = absISrcs[i]
+        absISrcs = zipWithIndex(absISrcs)
+        async function zipHandle(arr) {
+          const absISrc = arr[0],
+            i = arr[1]
           const ext = await extFormat(absISrc)
-          imgSrc.push({
+          return {
             url: absISrc,
             savePath: path.resolve(saveDir + path.sep + (i + 1) + ext),
-          })
+          }
         }
-        const imgs = imgSrc
+        const imgs = await currMapLimit(absISrcs, clip.headLimit, zipHandle)
         const cost = new Date() - start
         res = {title, meta, tags, imgs, original: url, cost}
       })

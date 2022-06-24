@@ -158,6 +158,11 @@ function time_human_readable(mills, frac = 2) {
   return res
 }
 
+function zipWithIndex(arr) {
+  let i = 0
+  return arr.map(item => [item, i++])
+}
+
 module.exports = {
   mkdir,
   downloadFile,
@@ -168,4 +173,5 @@ module.exports = {
   titleFormat,
   extFormat,
   time_human_readable,
+  zipWithIndex,
 }
