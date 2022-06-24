@@ -24,7 +24,7 @@ const config = {
     // baseURL: 'https://api.telegram.org/bot',
     // proxy: process.env.PROXY,
     proxy: undefined,
-    timeout: 5000,
+    timeout: 1000 * 30,
     headers: {
       'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/101.0.4951.64 Safari/537.36',
     },

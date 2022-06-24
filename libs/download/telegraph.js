@@ -29,7 +29,7 @@ async function getImageArray(url) {
         const imgSrc = []
         for (let i = 0; i < absISrcs.length; i++) {
           const absISrc = absISrcs[i]
-          const ext = await extFormat(absISrc, logger)
+          const ext = await extFormat(absISrc)
           imgSrc.push({
             url: absISrc,
             savePath: path.resolve(saveDir + path.sep + (i + 1) + ext),

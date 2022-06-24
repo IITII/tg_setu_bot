@@ -209,7 +209,7 @@ async function handle_queue(bot, msg) {
     await send_del_file(chat_id, need_del, endMsg, message_id)
   }
   async function ac_json(json) {
-    return downloadFile(json.url, json.savePath, logger)
+    return downloadFile(json.url, json.savePath)
   }
   async function downloadImgs(dlMsg, imgs,
                               limit = clip.downloadLimit,

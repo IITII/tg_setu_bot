@@ -8,20 +8,25 @@ const fs = require('fs'),
   path = require('path')
 const axios = require('./axios_client')
 const {fileTypeFromUrlHead, fileTypeFromUrl, NO_CONTENT_TYPE_E_MSG} = require('./file_type')
+const {logger} = require('../middlewares/logger')
 
 /**
  * Calc how much time spent on run function.
+ * @param prefix prefix
  * @param func Run function
  * @param args function's args
  */
-async function spendTime(func, ...args) {
+async function spendTime(prefix, func, ...args) {
   return await new Promise(async (resolve, reject) => {
     let start = new Date()
     try {
-      await func.apply(this, args)
-      return resolve(new Date() - start)
+      const res = await func.apply(this, args)
+      return resolve(res)
     } catch (e) {
       return reject(e)
+    } finally {
+      const spent = new Date() - start
+      logger.info(`${prefix + ' '}Spent ${spent}ms`)
     }
   })
 }
@@ -43,7 +48,7 @@ function mkdir(dir) {
   }
 }
 
-async function downloadFile(url, filePath, logger) {
+async function downloadFile(url, filePath) {
   return await new Promise((resolve, reject) => {
     if (fs.existsSync(filePath)) {
       logger.warn(`File ${filePath} already exists`)
@@ -110,19 +115,21 @@ function titleFormat(title, banWords = /[\[\]()+*.\\/]/g) {
   return title.replace(banWords, '')
 }
 
-async function extFormat(imgUrl, logger) {
+async function extFormat(imgUrl) {
   return await new Promise(async (resolve, reject) => {
     const suffix = path.extname(imgUrl)
     if (suffix) {
       logger.debug(`File suffix get from path.extname: ${suffix}`)
       return resolve(suffix)
     }
-    await fileTypeFromUrlHead(imgUrl)
+    const prefix = `fileTypeFromUrlHead from ${imgUrl}`
+    await spendTime(prefix, fileTypeFromUrlHead, imgUrl)
       .then(ex => resolve(`.${ex.ext}`))
       .catch(e => {
         if (e.message.includes(NO_CONTENT_TYPE_E_MSG)) {
-          logger.debug(`File suffix get from fileTypeFromUrlHead failed: ${e.message}, try fileTypeFromUrl`)
-          return fileTypeFromUrl(imgUrl)
+          logger.debug(`Get from fileTypeFromUrlHead failed: ${e.message}, try fileTypeFromUrl`)
+          const prefix = `fileTypeFromUrl from ${imgUrl}`
+          return spendTime(prefix, fileTypeFromUrl, imgUrl)
         } else {
           return reject(e)
         }
