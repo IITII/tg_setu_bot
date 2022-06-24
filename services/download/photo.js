@@ -159,7 +159,7 @@ function handle_sup_url(url) {
 function log_ph(phs) {
   return phs.map(ph => {
     const {title, imgs, original, cost} = ph
-    return `[${title}](${original}) crawl ${imgs.length} images in ${time_human_readable(cost)}`
+    return `[${title}](${original}): ${imgs.length} in ${time_human_readable(cost)}`
   }).join('\n')
 }
 
@@ -219,7 +219,7 @@ async function handle_queue(bot, msg) {
       .then(_ => {
         const cost = time_human_readable(new Date() - start)
         // dlMsg += `download done, ${imgs.length} in ${cost}s\n`
-        dlMsg += `下载完成, ${imgs.length} in ${cost}s\n`
+        dlMsg += `下载完成, ${imgs.length} in ${cost}\n`
         logger.info(dlMsg)
       })
       .catch(e => {

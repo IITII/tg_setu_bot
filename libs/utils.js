@@ -132,15 +132,29 @@ async function extFormat(imgUrl, logger) {
   })
 }
 
-function time_human_readable(mills, unit = 's', frac = 2) {
-  let unitTime = 1
-  switch(unit) {
-    case 's': unitTime *= 1000; break
-    case 'm': unitTime *= 1000 * 60; break
-    case 'h': unitTime *= 1000 * 60 * 60; break
-    case 'd': unitTime *= 1000 * 60 * 60 * 24; break
+function time_human_readable(mills, frac = 2) {
+  const seconds = 1000,
+    minutes = seconds * 60,
+    hours = minutes * 60,
+    days = hours * 24
+  let res = ""
+  let time = mills
+  if (time >= days) {
+    res += `${Math.floor(time / days)}d`
+    time %= days
   }
-  return `${(mills / unitTime).toFixed(frac)}${unit}`
+  if (time >= hours) {
+    res += `${Math.floor(time / hours)}h`
+    time %= hours
+  }
+  if (time >= minutes) {
+    res += `${Math.floor(time / minutes)}m`
+    time %= minutes
+  }
+  if (time >= seconds) {
+    res += `${(time / seconds).toFixed(frac)}s`
+  }
+  return res
 }
 
 module.exports = {

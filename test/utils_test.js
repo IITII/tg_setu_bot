@@ -3,7 +3,7 @@
  * @date 2022/05/26
  */
 'use strict'
-const {sleep, currMapLimit} = require('../libs/utils')
+const {sleep, currMapLimit, time_human_readable} = require('../libs/utils')
 
 
 async function sleep1(ms) {
@@ -14,3 +14,10 @@ async function sleep1(ms) {
 currMapLimit([1000, 2000, 3000], 1, sleep1)
   .then(() => console.log('end'))
   .catch(e => console.log(e))
+
+console.log(time_human_readable(1000))
+console.log(time_human_readable(1200))
+console.log(time_human_readable(2200))
+console.log(time_human_readable(1100.12 * 60))
+console.log(time_human_readable(1200.12 * 60 * 60))
+console.log(time_human_readable(1000.12 * 60 * 60 * 24))
