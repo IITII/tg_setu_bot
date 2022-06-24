@@ -25,8 +25,8 @@ async function getImageArray(url) {
         const saveDir = path.resolve(clip.baseDir + path.sep + title)
         mkdir(saveDir)
         const imgSrc = []
-        $("img").each((index, item) => {
-          const ext = extFormat(item.attribs.src)
+        $("img").each(async (index, item) => {
+          const ext = await extFormat(item.attribs.src)
           imgSrc.push({
             url: new URL(url).origin + item.attribs.src,
             savePath: path.resolve(saveDir + path.sep + (index + 1) + ext),
