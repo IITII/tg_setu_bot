@@ -4,8 +4,10 @@
  */
 'use strict'
 const {mapLimit} = require('async')
-const fs = require('fs')
+const fs = require('fs'),
+  path = require('path')
 const axios = require('./axios_client')
+const {fileTypeFromUrlHead, fileTypeFromUrl} = require('./file_type')
 
 /**
  * Calc how much time spent on run function.
@@ -79,8 +81,8 @@ async function downloadFile(url, filePath, logger) {
  * @param random 是否添加随机延迟 默认：0-100 ms
  */
 async function reqRateLimit(func, array, duration = 1000,
-                         forceWait = false,
-                         limit = 1, random = true) {
+                            forceWait = false,
+                            limit = 1, random = true) {
   return mapLimit(array, limit, async (item, cb) => {
     const start = new Date()
     return await Promise.resolve()
@@ -104,8 +106,22 @@ async function reqRateLimit(func, array, duration = 1000,
   })
 }
 
-function titleFormat(title, banWords = /[\[\]()+*.]/g) {
+function titleFormat(title, banWords = /[\[\]()+*.\\/]/g) {
   return title.replace(banWords, '')
+}
+
+async function extFormat(imgUrl) {
+  return await new Promise(async (resolve, reject) => {
+    const suffix = path.extname(imgUrl)
+    if (suffix) {
+      return resolve(suffix)
+    }
+    await fileTypeFromUrlHead(imgUrl)
+      .then(ex => resolve(`.${ex.ext}`))
+      .catch(e => fileTypeFromUrl(imgUrl))
+      .then(ex => resolve(`.${ex.ext}`))
+      .catch(e => reject(e))
+  })
 }
 
 module.exports = {
@@ -116,4 +132,5 @@ module.exports = {
   currMapLimit,
   reqRateLimit,
   titleFormat,
+  extFormat,
 }

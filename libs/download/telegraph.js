@@ -10,7 +10,7 @@ const axios = require('../axios_client'),
   {uniqBy} = require('lodash'),
   {logger} = require('../../middlewares/logger'),
   {clip} = require('../../config/config'),
-  {mkdir, titleFormat} = require('../utils')
+  {mkdir, titleFormat, extFormat} = require('../utils')
 
 async function getImageArray(url) {
   return await new Promise((resolve) => {
@@ -26,9 +26,10 @@ async function getImageArray(url) {
         mkdir(saveDir)
         const imgSrc = []
         $("img").each((index, item) => {
+          const ext = extFormat(item.attribs.src)
           imgSrc.push({
             url: new URL(url).origin + item.attribs.src,
-            savePath: path.resolve(saveDir + path.sep + (index + 1) + path.extname(item.attribs.src)),
+            savePath: path.resolve(saveDir + path.sep + (index + 1) + ext),
           })
         })
         const imgs = uniqBy(imgSrc, 'url')

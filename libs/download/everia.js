@@ -11,7 +11,7 @@ const axios = require('../axios_client'),
     {uniqBy} = require('lodash'),
     {logger} = require('../../middlewares/logger'),
     {clip} = require('../../config/config'),
-    {mkdir, titleFormat} = require('../utils')
+    {mkdir, titleFormat, extFormat} = require('../utils')
 
 async function getImageArray(url) {
     return await new Promise((resolve) => {
@@ -34,7 +34,7 @@ async function getImageArray(url) {
                 const imgSrc = $('.entry-content img').map((index, item) => {
                     const iSrc = item.attribs.src
                     const absISrc = urlN.resolve(urlOrigin, iSrc)
-                    const ext = path.extname(absISrc)
+                    const ext = extFormat(absISrc)
                     return {
                         url: absISrc,
                         savePath: path.resolve(saveDir + path.sep + (index + 1) + ext),

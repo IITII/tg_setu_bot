@@ -13,6 +13,7 @@
     "async": "^3.2.3",
     "axios": "^0.27.2",
     "cheerio": "^1.0.0-rc.11",
+    "file-type": "^17.1.2",
     "https-proxy-agent": "^5.0.1",
     "lodash": "^4.17.21",
     "log4js": "^6.5.2",
