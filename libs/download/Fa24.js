@@ -55,7 +55,7 @@ module.exports = class Fa24 extends AbsDownloader {
     return Promise.resolve(res)
   }
 
-  async otherPageToAbsUrl(url_texts, original) {
+  otherPageToAbsUrl(url_texts, original) {
     return url_texts.map(raw => {
       let {url, text} = raw
       url = toAbsUrl(url, original)
