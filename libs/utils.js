@@ -48,7 +48,7 @@ function mkdir(dir) {
   }
 }
 
-async function downloadFile(url, filePath) {
+async function downloadFile(url, filePath, referer = '') {
   return await new Promise((resolve, reject) => {
     if (fs.existsSync(filePath)) {
       logger.warn(`File ${filePath} already exists`)
@@ -56,9 +56,14 @@ async function downloadFile(url, filePath) {
     }
     const writeStream = fs.createWriteStream(filePath)
     logger.debug(`Downloading ${url}...`)
-    axios.get(url, {
-      responseType: "stream",
-    })
+    const opts = {
+      responseType: 'stream',
+      headers: axios.defaults.headers
+    }
+    if (referer) {
+      opts.headers['referer'] = referer
+    }
+    axios.get(url, opts)
       .then(res => {
         writeStream.on('finish', resolve)
         writeStream.on('error', reject)
@@ -68,10 +73,7 @@ async function downloadFile(url, filePath) {
       .catch(e => {
         logger.error(`Download error: ${e.message}`)
         logger.error(e)
-        return reject({
-          url: url,
-          filePath: filePath,
-        })
+        return reject(e)
       })
   })
 }
@@ -146,7 +148,7 @@ function time_human_readable(mills, frac = 2) {
     {unit: 'h', value: 60 * 60 * seconds},
     {unit: 'm', value: 60 * seconds},
   ]
-  let res = ""
+  let res = ''
   let time = mills
   units.forEach(u => {
     if (time >= u.value) {
@@ -164,13 +166,13 @@ function zipWithIndex(arr) {
 }
 
 function url_resolve(from, to) {
-  const resolvedUrl = new URL(to, new URL(from, 'resolve://'));
+  const resolvedUrl = new URL(to, new URL(from, 'resolve://'))
   if (resolvedUrl.protocol === 'resolve:') {
     // `from` is a relative URL.
-    const { pathname, search, hash } = resolvedUrl;
-    return pathname + search + hash;
+    const {pathname, search, hash} = resolvedUrl
+    return pathname + search + hash
   }
-  return resolvedUrl.toString();
+  return resolvedUrl.toString()
 }
 
 module.exports = {

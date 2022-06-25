@@ -155,7 +155,7 @@ async function handle_queue(bot, msg) {
 
     logger.info(sMsg)
     await send_text(chat_id, sMsg)
-    await downloadImgs(mkHead, imgs)
+    await downloadImgs(mkHead, imgs, original)
     if (session && session.review === 2) {
       const need_send = imgs.map(_ => _.savePath).flat(Infinity)
       await sendCopyDel(need_send, title)
@@ -175,15 +175,16 @@ async function handle_queue(bot, msg) {
     }
   }
 
-  async function ac_json(json) {
-    return downloadFile(json.url, json.savePath)
-  }
-
   async function downloadImgs(dlMsg, imgs,
                               limit = clip.downloadLimit,
-                              start = new Date(),
-                              handle = ac_json) {
+                              refers = '',
+                              start = new Date()) {
     if (DEBUG) return
+
+    async function handle(json) {
+      return downloadFile(json.url, json.savePath, refers)
+    }
+
     return currMapLimit(imgs, limit, handle)
       .then(_ => {
         const cost = time_human_readable(new Date() - start)
