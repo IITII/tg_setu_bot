@@ -3,48 +3,31 @@
  * @date 2022/06/23
  */
 'use strict'
-const axios = require('../../axios_client'),
-  {load} = require('cheerio'),
-  {uniqBy} = require('lodash')
+const {uniqBy} = require('lodash')
+const AbsDownloader = require("../AbsDownloader");
+const {get_dom} = require("../dl_utils");
 const {clip} = require('../../../config/config'),
-  {logger} = require('../../../middlewares/logger'),
-  {currMapLimit, titleFormat} = require('../../utils'),
-  dl_eve = require('../everia')
+    {logger} = require('../../../middlewares/logger'),
+    {currMapLimit, titleFormat, time_human_readable} = require('../../utils'),
+    Eveira = require('../Eveira'),
+    eveira = new Eveira()
 
-async function getTagImageArray(url) {
-  return await new Promise((resolve) => {
-    logger.debug(`Getting image urls from tag ${url}`)
-    const original = url
-    let res = {title: '', imgs: [], original}
-    axios.get(url, {
-      responseType: "document",
-    })
-      .then(res => res.data)
-      .then(doc => load(doc))
-      .then($ => {
+module.exports = class EveiraTags extends AbsDownloader {
+    async getImageArray(url) {
+        const {title, imgs, original, cost} = await get_dom(url, this.handle_dom)
+        const urls = imgs.map(_ => _.url)
+        const time = time_human_readable(cost)
+        logger.debug(`Get ${title} total ${urls.length} in ${time} from tag ${original}`)
+        return await currMapLimit(urls, clip.tagLimit, eveira.getImageArray)
+    }
+
+    async handle_dom($, original) {
         const title = titleFormat($('.nv-page-title').text())
         const images = $('.posts-wrapper .entry-title a').map((index, el) => {
-          return {index, url: el.attribs.href, title: $(el).text()}
+            return {index, url: el.attribs.href, title: $(el).text()}
         }).get()
         const imgs = uniqBy(images, 'url')
-        res = {title, imgs, original}
-      })
-      .catch(e => {
-        logger.debug(`Get ImageArray failed, tag url: ${url}`)
-        logger.debug(e)
-      })
-      .finally(() => {
-        return resolve(res)
-      })
-  })
+        const res = {title, imgs}
+        return Promise.resolve(res)
+    }
 }
-
-async function getImageArray(url) {
-  let {title, imgs, original} = await getTagImageArray(url)
-  const urls = imgs.map(img => img.url)
-  logger.debug(`Get ${title} total ${urls.length} urls from tag ${original}`)
-  return await currMapLimit(urls, clip.tagLimit, dl_eve)
-}
-
-
-module.exports = getImageArray

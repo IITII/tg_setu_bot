@@ -163,6 +163,16 @@ function zipWithIndex(arr) {
   return arr.map(item => [item, i++])
 }
 
+function url_resolve(from, to) {
+  const resolvedUrl = new URL(to, new URL(from, 'resolve://'));
+  if (resolvedUrl.protocol === 'resolve:') {
+    // `from` is a relative URL.
+    const { pathname, search, hash } = resolvedUrl;
+    return pathname + search + hash;
+  }
+  return resolvedUrl.toString();
+}
+
 module.exports = {
   mkdir,
   downloadFile,
@@ -174,4 +184,5 @@ module.exports = {
   extFormat,
   time_human_readable,
   zipWithIndex,
+  url_resolve,
 }
