@@ -23,14 +23,12 @@ const supported = [
   'https://www.24fa.com/',
   'https://www.268w.cc/',
   'https://www.116w.cc/',
-  'https://www.268w.cc/',
 ]
 const supportHandle = [
   download.telegraph,
   download.eveiraTags,
   download.eveiraTags,
   download.eveira,
-  download.fa24,
   download.fa24,
   download.fa24,
   download.fa24,

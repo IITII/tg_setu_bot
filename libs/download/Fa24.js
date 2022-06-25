@@ -15,13 +15,17 @@ module.exports = class Fa24 extends AbsDownloader {
     const firstPage = await get_dom(url, this.handle_dom)
     let {title, imgs, otherPages, related} = firstPage
     const otherUrls = otherPages.map(p => p.url)
-    const otherInfos = await currMapLimit(otherUrls, clip.pageLimit, this.getImageArray)
+    const otherInfos = await currMapLimit(otherUrls, clip.pageLimit, this.handle_other_pages)
     imgs = uniq(imgs.concat(otherInfos.map(i => i.imgs)).flat(Infinity))
     imgs = await zipUrlExt(imgs, getSaveDir(title))
     related = related.concat(otherInfos.map(i => i.related)).flat(Infinity)
     related = uniqBy(related, 'url')
     const res = {title, imgs, related}
     return Promise.resolve(res)
+  }
+
+  async handle_other_pages(url) {
+    return get_dom(url, this.handle_dom)
   }
 
   async handle_dom($, original) {
