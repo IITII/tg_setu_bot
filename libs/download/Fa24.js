@@ -9,8 +9,14 @@ const {currMapLimit} = require('../utils')
 const {uniq, uniqBy} = require('lodash')
 const {clip} = require('../../config/config')
 const dropText = '上一页,下一页'.split(',')
+let self = null
 
 module.exports = class Fa24 extends AbsDownloader {
+  constructor() {
+    super()
+    self = this
+  }
+
   async getImageArray(url) {
     const firstPage = await get_dom(url, this.handle_dom)
     let {title, imgs, otherPages, related} = firstPage
@@ -25,7 +31,7 @@ module.exports = class Fa24 extends AbsDownloader {
   }
 
   async handle_other_pages(url) {
-    return get_dom(url, this.handle_dom)
+    return get_dom(url, self.handle_dom)
   }
 
   async handle_dom($, original) {
