@@ -53,17 +53,21 @@ async function handle_sup_url(url) {
 }
 
 function log_ph(phs) {
-  return phs.map(ph => {
-    const {title, imgs, original, cost} = ph
-    return `[${title}](${original}): ${imgs.length} in ${time_human_readable(cost)}`
-  }).join('\n')
+  return phs
+    .filter(_ => !!_)
+    .map(ph => {
+      const {title, imgs, original, cost} = ph
+      return `[${title}](${original}): ${imgs.length} in ${time_human_readable(cost)}`
+    }).join('\n')
 }
 
 function log_related(related, title, original) {
   let msg = `**Related by [${title}](${original}):**\n`
-  msg += related.map(re => {
-    const {url, text} = re
-    return `[${text}](${url})`
-  }).join('\n')
+  msg += related
+    .filter(_ => !!_)
+    .map(re => {
+      const {url, text} = re
+      return `[${text}](${url})`
+    }).join('\n')
   return msg
 }
