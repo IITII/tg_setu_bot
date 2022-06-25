@@ -5,7 +5,7 @@
   "main": "App.js",
   "scripts": {
     "start": "node --trace-warnings App.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev": "export TG_DEBUG=true && node --trace-warnings App.js"
   },
   "author": "IITII (https://github.com/IITII)",
   "license": "ISC",

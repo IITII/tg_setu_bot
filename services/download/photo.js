@@ -9,7 +9,7 @@ const fs = require('fs'),
   EventEmitter = require('events'),
   events = new EventEmitter(),
   {uniq, difference} = require('lodash')
-const {clip} = require('../../config/config'),
+const {DEBUG, clip} = require('../../config/config'),
   {currMapLimit, downloadFile, time_human_readable} = require('../../libs/utils'),
   download = require('../../libs/download'),
   bot = require('../../libs/telegram_bot'),
@@ -215,6 +215,7 @@ async function handle_queue(bot, msg) {
                               limit = clip.downloadLimit,
                               start = new Date(),
                               handle = ac_json) {
+    if (DEBUG) return
     return currMapLimit(imgs, limit, handle)
       .then(_ => {
         const cost = time_human_readable(new Date() - start)
@@ -232,6 +233,7 @@ async function handle_queue(bot, msg) {
       })
   }
   async function sendCopyDel(need_send, title) {
+    if (DEBUG) return
     await sendMediaGroup(bot, chat_id, need_send, title)
       .then(_ => {
         // reviewMsg += `Send total: ${need_send.length}\n`

@@ -7,6 +7,7 @@ const fs = require('fs'),
   https = require('https'),
   path = require('path')
 const config = {
+  TG_DEBUG: process.env.TG_DEBUG === 'true',
   BOT_TOKEN: process.env.BOT_TOKEN,
   // ADMIN_ID : process.env.ADMIN_ID,
   ADMIN_ID: process.env.ADMIN_ID,
