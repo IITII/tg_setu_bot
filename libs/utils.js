@@ -113,8 +113,12 @@ async function reqRateLimit(func, array, duration = 1000,
   })
 }
 
-function titleFormat(title, banWords = /[\[\]()+*.\\/]/g) {
-  return title.replace(banWords, '')
+function titleFormat(title,
+                     banWords = /[\[\]()+*.\\/\-\n\r]/g,
+                     cleanMtiSpace = /\s+/g) {
+  return title
+    .replace(banWords, '')
+    .replace(cleanMtiSpace, ' ')
 }
 
 async function extFormat(imgUrl) {
