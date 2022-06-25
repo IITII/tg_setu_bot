@@ -40,19 +40,26 @@ module.exports = class Fa24 extends AbsDownloader {
     const rawUrls = $('.newshow article img').map((i, el) => el.attribs.src).get()
     const absImgs = arrToAbsUrl(rawUrls, original)
     // const imgs = await zipUrlExt(absImgs, getSaveDir(title))
-    const otherPages = $('.newshow table a').map((i, el) => {
+    // 其他页面的图片
+    const otherPagesRaw = $('.newshow table a').map((i, el) => {
       return {url: el.attribs.href, text: $(el).text()}
     }).get()
-    const dropped = otherPages.filter(p => dropText.some(d => p.text.includes(d)))
+    const dropped = otherPagesRaw.filter(p => dropText.some(d => p.text.includes(d)))
+    const otherPages = self.otherPageToAbsUrl(dropped, original)
+    // 相关文章
     const relatedRaw = $('.box a').map((i, el) => {
       return {url: el.attribs.href, text: $(el).text()}
     }).get()
-    const related = relatedRaw.map(raw => {
+    const related = self.otherPageToAbsUrl(relatedRaw, original)
+    const res = {title, imgs: absImgs, otherPages, related}
+    return Promise.resolve(res)
+  }
+
+  async otherPageToAbsUrl(url_texts, original) {
+    return url_texts.map(raw => {
       let {url, text} = raw
       url = toAbsUrl(url, original)
       return {url, text}
     })
-    const res = {title, imgs: absImgs, otherPages: dropped, related}
-    return Promise.resolve(res)
   }
 }
