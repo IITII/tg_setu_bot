@@ -171,8 +171,7 @@ async function handle_queue(bot, msg) {
     logger.debug(endMsg)
     await send_del_file(chat_id, need_del, endMsg, message_id)
     if (related && related.length > 0) {
-      const related_msg = log_related(related, title, original)
-      await send_text(chat_id, related_msg, message_id)
+      await send_text(chat_id, log_related(related), message_id)
     }
   }
 

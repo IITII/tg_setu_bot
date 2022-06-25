@@ -61,8 +61,8 @@ function log_ph(phs) {
     }).join('\n')
 }
 
-function log_related(related, title, original) {
-  let msg = `**Related by [${title}](${original}):**\n`
+function log_related(related) {
+  let msg = `**Related:**\n`
   msg += related
     .filter(_ => !!_)
     .map(re => {
