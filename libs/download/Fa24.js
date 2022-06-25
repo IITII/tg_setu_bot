@@ -44,7 +44,7 @@ module.exports = class Fa24 extends AbsDownloader {
     const otherPagesRaw = $('.newshow table a').map((i, el) => {
       return {url: el.attribs.href, text: $(el).text()}
     }).get()
-    const dropped = otherPagesRaw.filter(p => dropText.some(d => p.text.includes(d)))
+    const dropped = otherPagesRaw.filter(p => !dropText.some(d => p.text.includes(d)))
     const otherPages = self.otherPageToAbsUrl(dropped, original)
     // 相关文章
     const relatedRaw = $('.box a').map((i, el) => {
