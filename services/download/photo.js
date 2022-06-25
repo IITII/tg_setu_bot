@@ -176,8 +176,8 @@ async function handle_queue(bot, msg) {
   }
 
   async function downloadImgs(dlMsg, imgs,
-                              limit = clip.downloadLimit,
                               refers = '',
+                              limit = clip.downloadLimit,
                               start = new Date()) {
     if (DEBUG) return
 
