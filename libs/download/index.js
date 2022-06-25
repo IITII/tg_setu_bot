@@ -4,15 +4,15 @@
  */
 'use strict'
 const Telegraph = require('./telegraph'),
-    dl_tg = new Telegraph().getImageArray
+    telegraph = new Telegraph()
 const Eveira = require('./Eveira'),
-    dl_eve = new Eveira().getImageArray
+    eveira = new Eveira()
 const EveiraTags = require('./tags/eveira_tags'),
-    dl_eve_tag = new EveiraTags().getImageArray
+    eveiraTags = new EveiraTags()
 
 
 module.exports = {
-  dl_tg,
-  dl_eve,
-  dl_eve_tag,
+  telegraph,
+  eveira,
+  eveiraTags,
 }

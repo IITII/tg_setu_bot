@@ -24,10 +24,10 @@ const supported = [
   'https://everia.club/',
 ]
 const supportHandle = [
-  download.dl_tg,
-  download.dl_eve_tag,
-  download.dl_eve_tag,
-  download.dl_eve,
+  download.telegraph,
+  download.eveiraTags,
+  download.eveiraTags,
+  download.eveira,
 ]
 const special_url = /^https?:\/\/everia.club\/?$/
 let busy = false
@@ -143,7 +143,7 @@ async function debounce(ctx, len) {
   }, url_add.delay)
 }
 
-function handle_sup_url(url) {
+async function handle_sup_url(url) {
   let idx = -1
   if (url.match(special_url)) {
     idx = 1
@@ -153,7 +153,7 @@ function handle_sup_url(url) {
   if (idx === -1) {
     throw new Error(`No support handle for this url: ${url}`)
   }
-  return supportHandle[idx](url)
+  return supportHandle[idx].getImageArray(url)
 }
 
 function log_ph(phs) {
