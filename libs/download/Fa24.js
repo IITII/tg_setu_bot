@@ -4,7 +4,7 @@
  */
 'use strict'
 const AbsDownloader = require('./AbsDownloader')
-const {toAbsUrl, zipUrlExt, getSaveDir, get_dom} = require('./dl_utils')
+const {arrToAbsUrl, zipUrlExt, getSaveDir, get_dom, toAbsUrl} = require('./dl_utils')
 const {currMapLimit} = require('../utils')
 const {uniq, uniqBy} = require('lodash')
 const {clip} = require('../../config/config')
@@ -38,15 +38,20 @@ module.exports = class Fa24 extends AbsDownloader {
   async handle_dom($, original) {
     const title = $('.newshow header h1').text()
     const rawUrls = $('.newshow article img').map((i, el) => el.attribs.src).get()
-    const absImgs = toAbsUrl(rawUrls, original)
+    const absImgs = arrToAbsUrl(rawUrls, original)
     // const imgs = await zipUrlExt(absImgs, getSaveDir(title))
     const otherPages = $('.newshow table a').map((i, el) => {
       return {url: el.attribs.href, text: $(el).text()}
     }).get()
     const dropped = otherPages.filter(p => dropText.some(d => p.text.includes(d)))
-    const related = $('.box a').map((i, el) => {
+    const relatedRaw = $('.box a').map((i, el) => {
       return {url: el.attribs.href, text: $(el).text()}
     }).get()
+    const related = relatedRaw.map(raw => {
+      let {url, text} = raw
+      url = toAbsUrl(url, original)
+      return {url, text}
+    })
     const res = {title, imgs: absImgs, otherPages: dropped, related}
     return Promise.resolve(res)
   }

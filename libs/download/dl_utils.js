@@ -14,6 +14,7 @@ const {clip} = require("../../config/config");
 module.exports = {
     get_dom,
     zipUrlExt,
+    arrToAbsUrl,
     toAbsUrl,
     getSaveDir,
 }
@@ -55,12 +56,18 @@ async function zipUrlExt(imgArr, saveDir) {
         const savePath = path.resolve(saveDir + path.sep + (i + 1) + ext)
         return {url, savePath}
     }
+
     return await currMapLimit(zipArr, clip.headLimit, zipHandle)
 }
 
-function toAbsUrl(urls, origin) {
+function arrToAbsUrl(urls, origin) {
     const base = new URL(origin).origin
     return urls.map(u => url_resolve(base, u))
+}
+
+function toAbsUrl(url, origin) {
+    const base = new URL(origin).origin
+    return url_resolve(base, url)
 }
 
 function getSaveDir(title, create = true) {
