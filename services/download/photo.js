@@ -180,6 +180,10 @@ async function handle_queue(bot, msg) {
                               limit = clip.downloadLimit,
                               start = new Date()) {
     if (DEBUG) return
+    // FIXME: 根据不同网站，调整默认下载限额
+    if (refers) {
+      limit = clip.fa24Limit
+    }
 
     async function handle(json) {
       return downloadFile(json.url, json.savePath, refers)

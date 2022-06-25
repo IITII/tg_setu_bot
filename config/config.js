@@ -46,6 +46,7 @@ const config = {
     tagLimit: 1,
     // 下载图片
     downloadLimit: 10,
+    fa24Limit: 3,
     // 图片 header
     headLimit: 20,
     // 上/下一页
