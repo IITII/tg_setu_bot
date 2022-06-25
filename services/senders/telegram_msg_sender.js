@@ -1,22 +1,22 @@
 'use strict'
 
 const fs = require('fs')
-const path = require("path")
-const {timeout, clip} = require('../config/config')
-const {maxMediaGroupLength, maxMessageLength} = require('../config/config').telegram
+const path = require('path')
+const {timeout, clip} = require('../../config/config')
+const {maxMediaGroupLength, maxMessageLength} = require('../../config/config').telegram
 
 const EventEmitter = require('events'),
-    events = new EventEmitter(),
-    eventName = 'msg_send'
+  events = new EventEmitter(),
+  eventName = 'msg_send'
 const queueName = 'telegram_msg_sender',
-    Storage = require('../libs/storage'),
-    storage = new Storage(queueName),
-    {logger} = require("../middlewares/logger"),
-    {sendPhoto, getGroupMedia} = require("../libs/media"),
-    {sleep, reqRateLimit} = require("../libs/utils")
-const bot = require("../libs/telegram_bot"),
-    telegram = bot.telegram
-const {chunk} = require("lodash")
+  Storage = require('../../libs/storage'),
+  storage = new Storage(queueName),
+  {logger} = require('../../middlewares/logger'),
+  {sendPhoto, getGroupMedia} = require('../../libs/media'),
+  {sleep, reqRateLimit} = require('../../libs/utils')
+const bot = require('../../libs/telegram_bot'),
+  telegram = bot.telegram
+const {chunk} = require('lodash')
 
 const TypeEnum = {
     text: 'text',

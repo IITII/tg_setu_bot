@@ -11,25 +11,12 @@ const fs = require('fs'),
   {uniq, difference} = require('lodash')
 const {DEBUG, clip} = require('../../config/config'),
   {currMapLimit, downloadFile, time_human_readable} = require('../../libs/utils'),
-  download = require('../../libs/download'),
   bot = require('../../libs/telegram_bot'),
   {logger} = require('../../middlewares/logger'),
   Storage = require('../../libs/storage')
-const {send_text, sendMediaGroup, send_del_file} = require("../telegram_msg_sender")
+const {send_text, sendMediaGroup, send_del_file} = require('../senders/telegram_msg_sender')
+const {log_ph, isSupport, filterSupStart, handle_sup_url, log_related} = require('../service_utils')
 
-const supported = [
-  'https://telegra.ph/',
-  'https://everia.club/tag/',
-  'https://everia.club/category/',
-  'https://everia.club/',
-]
-const supportHandle = [
-  download.telegraph,
-  download.eveiraTags,
-  download.eveiraTags,
-  download.eveira,
-]
-const special_url = /^https?:\/\/everia.club\/?$/
 let busy = false
 let firstStart = true
 let started = false
@@ -85,10 +72,6 @@ async function lis_add() {
   busy = false
 }
 
-function isSupport(text) {
-  return text && supported.some(_ => text.includes(_))
-}
-
 function message_decode(message) {
   let urls = []
   if (isSupport(message.text)) {
@@ -97,17 +80,17 @@ function message_decode(message) {
   }
   if (message.entities) {
     const text_link = message.entities
-        .filter(_ => _.type === 'text_link')
-        .map(_ => _.url)
-        .filter(_ => isSupport(_))
+      .filter(_ => _.type === 'text_link')
+      .map(_ => _.url)
+      .filter(_ => isSupport(_))
     urls = urls.concat(text_link)
     const url = message.entities
-        .filter(_ => _.type === 'url')
-        .map(os => message.text.substring(os.offset, os.offset + os.length))
-        .filter(_ => isSupport(_))
+      .filter(_ => _.type === 'url')
+      .map(os => message.text.substring(os.offset, os.offset + os.length))
+      .filter(_ => isSupport(_))
     urls = urls.concat(url)
   }
-  urls = uniq(urls.flat(Infinity)).filter(_ => supported.some(s => _.startsWith(s)))
+  urls = filterSupStart(uniq(urls.flat(Infinity)))
   return urls
 }
 
@@ -143,26 +126,6 @@ async function debounce(ctx, len) {
   }, url_add.delay)
 }
 
-async function handle_sup_url(url) {
-  let idx = -1
-  if (url.match(special_url)) {
-    idx = 1
-  } else {
-    idx = supported.findIndex(_ => url.startsWith(_))
-  }
-  if (idx === -1) {
-    throw new Error(`No support handle for this url: ${url}`)
-  }
-  return supportHandle[idx].getImageArray(url)
-}
-
-function log_ph(phs) {
-  return phs.map(ph => {
-    const {title, imgs, original, cost} = ph
-    return `[${title}](${original}): ${imgs.length} in ${time_human_readable(cost)}`
-  }).join('\n')
-}
-
 async function handle_queue(bot, msg) {
   const {chat_id, message_id, session, urls} = msg
   const crawlStart = new Date()
@@ -179,10 +142,10 @@ async function handle_queue(bot, msg) {
   await send_text(chat_id, handle_summary, message_id)
 
   let need_del = []
-  let reviewMsg = ""
+  let reviewMsg = ''
   for (let i = 0; i < photos.length; i++) {
     const ph = photos[i]
-    const {title, meta, tags, imgs, original} = ph
+    const {title, meta, tags, imgs, original, related} = ph
     const mkHead = `[${title}](${original}) `
     // const sMsg = `${mkHead}download started`
     const sMsg = `${mkHead}下载开始`
@@ -207,10 +170,16 @@ async function handle_queue(bot, msg) {
     endMsg += `\n#MarkAsDone`
     logger.debug(endMsg)
     await send_del_file(chat_id, need_del, endMsg, message_id)
+    if (related && related.length > 0) {
+      const related_msg = log_related(related, title, original)
+      await send_text(chat_id, related_msg, message_id)
+    }
   }
+
   async function ac_json(json) {
     return downloadFile(json.url, json.savePath)
   }
+
   async function downloadImgs(dlMsg, imgs,
                               limit = clip.downloadLimit,
                               start = new Date(),
@@ -232,6 +201,7 @@ async function handle_queue(bot, msg) {
         return send_text(chat_id, dlMsg)
       })
   }
+
   async function sendCopyDel(need_send, title) {
     if (DEBUG) return
     await sendMediaGroup(bot, chat_id, need_send, title)

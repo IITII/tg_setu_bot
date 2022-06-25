@@ -38,11 +38,18 @@ const config = {
   redis: {
     url: process.env.REDIS_URL || 'redis://:review_pic@127.0.0.1:6379',
   },
+  // 并发限制
   clip: {
+    // 主网页抓取
     webLimit: 5,
+    // eve 抓取 by tag
     tagLimit: 1,
+    // 下载图片
     downloadLimit: 10,
+    // 图片 header
     headLimit: 20,
+    // 上/下一页
+    pageLimit: 2,
     baseDir: '../tmp',
   },
 }

@@ -8,7 +8,7 @@ const fs = require('fs')
 const path = require('path')
 const {clip} = require('../../config/config')
 const {logger} = require('../../middlewares/logger')
-const {send_text} = require("../telegram_msg_sender")
+const {send_text} = require('../senders/telegram_msg_sender')
 
 async function clean(bot, chat_id, dir) {
   const rm = fs.rm || fs.rmdir

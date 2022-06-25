@@ -9,7 +9,7 @@ const {session} = require('telegraf'),
     bot = require("./libs/telegram_bot")
 
 const photo = require('./services/download/photo'),
-    telegram_msg_sender = require('./services/telegram_msg_sender')
+    telegram_msg_sender = require('./services/senders/telegram_msg_sender')
 
 // bot commands
 async function main() {

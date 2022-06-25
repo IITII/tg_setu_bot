@@ -30,11 +30,11 @@ function three() {
 async function main() {
 // currMapLimit([1, 2, 3], 1, one)
 // rateLimit([1, 2, 3], 1, one)
-  reqRateLimit(one, [1, 2, 3], 1)
+  await reqRateLimit(one, [1, 2, 3], 1)
 
 // rateLimit([1,2,3,4,5,6,7,8,9,10], 10000, 10, false, one)
-  reqRateLimit(one, [1,2,3,4,5,6,7,8,9,10])
-  reqRateLimit(two, [1,2,3,4,5,6,7,8,9,10])
+  await reqRateLimit(one, [1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
+  await reqRateLimit(two, [1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
 // rateLimit(three, [1,2,3,4,5,6,7,8,9,10], 1000)
 }
 
