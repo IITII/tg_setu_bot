@@ -5,17 +5,14 @@
 'use strict'
 const Storage = require('./storage')
 const {logger} = require('../../middlewares/logger')
+const redis = require('../../libs/redis_client')
 
 class RedisStorage extends Storage {
 
   constructor(queueKey = 'review_queue') {
     super()
     this.queueKey = queueKey
-    const {redis: redisConf} = require('../../config/config.js')
-    const {createClient} = require('redis')
-    const client = createClient(redisConf)
-    client.on('error', (err) => logger.error('Redis Client Error', err))
-    this.client = client
+    this.client = redis.duplicate()
   }
 
   async checkConn() {
