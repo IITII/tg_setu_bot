@@ -7,7 +7,8 @@ const {ADMIN_ID, clip, db} = require('./config/config'),
 
 const LocalSession = require('telegraf-session-local'),
   localSession = new LocalSession(db)
-const photo = require('./services/download/photo'),
+const tgMsgRec = require('./services/runs/TgMsgRec'),
+  picHandle = require('./services/runs/PicHandle'),
   telegram_msg_sender = require('./services/senders/telegram_msg_sender')
 
 // bot commands
@@ -39,7 +40,7 @@ async function main() {
   })
   bot.on('message', ctx => {
     if (ctx.session && ctx.session.review > 0) {
-      return photo.handle_ctx(ctx)
+      return tgMsgRec(ctx)
     } else {
       return ctx.copyMessage(ctx.chat.id, ctx.message.message_id)
     }
@@ -64,7 +65,6 @@ function lis_stop() {
   logger.info(stopped)
   return Promise.resolve()
     // .then(_ => bot.telegram.sendMessage(ADMIN_ID, stopped))
-    .then(_ => photo.stop())
     .then(_ => telegram_msg_sender.stop())
     .then(_ => bot.stop())
     .finally(_ => {
@@ -75,7 +75,7 @@ function lis_stop() {
 // Error Handling
 Promise.resolve()
   .then(_ => telegram_msg_sender.start())
-  .then(_ => photo.start())
+  .then(_ => picHandle.start())
   .then(_ => main())
   .then(_ => {
     // Enable graceful stop

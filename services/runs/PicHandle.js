@@ -1,108 +1,31 @@
 /**
  * @author IITII <ccmejx@gmail.com>
- * @date 2022/05/27
+ * @date 2022/06/26
  */
 'use strict'
-const fs = require('fs'),
-  path = require('path'),
-  eventName = 'add_url',
-  EventEmitter = require('events'),
-  events = new EventEmitter(),
-  {uniq, difference} = require('lodash')
-const {DEBUG, clip} = require('../../config/config'),
-  {currMapLimit, downloadFile, time_human_readable} = require('../../libs/utils'),
-  bot = require('../../libs/telegram_bot'),
-  {logger} = require('../../middlewares/logger'),
-  Storage = require('../../libs/storage')
-const {send_text, sendMediaGroup, send_del_file} = require('../msg_utils')
-const {log_ph, handle_sup_url, log_related, message_decode, getLimitByUrl} = require('../service_utils')
-
-let busy = false
-let firstStart = true
-let started = false
-const queueName = 'review_queue',
-  storage = new Storage(queueName)
-
-const url_add = {
-  timer: undefined,
-  count: 0,
-  delay: 500,
-}
+const {queueName, eventName, clip, DEBUG} = require('../../config/config'),
+  eventBus = require('../../libs/event_bus'),
+  Storage = require('../../libs/storage'),
+  queue = queueName.pic_add,
+  event = eventName.pic_add,
+  storage = new Storage(queue)
+const {run_out_mq} = require('./mq_utils')
+const {currMapLimit, time_human_readable, downloadFile} = require('../../libs/utils')
+const {handle_sup_url, log_ph, getLimitByUrl, log_related} = require('../service_utils')
+const {difference, uniq} = require('lodash')
+const {send_text, send_del_file, sendMediaGroup} = require('../msg_utils')
+const {logger} = require('../../middlewares/logger')
+const path = require('path')
 
 async function start() {
-  if (started) {
-    logger.warn(`${queueName} already started`)
-  } else {
-    started = true
-    firstStart = false
-    events.on(eventName, lis_add)
-    logger.info(`First start, consume queue ${queueName}`)
-    lis_add().then(_ => logger.info(`${queueName} end`))
-  }
+  eventBus.on(event, consume)
+  eventBus.emit(event, 'start')
 }
 
-
-async function stop() {
-  started = false
-  events.off(eventName, lis_add)
+async function consume() {
+  await run_out_mq(storage, queue, handle_queue)
 }
 
-async function lis_add() {
-  if (busy) {
-    return
-  }
-  busy = true
-  let len = await storage.llen()
-  while (len > 0) {
-    let msg
-    let jMsg
-    try {
-      msg = await storage.lpop()
-      if (msg) {
-        jMsg = JSON.stringify(msg)
-        logger.debug(`handle msg: ${jMsg}`)
-        await handle_queue(bot, msg)
-      }
-      len = await storage.llen()
-    } catch (e) {
-      logger.error(`Handle ${jMsg} error, ${e.message}`)
-      logger.error(e)
-    }
-  }
-  busy = false
-}
-
-async function handle_ctx(ctx) {
-  const message = ctx.message || ctx.update.message
-  const urls = message_decode(message)
-  if (urls.length === 0) {
-    // const msg = `no url in message: ${JSON.stringify(message)}`
-    const msg = `无法解析消息: ${JSON.stringify(message)}`
-    return ctx.reply(msg)
-  }
-  const v = {
-    chat_id: message.chat.id,
-    message_id: message.message_id,
-    session: ctx.session,
-    urls: urls,
-  }
-  await storage.rpush(v)
-  events.emit(eventName, v)
-  return debounce(ctx, urls.length)
-}
-
-async function debounce(ctx, len) {
-  if (url_add.timer) {
-    clearTimeout(url_add.timer)
-  }
-  url_add.count += len
-  url_add.timer = setTimeout(() => {
-    // const s = `total ${url_add.count} urls added to queue`
-    const s = `添加 ${url_add.count} 条链接到队列`
-    url_add.count = 0
-    ctx.reply(s)
-  }, url_add.delay)
-}
 
 async function handle_queue(bot, msg) {
   const {chat_id, message_id, session, urls} = msg
@@ -201,7 +124,5 @@ async function handle_queue(bot, msg) {
 }
 
 module.exports = {
-  start,
-  stop,
-  handle_ctx,
+  start
 }

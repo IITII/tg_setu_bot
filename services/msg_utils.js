@@ -28,22 +28,24 @@ module.exports = {
 
 const fs = require('fs'),
   path = require('path'),
-  {chunk} = require('lodash'),
-  {clip, queueName, eventName, telegram: telegramConf} = require('../config/config'),
+  {chunk} = require('lodash')
+
+const {queueName, eventName} = require('../config/config'),
+  eventBus = require('../libs/event_bus'),
+  Storage = require('../libs/storage'),
+  queue = queueName.msg_send,
+  event = eventName.msg_send,
+  storage = new Storage(queue)
+const {clip, telegram: telegramConf} = require('../config/config'),
   {maxMediaGroupLength, maxMessageLength} = telegramConf,
-  {msg_send} = eventName,
-  d_que = queueName.msg_send,
-  {logger} = require('../middlewares/logger')
-const Storage = require('../libs/storage'),
-  storage = new Storage(d_que),
+  {logger} = require('../middlewares/logger'),
   {sendPhoto, getGroupMedia} = require('../libs/media'),
-  {reqRateLimit} = require('../libs/utils')
-const eventBus = require('../libs/event_bus')
-const bot = require('../libs/telegram_bot'),
+  {reqRateLimit} = require('../libs/utils'),
+  bot = require('../libs/telegram_bot'),
   telegram = bot.telegram
 
 function emit(v) {
-  return eventBus.emit(msg_send, v)
+  return eventBus.emit(event, v)
 }
 
 async function send_text(chat_id, text, message_id = undefined) {
