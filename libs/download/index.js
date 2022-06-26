@@ -3,13 +3,13 @@
  * @date 2022/05/27
  */
 'use strict'
-const Telegraph = require('./Telegraph'),
+const Telegraph = require('./sites/Telegraph'),
   telegraph = new Telegraph()
-const Eveira = require('./Eveira'),
+const Eveira = require('./sites/Eveira'),
   eveira = new Eveira()
-const EveiraTags = require('./tags/eveira_tags'),
+const EveiraTags = require('./sites/eveira_tags'),
   eveiraTags = new EveiraTags()
-const Fa24 = require('./Fa24'),
+const Fa24 = require('./sites/Fa24'),
   fa24 = new Fa24()
 
 

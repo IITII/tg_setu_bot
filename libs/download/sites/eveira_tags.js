@@ -5,12 +5,12 @@
 'use strict'
 const {uniqBy} = require('lodash')
 const AbsDownloader = require("../AbsDownloader");
-const {get_dom} = require("../dl_utils");
+const {get_dom} = require('../dl_utils')
 const {clip} = require('../../../config/config'),
-    {logger} = require('../../../middlewares/logger'),
-    {currMapLimit, titleFormat, time_human_readable} = require('../../utils'),
-    Eveira = require('../Eveira'),
-    eveira = new Eveira()
+  {logger} = require('../../../middlewares/logger'),
+  {currMapLimit, titleFormat, time_human_readable} = require('../../utils'),
+  Eveira = require('./Eveira'),
+  eveira = new Eveira()
 
 module.exports = class EveiraTags extends AbsDownloader {
     async getImageArray(url) {

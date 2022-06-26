@@ -3,11 +3,11 @@
  * @date 2022/06/25
  */
 'use strict'
-const AbsDownloader = require('./AbsDownloader')
-const {arrToAbsUrl, zipUrlExt, getSaveDir, get_dom, toAbsUrl} = require('./dl_utils')
-const {currMapLimit} = require('../utils')
+const AbsDownloader = require('../AbsDownloader')
+const {arrToAbsUrl, zipUrlExt, getSaveDir, get_dom, toAbsUrl} = require('../dl_utils')
+const {currMapLimit} = require('../../utils')
 const {uniq, uniqBy} = require('lodash')
-const {clip} = require('../../config/config')
+const {clip} = require('../../../config/config')
 const dropText = '上一页,下一页'.split(',')
 let self = null
 
