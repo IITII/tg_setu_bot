@@ -27,30 +27,36 @@ async function handle_ctx(ctx) {
     const msg = `无法解析消息: ${JSON.stringify(message)}`
     return ctx.reply(msg)
   }
-  return debounce(ctx, urls)
+  const chat_id = message.chat.id,
+    message_id = message.message_id,
+    session = ctx.session
+  const urlInfo = {chat_id, message_id, session, urls,}
+  return debounce(urlInfo)
 }
 
-async function debounce(ctx, urls) {
-  let v = {timer: null, count: 0, urls: [], delay: 500}
-  const chat_id = ctx.chat.id
-  const mapKey = `${chat_id}_${JSON.stringify(ctx.session)}`
+// 按 message id 精细化区分
+async function debounce(urlInfo) {
+  const {chat_id, message_id, session, urls,} = urlInfo
+  let timerInfo = {timer: null, count: 0, urls: [], delay: 500}
+  const mapKey = `${chat_id}_${JSON.stringify(session)}`
   if (debMap.has(mapKey)) {
-    v = debMap.get(mapKey)
-    clearTimeout(v.timer)
-    v.urls = v.urls.concat(urls)
+    timerInfo = debMap.get(mapKey)
+    clearTimeout(timerInfo.timer)
+    timerInfo.urls = timerInfo.urls.concat(urls)
   } else {
-    v.urls = urls
+    timerInfo.urls = urls
   }
-  v.urls = uniq(v.urls)
-  v.count = v.urls.length
-  v.timer = setTimeout(async () => {
-    await timeout(chat_id, mapKey, v)
-  })
-  debMap.set(mapKey, v)
+  timerInfo.urls = uniq(timerInfo.urls)
+  timerInfo.count = timerInfo.urls.length
+  timerInfo.timer = setTimeout(async () => {
+    await timeout(chat_id, message_id, session, mapKey, timerInfo)
+  }, timerInfo.delay)
+  debMap.set(mapKey, timerInfo)
 }
 
-async function timeout(chat_id, k, v) {
-  const s = `添加 ${v.count} 条链接到队列`
+async function timeout(chat_id, message_id, session, k, info) {
+  const s = `添加 ${info.count} 条链接到队列`
+  const v = {chat_id, message_id, session, urls: info.urls,}
   await storage.rpush(v)
   debMap.delete(k)
   eventBus.emit(event, v)
