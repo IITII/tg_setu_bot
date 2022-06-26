@@ -109,7 +109,7 @@ function log_ph(phs) {
 }
 
 function log_related(photos) {
-  let related = photos.map(_ => _.related).flat(Infinity)
+  let related = photos.map(_ => _.related).flat(Infinity).filter(_ => !!_)
   if (related.length === 0) return ''
   related = uniqBy(related, 'text')
   related = uniqBy(related, 'url')
