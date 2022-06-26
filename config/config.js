@@ -46,6 +46,10 @@ const config = {
     pic_add: 'pic_add',
     msg_send: 'msg_send',
   },
+  taskName: {
+    eveTask: 'eveTask',
+    fa24Task: 'fa24Task',
+  },
   redis: {
     url: process.env.REDIS_URL || 'redis://:review_pic@127.0.0.1:6379',
   },
