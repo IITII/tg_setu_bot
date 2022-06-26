@@ -1,5 +1,7 @@
 .idea/
 .vscode/
+db/
+!.git_keep
 !.vscode/launch.json
 .vs/
 # Logs

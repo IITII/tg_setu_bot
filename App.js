@@ -9,7 +9,7 @@ const LocalSession = require('telegraf-session-local'),
   localSession = new LocalSession(db)
 const tgMsgRec = require('./services/runs/TgMsgRec'),
   picHandle = require('./services/runs/PicHandle'),
-  telegram_msg_sender = require('./services/senders/telegram_msg_sender')
+  msgHandle = require('./services/runs/MsgHandle')
 
 // bot commands
 async function main() {
@@ -65,7 +65,7 @@ function lis_stop() {
   logger.info(stopped)
   return Promise.resolve()
     // .then(_ => bot.telegram.sendMessage(ADMIN_ID, stopped))
-    .then(_ => telegram_msg_sender.stop())
+    // .then(_ => telegram_msg_sender.stop())
     .then(_ => bot.stop())
     .finally(_ => {
       process.exit(0)
@@ -74,7 +74,7 @@ function lis_stop() {
 
 // Error Handling
 Promise.resolve()
-  .then(_ => telegram_msg_sender.start())
+  .then(_ => msgHandle.start())
   .then(_ => picHandle.start())
   .then(_ => main())
   .then(_ => {
