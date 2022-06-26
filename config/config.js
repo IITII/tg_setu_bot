@@ -46,6 +46,10 @@ const config = {
     pic_add: 'pic_add',
     msg_send: 'msg_send',
   },
+  check: {
+    randomRate: 0.1,
+    all: 1000 * 60 * 60,
+  },
   taskName: {
     eveTask: 'eveTask',
     fa24Task: 'fa24Task',
