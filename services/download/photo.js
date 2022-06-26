@@ -14,8 +14,8 @@ const {DEBUG, clip} = require('../../config/config'),
   bot = require('../../libs/telegram_bot'),
   {logger} = require('../../middlewares/logger'),
   Storage = require('../../libs/storage')
-const {send_text, sendMediaGroup, send_del_file} = require('../senders/telegram_msg_sender')
-const {log_ph, isSupport, filterSupStart, handle_sup_url, log_related} = require('../service_utils')
+const {send_text, sendMediaGroup, send_del_file} = require('../msg_utils')
+const {log_ph, handle_sup_url, log_related, message_decode, getLimitByUrl} = require('../service_utils')
 
 let busy = false
 let firstStart = true
@@ -72,28 +72,6 @@ async function lis_add() {
   busy = false
 }
 
-function message_decode(message) {
-  let urls = []
-  if (isSupport(message.text)) {
-    const text = message.text
-    urls = urls.concat(text.split('\n').filter(_ => isSupport(_)))
-  }
-  if (message.entities) {
-    const text_link = message.entities
-      .filter(_ => _.type === 'text_link')
-      .map(_ => _.url)
-      .filter(_ => isSupport(_))
-    urls = urls.concat(text_link)
-    const url = message.entities
-      .filter(_ => _.type === 'url')
-      .map(os => message.text.substring(os.offset, os.offset + os.length))
-      .filter(_ => isSupport(_))
-    urls = urls.concat(url)
-  }
-  urls = filterSupStart(uniq(urls.flat(Infinity)))
-  return urls
-}
-
 async function handle_ctx(ctx) {
   const message = ctx.message || ctx.update.message
   const urls = message_decode(message)
@@ -145,7 +123,7 @@ async function handle_queue(bot, msg) {
   let reviewMsg = ''
   for (let i = 0; i < photos.length; i++) {
     const ph = photos[i]
-    const {title, meta, tags, imgs, original, related} = ph
+    const {title, meta, tags, imgs, original} = ph
     const mkHead = `[${title}](${original}) `
     // const sMsg = `${mkHead}download started`
     const sMsg = `${mkHead}下载开始`
@@ -155,35 +133,28 @@ async function handle_queue(bot, msg) {
 
     logger.info(sMsg)
     await send_text(chat_id, sMsg)
-    await downloadImgs(mkHead, imgs, original)
+    await downloadImgs(mkHead, imgs, original, getLimitByUrl(original))
     if (session && session.review === 2) {
       const need_send = imgs.map(_ => _.savePath).flat(Infinity)
       await sendCopyDel(need_send, title)
     }
     let endMsg = reviewMsg
-    if (meta) {
-      endMsg += `\n${meta.join(', ')}`
-    }
-    if (tags) {
-      endMsg += `\n${tags.join(', ')}`
-    }
-    endMsg += `\n#MarkAsDone`
+    if (meta && meta.length > 0) endMsg += `\n${meta.join(', ')}`
+    if (tags && tags.length > 0) endMsg += `\n${tags.join(', ')}`
+    endMsg = `#MarkAsDone\n${endMsg}`
     logger.debug(endMsg)
     await send_del_file(chat_id, need_del, endMsg, message_id)
-    if (related && related.length > 0) {
-      await send_text(chat_id, log_related(related), message_id)
-    }
+  }
+  const related_msg = log_related(photos)
+  if (related_msg) {
+    await send_text(chat_id, related_msg, message_id)
   }
 
   async function downloadImgs(dlMsg, imgs,
                               refers = '',
-                              limit = clip.downloadLimit,
+                              limit = clip.telegrafLimit,
                               start = new Date()) {
     if (DEBUG) return
-    // FIXME: 根据不同网站，调整默认下载限额
-    if (refers) {
-      limit = clip.fa24Limit
-    }
 
     async function handle(json) {
       return downloadFile(json.url, json.savePath, refers)
@@ -208,7 +179,7 @@ async function handle_queue(bot, msg) {
 
   async function sendCopyDel(need_send, title) {
     if (DEBUG) return
-    await sendMediaGroup(bot, chat_id, need_send, title)
+    await sendMediaGroup(chat_id, need_send, title)
       .then(_ => {
         // reviewMsg += `Send total: ${need_send.length}\n`
         reviewMsg += `共发送图片: ${need_send.length}\n`

@@ -19,6 +19,7 @@ const {logger} = require('../middlewares/logger')
 async function spendTime(prefix, func, ...args) {
   return await new Promise(async (resolve, reject) => {
     let start = new Date()
+    logger.info(`${prefix} start...`)
     try {
       const res = await func.apply(this, args)
       return resolve(res)
@@ -26,7 +27,8 @@ async function spendTime(prefix, func, ...args) {
       return reject(e)
     } finally {
       const spent = new Date() - start
-      logger.info(`${prefix + ' '}Spent ${spent}ms`)
+      const cost = time_human_readable(spent)
+      logger.info(`${prefix} end. Spent ${cost}`)
     }
   })
 }

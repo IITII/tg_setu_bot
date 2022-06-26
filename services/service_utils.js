@@ -7,13 +7,17 @@
 module.exports = {
   isSupport,
   filterSupStart,
+  message_decode,
   handle_sup_url,
+  getLimitByUrl,
   log_ph,
   log_related,
 }
 
 const {time_human_readable} = require('../libs/utils')
 const download = require('../libs/download')
+const {uniqBy, uniq} = require('lodash')
+const {clip} = require('../config/config')
 
 const supported = [
   'https://telegra.ph/',
@@ -33,6 +37,15 @@ const supportHandle = [
   download.fa24,
   download.fa24,
 ]
+const supportLimit = [
+  clip.telegrafLimit,
+  clip.eveLimit,
+  clip.eveLimit,
+  clip.eveLimit,
+  clip.fa24Limit,
+  clip.fa24Limit,
+  clip.fa24Limit,
+]
 const special_url = /^https?:\/\/everia.club\/?$/
 
 function isSupport(text) {
@@ -43,16 +56,50 @@ function filterSupStart(arr) {
   return arr.filter(_ => supported.some(s => _.startsWith(s)))
 }
 
-async function handle_sup_url(url) {
+function message_decode(message) {
+  let urls = []
+  if (isSupport(message.text)) {
+    const text = message.text
+    urls = urls.concat(text.split('\n').filter(_ => isSupport(_)))
+  }
+  if (message.entities) {
+    const text_link = message.entities
+      .filter(_ => _.type === 'text_link')
+      .map(_ => _.url)
+      .filter(_ => isSupport(_))
+    urls = urls.concat(text_link)
+    const url = message.entities
+      .filter(_ => _.type === 'url')
+      .map(os => message.text.substring(os.offset, os.offset + os.length))
+      .filter(_ => isSupport(_))
+    urls = urls.concat(url)
+  }
+  urls = filterSupStart(uniq(urls.flat(Infinity)))
+  return urls
+}
+
+function getIndexByUrl(url) {
   let idx = url.match(special_url) ? 1
     : supported.findIndex(_ => url.startsWith(_))
   if (idx === -1) {
     throw new Error(`No support handle for this url: ${url}`)
   }
+  return idx
+}
+
+async function handle_sup_url(url) {
+  let idx = getIndexByUrl(url)
   return supportHandle[idx].getImageArray(url)
 }
 
+function getLimitByUrl(url) {
+  let idx = getIndexByUrl(url)
+  return supportLimit[idx]
+}
+
 function log_ph(phs) {
+  phs = uniqBy(phs, 'title')
+  phs = uniqBy(phs, 'original')
   return phs
     .filter(_ => !!_)
     .map(ph => {
@@ -61,8 +108,12 @@ function log_ph(phs) {
     }).join('\n')
 }
 
-function log_related(related) {
-  let msg = `**Related:**\n`
+function log_related(photos) {
+  let related = photos.map(_ => _.related).flat(Infinity)
+  if (related.length === 0) return ''
+  related = uniqBy(related, 'text')
+  related = uniqBy(related, 'url')
+  let msg = `**#Related**\n`
   msg += related
     .filter(_ => !!_)
     .map(re => {

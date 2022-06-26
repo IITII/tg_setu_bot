@@ -12,6 +12,9 @@ const config = {
   // ADMIN_ID : process.env.ADMIN_ID,
   ADMIN_ID: process.env.ADMIN_ID,
   PROXY: process.env.PROXY,
+  db: {
+    database: process.env.DB_FILE || '../db/db.json',
+  },
   timeout: {
     sendMsg: 1000
   },
@@ -35,6 +38,14 @@ const config = {
   },
   // support: mem, redis
   queueType: 'redis',
+  queueName: {
+    pic_add: 'bot_pic_queue',
+    msg_send: 'bot_msg_queue',
+  },
+  eventName: {
+    pic_add: 'pic_add',
+    msg_send: 'msg_send',
+  },
   redis: {
     url: process.env.REDIS_URL || 'redis://:review_pic@127.0.0.1:6379',
   },
@@ -45,12 +56,13 @@ const config = {
     // eve 抓取 by tag
     tagLimit: 1,
     // 下载图片
-    downloadLimit: 10,
+    telegrafLimit: 10,
+    eveLimit: 12,
     fa24Limit: 3,
     // 图片 header
     headLimit: 20,
     // 上/下一页
-    pageLimit: 2,
+    pageLimit: 1,
     baseDir: '../tmp',
   },
 }
@@ -64,9 +76,18 @@ if (proxy) {
     port: proxy.split(':')[1],
   }
 }
-const dir = config.clip.baseDir
-if (!fs.existsSync(dir)) {
-  fs.mkdirSync(dir, { recursive: true })
-  console.log(`mkdir ${dir}`)
+mkdir(config.clip.baseDir)
+if (!config.db.database) {
+  config.db.database = '../db/db.json'
 }
+config.db.database = path.resolve(__dirname, config.db.database)
+mkdir(path.dirname(config.db.database))
+
+function mkdir(dir) {
+  if (!fs.existsSync(dir)) {
+    fs.mkdirSync(dir, {recursive: true})
+    console.log(`mkdir ${dir}`)
+  }
+}
+
 module.exports = config

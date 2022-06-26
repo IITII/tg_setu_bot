@@ -14,19 +14,19 @@ class MemStorage extends Storage {
   }
 
   async rpush(v) {
-    return this.data.push(v)
+    return Promise.resolve(this.data.push(v))
   }
 
   async lpop() {
-    return this.data.shift()
+    return Promise.resolve(this.data.shift())
   }
 
   async llen() {
-    return this.data.length
+    return Promise.resolve(this.data.length)
   }
 
   async clear() {
-    return this.data = []
+    this.data = []
   }
 }
 

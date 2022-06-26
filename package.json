@@ -18,6 +18,7 @@
     "lodash": "^4.17.21",
     "log4js": "^6.5.2",
     "redis": "^4.1.0",
-    "telegraf": "^4.8.2"
+    "telegraf": "^4.8.2",
+    "telegraf-session-local": "^2.1.0"
   }
 }
