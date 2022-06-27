@@ -47,7 +47,7 @@ const config = {
     msg_send: 'msg_send',
   },
   check: {
-    randomRate: 0.1,
+    randomRate: 0.20,
     all: 1000 * 60 * 60,
   },
   taskName: {
@@ -62,7 +62,8 @@ const config = {
     // 主网页抓取
     webLimit: 5,
     // eve 抓取 by tag
-    tagLimit: 1,
+    eveTagLimit: 1,
+    faTagLimit: 1,
     // 下载图片
     telegrafLimit: 10,
     eveLimit: 12,

@@ -26,17 +26,15 @@ const supported = [
   'https://everia.club/tag/',
   'https://everia.club/category/',
   'https://everia.club/',
+  'https://www.24fa.com/search.aspx',
   'https://www.24fa.com/',
-  'https://www.268w.cc/',
-  'https://www.116w.cc/',
 ]
 const supportHandle = [
   download.telegraph,
   download.eveiraTags,
   download.eveiraTags,
   download.eveira,
-  download.fa24,
-  download.fa24,
+  download.fa24Tags,
   download.fa24,
 ]
 const supportLimit = [
@@ -44,7 +42,6 @@ const supportLimit = [
   clip.eveLimit,
   clip.eveLimit,
   clip.eveLimit,
-  clip.fa24Limit,
   clip.fa24Limit,
   clip.fa24Limit,
 ]
