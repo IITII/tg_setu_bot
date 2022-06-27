@@ -123,7 +123,7 @@ function titleFormat(title,
     .replace(cleanMtiSpace, ' ')
 }
 
-async function extFormat(imgUrl, allowTypes = /\.(jpe?g|png|webp)/) {
+async function extFormat(imgUrl, allowTypes = /\.(jpe?g|png|webp|jiff)/) {
   return await new Promise(async (resolve, reject) => {
     const suffix = path.extname(imgUrl)
     if (suffix && suffix.match(allowTypes)) {
