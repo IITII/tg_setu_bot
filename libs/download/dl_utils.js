@@ -6,7 +6,7 @@
 const {logger} = require("../../middlewares/logger");
 const axios = require("../axios_client");
 const {load} = require("cheerio");
-const {time_human_readable, zipWithIndex, extFormat, currMapLimit, url_resolve, mkdir} = require("../utils");
+const {time_human_readable, zipWithIndex, extFormat, currMapLimit, url_resolve, mkdir, titleFormat} = require("../utils");
 const {uniq} = require("lodash");
 const path = require("path");
 const {clip} = require("../../config/config");
@@ -75,6 +75,7 @@ function urlTextsToAbs(url_texts, original) {
     return url_texts.map(raw => {
         let {url, text} = raw
         url = toAbsUrl(url, original)
+        text = titleFormat(text)
         return {url, text}
     })
 }

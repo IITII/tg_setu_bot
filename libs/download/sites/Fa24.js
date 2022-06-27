@@ -38,9 +38,9 @@ module.exports = class Fa24 extends AbsDownloader {
   async handle_dom($, original) {
     const isMobile = $('.pos').text().includes("首页 > ")
     if (isMobile) {
-      return this.handle_mobile_dom($, original)
+      return self.handle_mobile_dom($, original)
     } else {
-      return this.handle_web_dom($, original)
+      return self.handle_web_dom($, original)
     }
   }
 
