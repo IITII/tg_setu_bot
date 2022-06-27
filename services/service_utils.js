@@ -12,6 +12,8 @@ module.exports = {
   getLimitByUrl,
   log_ph,
   log_related,
+  log_url_texts,
+  log_meta_tag,
 }
 
 const {time_human_readable} = require('../libs/utils')
@@ -114,11 +116,19 @@ function log_related(photos) {
   related = uniqBy(related, 'text')
   related = uniqBy(related, 'url')
   let msg = `**#Related**\n`
-  msg += related
-    .filter(_ => !!_)
-    .map(re => {
-      const {url, text} = re
-      return `[${text}](${url})`
-    }).join('\n')
+  msg += log_url_texts(related)
   return msg
+}
+
+function log_url_texts(url_texts, sep = '\n') {
+  if (!url_texts) return ''
+  return url_texts
+    .filter(_ => !!_)
+    .map(_ => `[${_.text}](${_.url})`).join(sep)
+}
+
+function log_meta_tag(meta_tag, isMeta = false, sep = ', ') {
+  if (!meta_tag || meta_tag.length === 0) return ''
+  const res = log_url_texts(meta_tag, sep)
+  return res ? `**${isMeta ? 'Meta' : 'Tags'}:**\n${res}\n` : ''
 }

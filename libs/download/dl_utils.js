@@ -16,6 +16,7 @@ module.exports = {
     zipUrlExt,
     arrToAbsUrl,
     toAbsUrl,
+    urlTextsToAbs,
     getSaveDir,
 }
 
@@ -68,6 +69,14 @@ function arrToAbsUrl(urls, origin) {
 function toAbsUrl(url, origin) {
     const base = new URL(origin).origin
     return url_resolve(base, url)
+}
+
+function urlTextsToAbs(url_texts, original) {
+    return url_texts.map(raw => {
+        let {url, text} = raw
+        url = toAbsUrl(url, original)
+        return {url, text}
+    })
 }
 
 function getSaveDir(title, create = true) {

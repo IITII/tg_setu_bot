@@ -4,7 +4,7 @@
  */
 'use strict'
 const AbsDownloader = require('../AbsDownloader')
-const {arrToAbsUrl, zipUrlExt, getSaveDir, get_dom, toAbsUrl} = require('../dl_utils')
+const {arrToAbsUrl, zipUrlExt, getSaveDir, get_dom, urlTextsToAbs} = require('../dl_utils')
 const {currMapLimit} = require('../../utils')
 const {uniq, uniqBy} = require('lodash')
 const {clip} = require('../../../config/config')
@@ -19,7 +19,7 @@ module.exports = class Fa24 extends AbsDownloader {
 
   async getImageArray(url) {
     const firstPage = await get_dom(url, this.handle_dom)
-    let {title, imgs, otherPages, related, cost, original} = firstPage
+    let {title, imgs, otherPages, related, cost, original, tags} = firstPage
     const otherUrls = otherPages.map(p => p.url)
     const otherInfos = await currMapLimit(otherUrls, clip.pageLimit, this.handle_other_pages)
     imgs = uniq(imgs.concat(otherInfos.map(i => i.imgs)).flat(Infinity))
@@ -27,7 +27,7 @@ module.exports = class Fa24 extends AbsDownloader {
     related = related.concat(otherInfos.map(i => i.related)).flat(Infinity)
     related = uniqBy(related, 'url')
     cost += otherInfos.reduce((acc, i) => acc + i.cost, 0)
-    const res = {title, imgs, related, cost, original}
+    const res = {title, imgs, related, cost, original, tags}
     return Promise.resolve(res)
   }
 
@@ -36,6 +36,15 @@ module.exports = class Fa24 extends AbsDownloader {
   }
 
   async handle_dom($, original) {
+    const isMobile = $('.pos').text().includes("首页 > ")
+    if (isMobile) {
+      return this.handle_mobile_dom($, original)
+    } else {
+      return this.handle_web_dom($, original)
+    }
+  }
+
+  async handle_mobile_dom($, original) {
     const title = $('.newshow header h1').text()
     const rawUrls = $('.newshow article img').map((i, el) => el.attribs.src).get()
     const absImgs = arrToAbsUrl(rawUrls, original)
@@ -43,23 +52,40 @@ module.exports = class Fa24 extends AbsDownloader {
     // 其他页面的图片
     const otherPagesRaw = $('.newshow table a').map((i, el) => {
       return {url: el.attribs.href, text: $(el).text()}
-    }).get()
-    const dropped = otherPagesRaw.filter(p => !dropText.some(d => p.text.includes(d)))
-    const otherPages = self.otherPageToAbsUrl(dropped, original)
+    }).get(),
+      dropped = this.droppedPage(otherPagesRaw),
+      otherPages = urlTextsToAbs(dropped, original)
     // 相关文章
     const relatedRaw = $('.box a').map((i, el) => {
       return {url: el.attribs.href, text: $(el).text()}
-    }).get()
-    const related = self.otherPageToAbsUrl(relatedRaw, original)
+    }).get(),
+      related = urlTextsToAbs(relatedRaw, original)
     const res = {title, imgs: absImgs, otherPages, related}
     return Promise.resolve(res)
   }
 
-  otherPageToAbsUrl(url_texts, original) {
-    return url_texts.map(raw => {
-      let {url, text} = raw
-      url = toAbsUrl(url, original)
-      return {url, text}
-    })
+  async handle_web_dom($, original) {
+    const title = $('#printBody h1').text()
+    const rawUrls = $('#printBody #content img').map((i, el) => el.attribs.src).get()
+    const absImgs = arrToAbsUrl(rawUrls, original)
+    const otherPagesRaw = $('#printBody table a').map((i, el) => {
+      return { url: el.attribs.href, text: $(el).text() }
+    }).get(),
+      dropped = this.droppedPage(otherPagesRaw),
+      otherPages = urlTextsToAbs(dropped, original)
+    const tagsR = $($('#middle .mframe .mframe .zh').get(0)).find('a').map((i, el) => {
+      return { url: el.attribs.href, text: $(el).text() }
+    }).get(),
+      tags = urlTextsToAbs(tagsR, original)
+    const relatedR = $($('#middle .mframe .mframe .wrapper').get(0)).find('a').map((i, el) => {
+      return { url: el.attribs.href, text: $(el).text() }
+    }).get(),
+      related = urlTextsToAbs(relatedR, original)
+    const res = {title, imgs: absImgs, otherPages, related, tags}
+    return Promise.resolve(res)
+  }
+
+  droppedPage(otherPages) {
+    return  otherPages.filter(p => !dropText.some(d => p.text.includes(d)))
   }
 }
