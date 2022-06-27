@@ -2,7 +2,7 @@
 
 const {ADMIN_ID, clip, db} = require('./config/config'),
   {logger, loggerMiddleware} = require('./middlewares/logger'),
-  {clean} = require('./services/msg_utils'),
+  {clean} = require('./services/utils/msg_utils'),
   bot = require('./libs/telegram_bot')
 
 const LocalSession = require('telegraf-session-local'),

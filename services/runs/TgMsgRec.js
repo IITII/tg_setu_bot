@@ -14,9 +14,9 @@ const {queueName, eventName} = require('../../config/config'),
   queue = queueName.pic_add,
   event = eventName.pic_add,
   storage = new Storage(queue)
-const {message_decode} = require('../service_utils'),
+const {message_decode} = require('../utils/service_utils'),
   {uniq} = require('lodash'),
-  {send_text} = require('../msg_utils'),
+  {send_text} = require('../utils/msg_utils'),
   debMap = new Map()
 
 async function handle_ctx(ctx) {

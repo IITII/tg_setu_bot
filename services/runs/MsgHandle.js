@@ -11,7 +11,7 @@ const {queueName, eventName} = require('../../config/config'),
   storage = new Storage(queue)
 
 const {run_out_mq} = require('./mq_utils')
-const {TypeEnum, handle_text, handle_photo, handle_media_group, handle_del_file} = require('../msg_utils')
+const {TypeEnum, handle_text, handle_photo, handle_media_group, handle_del_file} = require('../utils/msg_utils')
 const {sleep} = require('../../libs/utils')
 
 

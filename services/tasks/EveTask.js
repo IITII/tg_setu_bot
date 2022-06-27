@@ -8,8 +8,8 @@ const redis = require('redis'),
   taskKey = taskName.eveTask,
   {get_dom} = require('../../libs/download/dl_utils')
 const uidMap = new Map()
-const {message_decode} = require('../service_utils')
-const {send_text} = require('../msg_utils')
+const {message_decode} = require('../utils/service_utils')
+const {send_text} = require('../utils/msg_utils')
 
 async function test() {
   const TEST_UID = process.env.TEST_UID || 'TEST_UID'

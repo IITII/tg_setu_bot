@@ -30,18 +30,18 @@ const fs = require('fs'),
   path = require('path'),
   {chunk} = require('lodash')
 
-const {queueName, eventName} = require('../config/config'),
-  eventBus = require('../libs/event_bus'),
-  Storage = require('../libs/storage'),
+const {queueName, eventName} = require('../../config/config'),
+  eventBus = require('../../libs/event_bus'),
+  Storage = require('../../libs/storage'),
   queue = queueName.msg_send,
   event = eventName.msg_send,
   storage = new Storage(queue)
-const {clip, telegram: telegramConf} = require('../config/config'),
+const {clip, telegram: telegramConf} = require('../../config/config'),
   {maxMediaGroupLength, maxMessageLength} = telegramConf,
-  {logger} = require('../middlewares/logger'),
-  {sendPhoto, getGroupMedia} = require('../libs/media'),
-  {reqRateLimit} = require('../libs/utils'),
-  bot = require('../libs/telegram_bot'),
+  {logger} = require('../../middlewares/logger'),
+  {sendPhoto, getGroupMedia} = require('../../libs/media'),
+  {reqRateLimit} = require('../../libs/utils'),
+  bot = require('../../libs/telegram_bot'),
   telegram = bot.telegram
 
 function emit(v) {

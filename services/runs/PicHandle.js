@@ -11,9 +11,9 @@ const {queueName, eventName, clip, DEBUG} = require('../../config/config'),
   storage = new Storage(queue)
 const {run_out_mq} = require('./mq_utils')
 const {currMapLimit, time_human_readable, downloadFile} = require('../../libs/utils')
-const {handle_sup_url, log_ph, getLimitByUrl, log_related, log_meta_tag} = require('../service_utils')
+const {handle_sup_url, log_ph, getLimitByUrl, log_related, log_meta_tag} = require('../utils/service_utils')
 const {difference, uniq} = require('lodash')
-const {send_text, send_del_file, sendMediaGroup} = require('../msg_utils')
+const {send_text, send_del_file, sendMediaGroup} = require('../utils/msg_utils')
 const {logger} = require('../../middlewares/logger')
 const path = require('path')
 

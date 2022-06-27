@@ -16,10 +16,10 @@ module.exports = {
   log_meta_tag,
 }
 
-const {time_human_readable} = require('../libs/utils')
-const download = require('../libs/download')
+const {time_human_readable} = require('../../libs/utils')
+const download = require('../../libs/download')
 const {uniqBy, uniq} = require('lodash')
-const {clip} = require('../config/config')
+const {clip} = require('../../config/config')
 
 const supported = [
   'https://telegra.ph/',
