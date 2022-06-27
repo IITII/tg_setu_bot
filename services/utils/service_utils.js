@@ -8,8 +8,6 @@ module.exports = {
   isSupport,
   filterSupStart,
   message_decode,
-  handle_sup_url,
-  getLimitByUrl,
   log_ph,
   log_related,
   log_url_texts,
@@ -20,40 +18,7 @@ const {time_human_readable} = require('../../libs/utils')
 const download = require('../../libs/download')
 const {uniqBy, uniq} = require('lodash')
 const {clip} = require('../../config/config')
-
-const supported = [
-  'https://telegra.ph/',
-  'https://everia.club/tag/',
-  'https://everia.club/category/',
-  'https://everia.club/',
-  'https://www.24fa.com/search.aspx',
-  'https://www.24fa.com/',
-]
-const supportHandle = [
-  download.telegraph,
-  download.eveiraTags,
-  download.eveiraTags,
-  download.eveira,
-  download.fa24Tags,
-  download.fa24,
-]
-const supportLimit = [
-  clip.telegrafLimit,
-  clip.eveLimit,
-  clip.eveLimit,
-  clip.eveLimit,
-  clip.fa24Limit,
-  clip.fa24Limit,
-]
-const special_url = /^https?:\/\/everia.club\/?$/
-
-function isSupport(text) {
-  return text && supported.some(_ => text.includes(_))
-}
-
-function filterSupStart(arr) {
-  return arr.filter(_ => supported.some(s => _.startsWith(s)))
-}
+const {isSupport, filterSupStart} = require('./support_urls_utils')
 
 function message_decode(message) {
   let urls = []
@@ -75,25 +40,6 @@ function message_decode(message) {
   }
   urls = filterSupStart(uniq(urls.flat(Infinity)))
   return urls
-}
-
-function getIndexByUrl(url) {
-  let idx = url.match(special_url) ? 1
-    : supported.findIndex(_ => url.startsWith(_))
-  if (idx === -1) {
-    throw new Error(`No support handle for this url: ${url}`)
-  }
-  return idx
-}
-
-async function handle_sup_url(url) {
-  let idx = getIndexByUrl(url)
-  return supportHandle[idx].getImageArray(url)
-}
-
-function getLimitByUrl(url) {
-  let idx = getIndexByUrl(url)
-  return supportLimit[idx]
 }
 
 function log_ph(phs) {
