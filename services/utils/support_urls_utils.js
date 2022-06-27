@@ -70,7 +70,7 @@ function getIndexByUrl(url) {
   if (url.match(special_url)) {
     idx = 1
   } else {
-    supRaw.findIndex(_ => _.some(s => url.startsWith(s)))
+    idx = supRaw.findIndex(_ => _.some(s => url.startsWith(s)))
   }
   if (idx === -1) {
     throw new Error(`No support handle for this url: ${url}`)
