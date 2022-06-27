@@ -54,6 +54,10 @@ const config = {
     eveTask: 'eveTask',
     fa24Task: 'fa24Task',
   },
+  taskLimit: {
+    // 最近URL条数
+    latest: 3,
+  },
   redis: {
     url: process.env.REDIS_URL || 'redis://:review_pic@127.0.0.1:6379',
   },

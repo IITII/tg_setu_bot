@@ -4,12 +4,39 @@
  */
 'use strict'
 const redis = require('redis'),
-  {taskName} = require('../../config/config'),
+  {taskName, taskLimit} = require('../../config/config'),
   taskKey = taskName.eveTask,
   {get_dom} = require('../../libs/download/dl_utils')
 const uidMap = new Map()
-const {message_decode} = require('../utils/service_utils')
+const {message_decode, log_url_texts} = require('../utils/service_utils')
 const {send_text} = require('../utils/msg_utils')
+const {HGETALL, get_random_next, HSET} = require('./redis_utils')
+const EveiraTags = require('../../libs/download/sites/eveira_tags'),
+  eveiraTags = new EveiraTags()
+
+async function task() {
+  const all = await HGETALL(taskKey)
+  for (const url in all) {
+    const info = all[url]
+    if (info.nextTime < Date.now()) {
+      const {title, imgs, original, cost} = await eveiraTags.getTagUrls(url)
+      if (imgs && imgs.length > 0) {
+        let index = imgs.length - 1
+        info.latest.forEach(u => {
+          index = Math.min(index, imgs.findIndex(_ => _.url === u))
+        })
+        const url_texts = imgs.slice(0, index)
+        if (url_texts.length > 0) {
+          info.latest = url_texts.map(_ => _.url).slice(0, taskLimit.latest)
+          const text = log_url_texts(url_texts)
+          await send_text(info.uid, text)
+        }
+      }
+      info.nextTime = get_random_next()
+      await HSET(taskKey, url, info)
+    }
+  }
+}
 
 async function test() {
   const TEST_UID = process.env.TEST_UID || 'TEST_UID'
@@ -20,6 +47,8 @@ async function test() {
     add_sub(u, TEST_UID, taskKey)
   })
 }
+
+test()
 
 async function add_sub() {
 
