@@ -5,8 +5,6 @@
 'use strict'
 
 module.exports = {
-  isSupport,
-  filterSupStart,
   message_decode,
   log_ph,
   log_related,
@@ -15,9 +13,7 @@ module.exports = {
 }
 
 const {time_human_readable} = require('../../libs/utils')
-const download = require('../../libs/download')
 const {uniqBy, uniq} = require('lodash')
-const {clip} = require('../../config/config')
 const {isSupport, filterSupStart} = require('./support_urls_utils')
 
 function message_decode(message) {
