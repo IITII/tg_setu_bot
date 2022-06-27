@@ -12,7 +12,7 @@ const {get_dom, urlTextsToAbs} = require('../dl_utils'),
   {logger} = require('../../../middlewares/logger')
 let self = null
 
-module.exports = class Fa24 extends AbsDownloader {
+module.exports = class Fa24Tags extends AbsDownloader {
   constructor() {
     super()
     self = this
