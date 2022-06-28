@@ -26,7 +26,7 @@ async function redis_init() {
 
 async function admin_init() {
   const hall = await HGETALL()
-  if (!(hall && hall !== {}) && ADMIN_ID) {
+  if (!(hall && Object.keys(hall).length > 0) && ADMIN_ID) {
     const arr = [
       'https://everia.club',
     ]
