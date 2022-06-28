@@ -7,7 +7,7 @@ const {ADMIN_ID, clip, db} = require('./config/config'),
 
 const LocalSession = require('telegraf-session-local'),
   localSession = new LocalSession(db)
-const tgMsgRec = require('./services/runs/TgMsgRec'),
+const picMsgRec = require('./services/runs/PicMsgRec'),
   picHandle = require('./services/runs/PicHandle'),
   msgHandle = require('./services/runs/MsgHandle')
 const eveTask = require('./services/tasks/EveTask')
@@ -41,7 +41,7 @@ async function main() {
   })
   bot.on('message', ctx => {
     if (ctx.session && ctx.session.review > 0) {
-      return tgMsgRec(ctx)
+      return picMsgRec(ctx)
     } else {
       return ctx.copyMessage(ctx.chat.id, ctx.message.message_id)
     }

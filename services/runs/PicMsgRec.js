@@ -3,11 +3,6 @@
  * @date 2022/06/26
  */
 'use strict'
-/**
- * @author IITII <ccmejx@gmail.com>
- * @date 2022/06/26
- */
-'use strict'
 const {queueName, eventName} = require('../../config/config'),
   eventBus = require('../../libs/event_bus'),
   Storage = require('../../libs/storage'),
