@@ -19,11 +19,15 @@ module.exports = class Fa24Tags extends AbsDownloader {
   }
 
   async getImageArray(url) {
-    const {title, imgs, original, cost} = await get_dom(url, this.handle_dom)
+    const {title, imgs, original, cost} = await this.getTagUrls(url)
     const urls = imgs.map(_ => _.url)
     const time = time_human_readable(cost)
     logger.debug(`Get ${title} total ${urls.length} in ${time} from tag ${original}`)
     return await currMapLimit(urls, clip.faTagLimit, fa24.getImageArray)
+  }
+
+  async getTagUrls(url) {
+    return get_dom(url, this.handle_dom)
   }
 
   async handle_dom($, original) {

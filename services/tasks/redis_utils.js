@@ -5,7 +5,7 @@
 'use strict'
 
 const redis = require('../../libs/redis_client')
-const {check} = require('../../config/config')
+const {ADMIN_ID, check, taskName} = require('../../config/config')
 const {logger} = require('../../middlewares/logger')
 
 async function redis_init() {
@@ -24,7 +24,19 @@ async function redis_init() {
   }
 }
 
-async function add_sub(url, uid, taskKey) {
+async function admin_init() {
+  const hall = await HGETALL()
+  if (!hall && ADMIN_ID) {
+    const arr = [
+      'https://everia.club',
+    ]
+    for (const url of arr) {
+      await redis_add_sub(url, ADMIN_ID)
+    }
+  }
+}
+
+async function redis_add_sub(url, uid, taskKey = taskName) {
   await redis_init()
   const text = await redis.HGET(taskKey, url)
   let json = {uid: [], latest: [], nextTime: -1}
@@ -40,7 +52,7 @@ async function add_sub(url, uid, taskKey) {
   await redis.HSET(taskKey, url, JSON.stringify(json))
 }
 
-async function remove_sub(url, uid, taskKey) {
+async function redis_remove_sub(url, uid, taskKey = taskName) {
   await redis_init()
   const text = await redis.HGET(taskKey, url)
   let json = {uid: [], latest: [], nextTime: -1}
@@ -57,12 +69,12 @@ async function remove_sub(url, uid, taskKey) {
   }
 }
 
-async function HSET(taskKey, url, json) {
+async function HSET(url, json, taskKey = taskName) {
   await redis_init()
   return await redis.HSET(taskKey, url, JSON.stringify(json))
 }
 
-async function HGETALL(taskKey) {
+async function HGETALL(taskKey = taskName) {
   await redis_init()
   let res = {}
   const hMap = await redis.HGETALL(taskKey)
@@ -75,23 +87,24 @@ async function HGETALL(taskKey) {
   return res
 }
 
-async function HSETALL(taskKey, data) {
+async function HSETALL(data, taskKey = taskName) {
   await redis_init()
   for (const k in data) {
     await redis.HSET(taskKey, k, JSON.stringify(data[k]))
   }
 }
 
-function get_random_next(curr) {
-  curr = curr || Date.now()
+function get_random_next(breakTime) {
+  const curr = Date.now()
   const negative = Math.random() < 0.5
-  const random = Math.floor(Math.random() * check.all * check.randomRate)
+  const random = Math.floor(Math.random() * breakTime * check.randomRate)
   return negative ? curr - random : curr + random
 }
 
 module.exports = {
-  add_sub,
-  remove_sub,
+  redis_add_sub,
+  redis_remove_sub,
+  admin_init,
   HSET,
   HGETALL,
   HSETALL,

@@ -8,9 +8,9 @@ const {ADMIN_ID, clip, db} = require('./config/config'),
 const LocalSession = require('telegraf-session-local'),
   localSession = new LocalSession(db)
 const picMsgRec = require('./services/runs/PicMsgRec'),
+  subMsgRec = require('./services/runs/SubMsgRec'),
   picHandle = require('./services/runs/PicHandle'),
   msgHandle = require('./services/runs/MsgHandle')
-const eveTask = require('./services/tasks/EveTask')
 
 // bot commands
 async function main() {
@@ -31,7 +31,7 @@ async function main() {
     ctx.session = {review: 2}
     return ctx.reply('Set review to copy')
   })
-  bot.command('copydel', ctx => {
+  bot.command('copy_del', ctx => {
     ctx.session = {review: 2}
     ctx.session.del = 1
     return ctx.reply(`Delete temp files/dirs after copy`)
@@ -39,9 +39,13 @@ async function main() {
   bot.command('clean', ctx => {
     return clean(bot, ctx.chat.id, clip.baseDir)
   })
+  bot.command('sub', subMsgRec.start_end_sub)
+  bot.command('u_sub', subMsgRec.remove_end_sub)
   bot.on('message', ctx => {
     if (ctx.session && ctx.session.review > 0) {
       return picMsgRec(ctx)
+    } else if (ctx.session && ctx.session.sub) {
+      return subMsgRec.add_to_sub(ctx)
     } else {
       return ctx.copyMessage(ctx.chat.id, ctx.message.message_id)
     }
@@ -89,7 +93,6 @@ Promise.resolve()
     logger.info(started)
     // return bot.telegram.sendMessage(ADMIN_ID, started)
   })
-  .then(_ => eveTask.start())
   .catch(err => {
     logger.error(err)
   })

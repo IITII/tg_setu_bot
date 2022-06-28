@@ -47,13 +47,14 @@ const config = {
     msg_send: 'msg_send',
   },
   check: {
+    // 随机时长比例
     randomRate: 0.20,
+    // 默认任务检查时间间隔
     all: 1000 * 60 * 60,
+    // 5 分钟检查一次 redis
+    period: 1000 * 60 * 5,
   },
-  taskName: {
-    eveTask: 'eveTask',
-    fa24Task: 'fa24Task',
-  },
+  taskName: 'bot_schedule_task',
   taskLimit: {
     // 最近URL条数
     latest: 3,

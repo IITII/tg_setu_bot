@@ -122,6 +122,7 @@ function titleFormat(title,
   return title
     .replace(banWords, '')
     .replace(cleanMtiSpace, ' ')
+    .trim()
 }
 
 async function extFormat(imgUrl, allowTypes = /\.(jpe?g|png|webp|jiff)/) {
