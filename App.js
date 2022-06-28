@@ -10,6 +10,7 @@ const LocalSession = require('telegraf-session-local'),
 const tgMsgRec = require('./services/runs/TgMsgRec'),
   picHandle = require('./services/runs/PicHandle'),
   msgHandle = require('./services/runs/MsgHandle')
+const eveTask = require('./services/tasks/EveTask')
 
 // bot commands
 async function main() {
@@ -88,6 +89,7 @@ Promise.resolve()
     logger.info(started)
     // return bot.telegram.sendMessage(ADMIN_ID, started)
   })
+  .then(_ => eveTask.start())
   .catch(err => {
     logger.error(err)
   })

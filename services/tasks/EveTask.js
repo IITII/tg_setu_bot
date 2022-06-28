@@ -10,7 +10,7 @@ const redis = require('redis'),
 const uidMap = new Map()
 const {message_decode, log_url_texts} = require('../utils/service_utils')
 const {send_text} = require('../utils/msg_utils')
-const {HGETALL, get_random_next, HSET} = require('./redis_utils')
+const {HGETALL, get_random_next, HSET, add_sub} = require('./redis_utils')
 const EveiraTags = require('../../libs/download/sites/eveira_tags'),
   eveiraTags = new EveiraTags()
 
@@ -38,6 +38,13 @@ async function task() {
   }
 }
 
+async function start() {
+  await task()
+  setInterval(async () => {
+    await task()
+  }, 1000 * 60)
+}
+
 async function test() {
   const TEST_UID = process.env.TEST_UID || 'TEST_UID'
   const arr = [
@@ -50,9 +57,9 @@ async function test() {
 
 test()
 
-async function add_sub() {
-
-}
+// async function add_sub() {
+//
+// }
 
 async function remove_sub() {
 
@@ -78,4 +85,8 @@ function handle_add_start(ctx) {
 
 function handle_add_end() {
 
+}
+
+module.exports = {
+  start,
 }
