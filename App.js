@@ -10,7 +10,8 @@ const LocalSession = require('telegraf-session-local'),
 const picMsgRec = require('./services/runs/PicMsgRec'),
   subMsgRec = require('./services/runs/SubMsgRec'),
   picHandle = require('./services/runs/PicHandle'),
-  msgHandle = require('./services/runs/MsgHandle')
+  msgHandle = require('./services/runs/MsgHandle'),
+  taskRunner = require('./services/runs/TaskRunner')
 
 // bot commands
 async function main() {
@@ -81,6 +82,7 @@ function lis_stop() {
 Promise.resolve()
   .then(_ => msgHandle.start())
   .then(_ => picHandle.start())
+  .then(_ => taskRunner.start())
   .then(_ => main())
   .then(_ => {
     // Enable graceful stop
