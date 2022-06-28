@@ -3,9 +3,10 @@
  * @date 2022/05/26
  */
 'use strict'
-const {mapLimit} = require('async')
 const fs = require('fs'),
-  path = require('path')
+  path = require('path'),
+  {mapLimit} = require('async'),
+  dayjs = require('dayjs')
 const axios = require('./axios_client')
 const {fileTypeFromUrlHead, fileTypeFromUrl, NO_CONTENT_TYPE_E_MSG} = require('./file_type')
 const {logger} = require('../middlewares/logger')
@@ -181,6 +182,11 @@ function url_resolve(from, to) {
   return resolvedUrl.toString()
 }
 
+function format_date() {
+  const format = 'YYYY/MM/DD HH:mm:ss'
+  return dayjs().format(format)
+}
+
 module.exports = {
   mkdir,
   downloadFile,
@@ -193,4 +199,5 @@ module.exports = {
   time_human_readable,
   zipWithIndex,
   url_resolve,
+  format_date,
 }

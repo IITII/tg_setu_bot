@@ -146,29 +146,31 @@ async function handle_text_msg(chat_id, text, message_id, sep = '\n') {
       if (t > maxMessageLength) {
         t = t.substring(0, maxMessageLength)
       }
-      if (len + t.length > maxMessageLength) {
+      if (len + t.length + sep.length > maxMessageLength) {
         rawText.push(JSON.parse(JSON.stringify(tmp)).join(sep))
         tmp = [t]
-        len = t.length
+        len = t.length + sep.length
       } else {
         tmp.push(t)
-        len += t.length
+        len += t.length + sep.length
       }
     }
+    rawText.push(JSON.parse(JSON.stringify(tmp)).join(sep))
     for (let t of rawText) {
       logger.debug(`${chat_id}: split ${text.length} to ${rawText.length}`)
       await send_text(chat_id, t, message_id)
     }
+  } else {
+    logger.debug(`${chat_id}: ${text}`)
+    const opts = {
+      reply_to_message_id: message_id,
+      disable_web_page_preview: true,
+      parse_mode: 'Markdown',
+      // disable_notification: true,
+      // protect_content: true
+    }
+    return telegram.sendMessage(chat_id, text, opts)
   }
-  logger.debug(`${chat_id}: ${text}`)
-  const opts = {
-    reply_to_message_id: message_id,
-    disable_web_page_preview: true,
-    parse_mode: 'Markdown',
-    // disable_notification: true,
-    // protect_content: true
-  }
-  return telegram.sendMessage(chat_id, text, opts)
 }
 
 async function handle_photo(msg) {

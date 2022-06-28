@@ -3,14 +3,13 @@
  * @date 2022/06/26
  */
 'use strict'
-const redis = require('redis'),
+const uidMap = new Map(),
   {taskName, taskLimit} = require('../../config/config'),
   taskKey = taskName.eveTask,
-  {get_dom} = require('../../libs/download/dl_utils')
-const uidMap = new Map()
-const {message_decode, log_url_texts} = require('../utils/service_utils')
-const {send_text} = require('../utils/msg_utils')
-const {HGETALL, get_random_next, HSET, add_sub} = require('./redis_utils')
+  {message_decode, log_url_texts} = require('../utils/service_utils'),
+  {send_text} = require('../utils/msg_utils'),
+  {HGETALL, get_random_next, HSET, add_sub} = require('./redis_utils'),
+  {format_date} = require('../../libs/utils')
 const EveiraTags = require('../../libs/download/sites/eveira_tags'),
   eveiraTags = new EveiraTags()
 
@@ -28,7 +27,8 @@ async function task() {
         const url_texts = imgs.slice(0, index)
         if (url_texts.length > 0) {
           info.latest = url_texts.map(_ => _.url).slice(0, taskLimit.latest)
-          const text = log_url_texts(url_texts)
+          const urlTexts = log_url_texts(url_texts),
+            text = `#${taskName}:\n#${title}\n${format_date()}\n${urlTexts}`
           for (const uid of info.uid) {
             await send_text(uid, text)
           }
@@ -41,6 +41,7 @@ async function task() {
 }
 
 async function start() {
+  await test()
   await task()
   setInterval(async () => {
     await task()
@@ -48,7 +49,7 @@ async function start() {
 }
 
 async function test() {
-  const TEST_UID = process.env.TEST_UID || 'TEST_UID'
+  const TEST_UID = process.env.ADMIN_ID
   const arr = [
     'https://everia.club/category/cosplay/',
   ]
@@ -56,8 +57,6 @@ async function test() {
     add_sub(u, TEST_UID, taskKey)
   })
 }
-
-test()
 
 // async function add_sub() {
 //
