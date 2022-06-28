@@ -19,13 +19,14 @@ class RedisStorage extends Storage {
     if (this.client.isOpen) {
       return this.client
     } else {
+      const name = `${this.name} -> ${this.queueKey}`
       await this.client.connect()
         .then(_ => {
-          logger.info('Redis Client Connected')
+          logger.info(`${name} Connected`)
         })
         .then(_ => this.client)
         .catch(err => {
-          logger.error('Redis Client Connect Error', err)
+          logger.error(`${name} Connect Error`, err)
         })
     }
   }
@@ -56,6 +57,7 @@ class RedisStorage extends Storage {
     await this.checkConn()
     return this.client.del(this.queueKey)
   }
+
   async close() {
     if (this.client.isOpen) {
       await this.client.quit()

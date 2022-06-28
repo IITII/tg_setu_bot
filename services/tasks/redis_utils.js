@@ -6,8 +6,26 @@
 
 const redis = require('../../libs/redis_client')
 const {check} = require('../../config/config')
+const {logger} = require('../../middlewares/logger')
+
+async function redis_init() {
+  const name = `redis_utils`
+  if (redis.isOpen) {
+    return redis
+  } else {
+    return await redis.connect()
+      .then(_ => {
+        logger.info(`${name} Connected`)
+      })
+      .then(_ => redis)
+      .catch(err => {
+        logger.error(`${name} Connect Error`, err)
+      })
+  }
+}
 
 async function add_sub(url, uid, taskKey) {
+  await redis_init()
   const text = await redis.HGET(taskKey, url)
   let json = {uid: [], latest: [], nextTime: -1}
   if (text) {
@@ -23,6 +41,7 @@ async function add_sub(url, uid, taskKey) {
 }
 
 async function remove_sub(url, uid, taskKey) {
+  await redis_init()
   const text = await redis.HGET(taskKey, url)
   let json = {uid: [], latest: [], nextTime: -1}
   if (text) {
@@ -39,10 +58,12 @@ async function remove_sub(url, uid, taskKey) {
 }
 
 async function HSET(taskKey, url, json) {
+  await redis_init()
   return await redis.HSET(taskKey, url, JSON.stringify(json))
 }
 
 async function HGETALL(taskKey) {
+  await redis_init()
   let res = {}
   const hMap = await redis.HGETALL(taskKey)
   if (hMap) {
@@ -55,6 +76,7 @@ async function HGETALL(taskKey) {
 }
 
 async function HSETALL(taskKey, data) {
+  await redis_init()
   for (const k in data) {
     await redis.HSET(taskKey, k, JSON.stringify(data[k]))
   }

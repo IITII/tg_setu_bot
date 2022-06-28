@@ -21,7 +21,7 @@ async function task() {
     if (info.nextTime < Date.now()) {
       const {title, imgs, original, cost} = await eveiraTags.getTagUrls(url)
       if (imgs && imgs.length > 0) {
-        let index = imgs.length - 1
+        let index = imgs.length
         info.latest.forEach(u => {
           index = Math.min(index, imgs.findIndex(_ => _.url === u))
         })
@@ -29,7 +29,9 @@ async function task() {
         if (url_texts.length > 0) {
           info.latest = url_texts.map(_ => _.url).slice(0, taskLimit.latest)
           const text = log_url_texts(url_texts)
-          await send_text(info.uid, text)
+          for (const uid of info.uid) {
+            await send_text(uid, text)
+          }
         }
       }
       info.nextTime = get_random_next()

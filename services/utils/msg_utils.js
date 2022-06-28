@@ -136,8 +136,30 @@ async function clean(bot, chat_id, dir) {
   })
 }
 
-async function handle_text_msg(chat_id, text, message_id) {
-  text = text.substring(0, maxMessageLength)
+async function handle_text_msg(chat_id, text, message_id, sep = '\n') {
+  if (text.length > maxMessageLength) {
+    const split = text.split(sep)
+    const rawText = []
+    let len = 0
+    let tmp = []
+    for (let t of split) {
+      if (t > maxMessageLength) {
+        t = t.substring(0, maxMessageLength)
+      }
+      if (len + t.length > maxMessageLength) {
+        rawText.push(JSON.parse(JSON.stringify(tmp)).join(sep))
+        tmp = [t]
+        len = t.length
+      } else {
+        tmp.push(t)
+        len += t.length
+      }
+    }
+    for (let t of rawText) {
+      logger.debug(`${chat_id}: split ${text.length} to ${rawText.length}`)
+      await send_text(chat_id, t, message_id)
+    }
+  }
   logger.debug(`${chat_id}: ${text}`)
   const opts = {
     reply_to_message_id: message_id,
