@@ -13,6 +13,7 @@ const {queueName, eventName} = require('../../config/config'),
 const {run_out_mq} = require('./mq_utils')
 const {TypeEnum, handle_text, handle_photo, handle_media_group, handle_del_file} = require('../utils/msg_utils')
 const {sleep} = require('../../libs/utils')
+const {logger} = require('../../middlewares/logger')
 
 
 async function start() {
@@ -53,10 +54,12 @@ async function handle_429(msg, retry = 0) {
       const index = eMsg.indexOf(msg_429)
       const sleepTimeRaw = eMsg.substring(index + msg_429.length)
       const sleepTime = parseInt(sleepTimeRaw) + 1
+      const retryMsg = `retry ${retry + 1} after ${sleepTime}s`
+      logger.warn(`${msg.chat_id || ''}: ${retryMsg}`)
       await sleep(sleepTime * 1000)
       if (msg.type === TypeEnum.PHOTO || msg.type === TypeEnum.MEDIA_GROUP) {
         if (msg.cap) {
-          msg.cap += `(retry ${retry + 1}`
+          msg.cap += `(${retryMsg}`
         }
       }
       return handle_429(msg, retry + 1)
