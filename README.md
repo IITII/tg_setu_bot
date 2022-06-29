@@ -1,5 +1,6 @@
 # ReviewPic Bot
-> [简体中文](./README.ZH.md)|[English](./README.md)  
+
+> [简体中文](./README.ZH.md)|[English](./README.md)
 
 * Just a Simple Telegram bot
 
@@ -26,14 +27,14 @@
 ## Support Command
 
 |   Name    |                       Des                        |
-| :-------: | :----------------------------------------------: |
+|:---------:|:------------------------------------------------:|
 |  /start   |                    Hello Msg                     |
 | /download |                     download                     |
 |   /copy   |           Send to chat after download            |
-| /copydel  | Send to chat after download and delete tmp files |
+| /copy_del | Send to chat after download and delete tmp files |
 |  /clean   |              Remove all temp files               |
-
-
+|   /sub    |     Subscribe to receive the latest pictures     |
+|  /u_sub   |   UN-Subscribe to receive the latest pictures    |
 
 ## ENV
 

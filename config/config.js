@@ -58,6 +58,8 @@ const config = {
   taskLimit: {
     // 最近URL条数
     latest: 3,
+    // 第一次运行时最多发送条数
+    firstMax: 20,
   },
   redis: {
     url: process.env.REDIS_URL || 'redis://:review_pic@127.0.0.1:6379',

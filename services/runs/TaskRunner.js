@@ -11,6 +11,7 @@ const {send_text} = require('../utils/msg_utils')
 const {get_random_next, HSET, HGETALL, admin_init} = require('../tasks/redis_utils')
 const EveiraTags = require('../../libs/download/sites/eveira_tags'),
   Fa24Tags = require('../../libs/download/sites/Fa24Tags'),
+  fa24c49 = require('../../libs/download/sites/Fa24C49'),
   eveiraTags = new EveiraTags(),
   fa24Tags = new Fa24Tags()
 
@@ -35,6 +36,7 @@ const special_url = /^https?:\/\/everia.club\/?$/,
   handle_limit = [
     [eveiraTags, check.all],
     [fa24Tags, check.all],
+    [fa24c49, check.all],
   ]
 
 function filterSupStart(arr) {
@@ -57,7 +59,7 @@ function getIndexByUrl(url) {
 }
 
 async function start() {
-  await admin_init()
+  // await admin_init()
   setInterval(run, check.period)
 }
 
@@ -81,6 +83,9 @@ async function task(url, info, handle, breakTime, start = format_date()) {
     spent = time_human_readable(cost)
   if (imgs && imgs.length > 0) {
     let index = imgs.length
+    if (info.latest.length === 0) {
+      index = Math.min(index, taskLimit.firstMax)
+    }
     info.latest.forEach(u => {
       index = Math.min(index, imgs.findIndex(_ => _.url === u))
     })

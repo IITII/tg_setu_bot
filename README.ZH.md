@@ -1,6 +1,6 @@
 # ReviewPic Bot
-> [简体中文](./README.ZH.md)|[English](./README.md) 
 
+> [简体中文](./README.ZH.md)|[English](./README.md)
 
 * 正如你所见，这只是一个简单的 tg 机器人而已
 
@@ -26,14 +26,15 @@
 
 ## Support Command
 
-|   Name    |                Des                 |
-| :-------: | :--------------------------------: |
-|  /start   |             Hello消息              |
-| /download |               仅下载               |
-|   /copy   |          下载后发送回会话          |
-| /copydel  | 下载后发送回会话并删除远程临时文件 |
-|  /clean   |        删除所有远程临时文件        |
-
+|   Name    |        Des        |
+|:---------:|:-----------------:|
+|  /start   |      Hello消息      |
+| /download |        仅下载        |
+|   /copy   |     下载后发送回会话      |
+| /copy_del | 下载后发送回会话并删除远程临时文件 |
+|  /clean   |    删除所有远程临时文件     |
+|   /sub    |        订阅         |
+|  /u_sub   |       移除订阅        |
 
 ## ENV
 
