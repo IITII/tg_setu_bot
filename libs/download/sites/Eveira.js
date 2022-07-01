@@ -4,8 +4,9 @@
  */
 'use strict'
 const {titleFormat} = require('../../utils')
-const {getSaveDir, zipUrlExt, arrToAbsUrl, urlTextsToAbs} = require('../dl_utils')
+const {arrToAbsUrl, urlTextsToAbs} = require('../dl_utils')
 const AbsDownloader = require('../AbsDownloader')
+const {uniq} = require('lodash')
 
 module.exports = class Eveira extends AbsDownloader {
   async handle_dom($, original) {
@@ -19,8 +20,9 @@ module.exports = class Eveira extends AbsDownloader {
     }).get(),
       tags = urlTextsToAbs(tagsR, original)
     const rawImgs = $('.entry-content img').map((i, el) => el.attribs.src).get()
-    const absImgs = arrToAbsUrl(rawImgs, original)
-    const imgs = await zipUrlExt(absImgs, getSaveDir(title))
+    const absImgs = arrToAbsUrl(rawImgs, original),
+      imgs = uniq(absImgs)
+    // const imgs = await zipUrlExt(absImgs, getSaveDir(title))
     const res = {title, meta, tags, imgs}
         return Promise.resolve(res)
     }

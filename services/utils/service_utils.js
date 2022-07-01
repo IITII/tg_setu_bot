@@ -16,25 +16,22 @@ const {time_human_readable} = require('../../libs/utils')
 const {uniqBy, uniq} = require('lodash')
 const {isSupport, filterSupStart} = require('./support_urls_utils')
 
-function message_decode(message) {
+function message_decode(message, img_or_tags = 'mix') {
   let urls = []
   if (isSupport(message.text)) {
     const text = message.text
-    urls = urls.concat(text.split('\n').filter(_ => isSupport(_)))
+    urls.push(text.split('\n'))
   }
   if (message.entities) {
     const text_link = message.entities
       .filter(_ => _.type === 'text_link')
       .map(_ => _.url)
-      .filter(_ => isSupport(_))
-    urls = urls.concat(text_link)
     const url = message.entities
       .filter(_ => _.type === 'url')
       .map(os => message.text.substring(os.offset, os.offset + os.length))
-      .filter(_ => isSupport(_))
-    urls = urls.concat(url)
+    urls.push(text_link, url)
   }
-  urls = filterSupStart(uniq(urls.flat(Infinity)))
+  urls = filterSupStart(uniq(urls.flat(Infinity)), img_or_tags)
   return urls
 }
 

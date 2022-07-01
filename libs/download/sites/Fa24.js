@@ -4,7 +4,7 @@
  */
 'use strict'
 const AbsDownloader = require('../AbsDownloader')
-const {arrToAbsUrl, zipUrlExt, getSaveDir, get_dom, urlTextsToAbs} = require('../dl_utils')
+const {arrToAbsUrl, get_dom, urlTextsToAbs} = require('../dl_utils')
 const {currMapLimit} = require('../../utils')
 const {uniq, uniqBy} = require('lodash')
 const {clip} = require('../../../config/config')
@@ -23,7 +23,7 @@ module.exports = class Fa24 extends AbsDownloader {
     const otherUrls = otherPages.map(p => p.url)
     const otherInfos = await currMapLimit(otherUrls, clip.pageLimit, self.handle_other_pages)
     imgs = uniq(imgs.concat(otherInfos.map(i => i.imgs)).flat(Infinity))
-    imgs = await zipUrlExt(imgs, getSaveDir(title))
+    // imgs = await zipUrlExt(imgs, getSaveDir(title))
     related = related.concat(otherInfos.map(i => i.related)).flat(Infinity)
     related = uniqBy(related, 'url')
     cost += otherInfos.reduce((acc, i) => acc + i.cost, 0)

@@ -95,9 +95,9 @@ function uniqUrlTexts(url_texts) {
   return url_texts
 }
 
-function getSaveDir(title, create = true) {
+function getSaveDir(title, baseDir = clip.baseDir, create = true) {
   const fileDeep = '../../'
-  const saveDir = path.resolve(__dirname, fileDeep, clip.baseDir, title)
+  const saveDir = path.resolve(__dirname, fileDeep, baseDir, title)
   if (create) mkdir(saveDir)
   return saveDir
 }

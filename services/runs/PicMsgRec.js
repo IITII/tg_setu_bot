@@ -16,10 +16,11 @@ const {message_decode} = require('../utils/service_utils'),
 
 async function handle_ctx(ctx) {
   const message = ctx.message || ctx.update.message
-  const urls = message_decode(message)
+  const {img_or_tags} = ctx.session.opts
+  const urls = message_decode(message, img_or_tags)
   if (urls.length === 0) {
     // const msg = `no url in message: ${JSON.stringify(message)}`
-    const msg = `无法解析消息: ${JSON.stringify(message)}`
+    const msg = `请检查当前模式,无法解析消息: ${JSON.stringify(message)}`
     return ctx.reply(msg)
   }
   const chat_id = message.chat.id,

@@ -48,9 +48,9 @@ function emit(v) {
   return eventBus.emit(event, v)
 }
 
-async function send_text(chat_id, text, message_id = undefined) {
+async function send_text(chat_id, text, message_id = undefined, preview = false) {
   const type = TypeEnum.TEXT
-  return storage.rpush({chat_id, type, text, message_id})
+  return storage.rpush({chat_id, type, text, message_id, preview})
     .then(_ => emit(_))
 }
 
@@ -66,9 +66,9 @@ async function send_media(chat_id, sub, cap) {
     .then(_ => emit(_))
 }
 
-async function send_del_file(chat_id, dirs, text, message_id = undefined) {
+async function send_del_file(chat_id, dirs, text, message_id = undefined, preview = false) {
   const type = TypeEnum.DEL_FILE
-  return storage.rpush({chat_id, type, dirs, text, message_id})
+  return storage.rpush({chat_id, type, dirs, text, message_id, preview})
     .then(_ => emit(_))
 }
 
@@ -102,12 +102,12 @@ async function sendMediaGroup(chat_id, urls, captionType = 'filename', showProgr
 
 
 async function handle_text(msg) {
-  let {chat_id, text, message_id} = msg
-  return handle_text_msg(chat_id, text, message_id)
+  let {chat_id, text, message_id, preview} = msg
+  return handle_text_msg(chat_id, text, message_id, preview)
 }
 
 async function handle_del_file(msg) {
-  let {chat_id, dirs, text, message_id} = msg
+  let {chat_id, dirs, text, message_id, preview} = msg
   const rm = fs.rm || fs.rmdir
   dirs.forEach(dir => {
     rm(dir, {recursive: true}, err => {
@@ -120,10 +120,10 @@ async function handle_del_file(msg) {
       text += `\n${text}`
     })
   })
-  return handle_text_msg(chat_id, text, message_id)
+  return handle_text_msg(chat_id, text, message_id, preview)
 }
 
-async function clean(bot, chat_id, dir) {
+async function clean(chat_id, dir) {
   const rm = fs.rm || fs.rmdir
   rm(dir, {recursive: true}, err => {
     const relative = path.relative(clip.baseDir, dir) || 'Temp'
@@ -136,7 +136,7 @@ async function clean(bot, chat_id, dir) {
   })
 }
 
-async function handle_text_msg(chat_id, text, message_id, sep = '\n') {
+async function handle_text_msg(chat_id, text, message_id, preview, sep = '\n') {
   if (text.length > maxMessageLength) {
     const split = text.split(sep)
     const rawText = []
@@ -158,17 +158,17 @@ async function handle_text_msg(chat_id, text, message_id, sep = '\n') {
     rawText.push(JSON.parse(JSON.stringify(tmp)).join(sep))
     for (let t of rawText) {
       logger.debug(`${chat_id}: split ${text.length} to ${rawText.length}`)
-      await send_text(chat_id, t, message_id)
+      await send_text(chat_id, t, message_id, preview)
     }
   } else {
     logger.debug(`${chat_id}: ${text}`)
     const opts = {
       reply_to_message_id: message_id,
-      disable_web_page_preview: true,
       parse_mode: 'Markdown',
       // disable_notification: true,
       // protect_content: true
     }
+    opts.disable_web_page_preview = !preview
     return telegram.sendMessage(chat_id, text, opts)
   }
 }

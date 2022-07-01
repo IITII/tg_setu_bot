@@ -4,11 +4,12 @@
  */
 'use strict'
 
-const {check, taskName, taskLimit} = require('../../config/config')
-const {format_date, time_human_readable} = require('../../libs/utils')
-const {log_url_texts} = require('../utils/service_utils')
-const {send_text} = require('../utils/msg_utils')
-const {get_random_next, HSET, HGETALL, admin_init} = require('../tasks/redis_utils')
+const {uniq} = require('lodash'),
+  {check, taskName, taskLimit} = require('../../config/config'),
+  {format_date, time_human_readable} = require('../../libs/utils'),
+  {log_url_texts} = require('../utils/service_utils'),
+  {send_text} = require('../utils/msg_utils'),
+  {get_random_next, HSET, HGETALL} = require('../tasks/redis_utils')
 const EveiraTags = require('../../libs/download/sites/eveira_tags'),
   Fa24Tags = require('../../libs/download/sites/Fa24Tags'),
   fa24c49 = require('../../libs/download/sites/Fa24C49'),
@@ -39,10 +40,10 @@ const special_url = /^https?:\/\/everia.club\/?$/,
     [fa24c49, check.all],
   ]
 
-function filterSupStart(arr) {
+function filterTagsOnly(arr) {
   const arr1 = arr.filter(_ => _.match(special_url))
   const arr2 = arr.filter(_ => supRaw_flat.some(s => _.startsWith(s)))
-  return arr1.concat(arr2)
+  return uniq(arr1.concat(arr2))
 }
 
 function getIndexByUrl(url) {
@@ -99,7 +100,7 @@ async function task(url, info, handle, breakTime, start = format_date()) {
       text += `Spent: ${spent}\n`
       text += `${urlTexts}`
       for (const uid of info.uid) {
-        await send_text(uid, text)
+        await send_text(uid, text, undefined, true)
       }
     }
   }
@@ -109,5 +110,5 @@ async function task(url, info, handle, breakTime, start = format_date()) {
 
 module.exports = {
   start,
-  filterSupStart,
+  filterTagsOnly,
 }

@@ -61,8 +61,22 @@ function isSupport(text) {
   return text && supRaw_flat.some(_ => text.includes(_))
 }
 
-function filterSupStart(arr) {
-  return arr.filter(_ => supRaw_flat.some(s => _.startsWith(s)))
+function filterSupStart(arr, img_or_tags = 'mix') {
+  const mix = arr.filter(_ => supRaw_flat.some(s => _.startsWith(s)))
+  let allowArr = []
+  switch (img_or_tags) {
+    case 'img':
+      allowArr = [0, 2, 4]
+      break
+    case 'tags':
+      allowArr = [1, 3]
+      break
+    case 'mix':
+    default:
+      // allowArr = [0, 1, 2, 3, 4]
+      break
+  }
+  return allowArr.length === 0 ? mix : mix.filter(_ => allowArr.includes(getIndexByUrl(_)))
 }
 
 function getIndexByUrl(url) {
