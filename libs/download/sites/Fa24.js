@@ -4,11 +4,10 @@
  */
 'use strict'
 const AbsDownloader = require('../AbsDownloader')
-const {arrToAbsUrl, get_dom, urlTextsToAbs} = require('../dl_utils')
+const {arrToAbsUrl, get_dom, urlTextsToAbs, droppedPage} = require('../dl_utils')
 const {currMapLimit} = require('../../utils')
 const {uniq, uniqBy} = require('lodash')
 const {clip} = require('../../../config/config')
-const dropText = '上一页,下一页'.split(',')
 let self = null
 
 module.exports = class Fa24 extends AbsDownloader {
@@ -53,7 +52,7 @@ module.exports = class Fa24 extends AbsDownloader {
     const otherPagesRaw = $('.newshow table a').map((i, el) => {
         return {url: el.attribs.href, text: $(el).text()}
       }).get(),
-      dropped = this.droppedPage(otherPagesRaw),
+      dropped = droppedPage(otherPagesRaw),
       otherPages = urlTextsToAbs(dropped, original)
     // 相关文章
     const relatedRaw = $('.box a').map((i, el) => {
@@ -71,7 +70,7 @@ module.exports = class Fa24 extends AbsDownloader {
     const otherPagesRaw = $('#printBody table a').map((i, el) => {
         return {url: el.attribs.href, text: $(el).text()}
       }).get(),
-      dropped = this.droppedPage(otherPagesRaw),
+      dropped = droppedPage(otherPagesRaw),
       otherPages = urlTextsToAbs(dropped, original)
     const tagsR = $($('#middle .mframe .mframe .zh').get(0)).find('a').map((i, el) => {
         return {url: el.attribs.href, text: $(el).text()}
@@ -83,9 +82,5 @@ module.exports = class Fa24 extends AbsDownloader {
       related = urlTextsToAbs(relatedR, original)
     const res = {title, imgs: absImgs, otherPages, related, tags}
     return Promise.resolve(res)
-  }
-
-  droppedPage(otherPages) {
-    return otherPages.filter(p => !dropText.some(d => p.text.includes(d)))
   }
 }
