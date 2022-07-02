@@ -152,7 +152,7 @@ async function start_end_sub(ctx) {
       .map(({offset, length}) => message.text.substring(offset, offset + length)),
     command = commands[0],
     mode = command === '/sub' ? 'add' : 'remove',
-    remove_hint = mode === '/sub' ? '' : '取消'
+    remove_hint = command === '/sub' ? '' : '取消'
   let msg
   if (ctx.session.sub.mode === mode) {
     msg = await end_sub(ctx)
