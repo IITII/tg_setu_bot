@@ -28,6 +28,9 @@ const special_url = /^https?:\/\/everia.club\/?$/,
       'https://www.268w.cc/',
       'https://www.116w.cc/',
     ],
+    [
+      'https://www.junmeitu.com/beauty/'
+    ],
   ],
   supRaw_flat = supRaw.flat(Infinity),
   handle_limit = [
@@ -36,6 +39,7 @@ const special_url = /^https?:\/\/everia.club\/?$/,
     [download.eveira, clip.eveLimit],
     [download.fa24Tags, clip.fa24Limit],
     [download.fa24, clip.fa24Limit],
+    [download.junMeiT, clip.junMeiLimit],
   ]
 //   sup_handle_limit = get_sup_handle_limit()
 //
@@ -66,7 +70,7 @@ function filterSupStart(arr, img_or_tags = 'mix') {
   let allowArr = []
   switch (img_or_tags) {
     case 'img':
-      allowArr = [0, 2, 4]
+      allowArr = [0, 2, 4, 5]
       break
     case 'tags':
       allowArr = [1, 3]

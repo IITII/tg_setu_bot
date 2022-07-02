@@ -13,6 +13,7 @@ const Fa24 = require('./sites/Fa24'),
   fa24 = new Fa24()
 const Fa24Tags = require('./sites/Fa24Tags'),
   fa24Tags = new Fa24Tags()
+const junMeiT = require('./sites/JunMeiT')
 
 
 module.exports = {
@@ -21,4 +22,5 @@ module.exports = {
   eveiraTags,
   fa24,
   fa24Tags,
+  junMeiT,
 }
