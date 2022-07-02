@@ -7,13 +7,14 @@ const Telegraph = require('./sites/Telegraph'),
   telegraph = new Telegraph()
 const Eveira = require('./sites/Eveira'),
   eveira = new Eveira()
-const EveiraTags = require('./sites/eveira_tags'),
+const EveiraTags = require('./sites/EveiraTags'),
   eveiraTags = new EveiraTags()
 const Fa24 = require('./sites/Fa24'),
   fa24 = new Fa24()
 const Fa24Tags = require('./sites/Fa24Tags'),
   fa24Tags = new Fa24Tags()
-const junMeiT = require('./sites/JunMeiT')
+const junMei = require('./sites/JunMei'),
+  junMeiTags = require('./sites/JunMeiTags')
 
 
 module.exports = {
@@ -22,5 +23,6 @@ module.exports = {
   eveiraTags,
   fa24,
   fa24Tags,
-  junMeiT,
+  junMei,
+  junMeiTags,
 }

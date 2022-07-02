@@ -83,10 +83,13 @@ function toAbsUrl(url, origin) {
 
 function urlTextsToAbs(url_texts, original) {
   return url_texts.map(raw => {
-    let {url, text} = raw
+    let {url, text, poster} = raw
     url = toAbsUrl(url, original)
     text = titleFormat(text)
-    return {url, text}
+    if (poster) {
+      poster = toAbsUrl(poster, original)
+    }
+    return {...raw, url, text, poster}
   })
 }
 
