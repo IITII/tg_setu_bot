@@ -10,6 +10,7 @@ const {Markup} = require('telegraf'),
   localSession = new LocalSession(db)
 const {loggerMiddleware} = require('./middlewares/logger'),
   {clean} = require('./services/utils/msg_utils'),
+  {message_decode} = require('./services/utils/service_utils'),
   {filterTagsOnly} = require('./services/runs/TaskRunner'),
   picMsgRec = require('./services/runs/PicMsgRec'),
   {redis_add_sub, redis_remove_sub} = require('./services/tasks/redis_utils')
@@ -171,7 +172,8 @@ async function end_sub(ctx) {
 async function add_to_sub(ctx) {
   ctx = sub_init(ctx)
   const message = ctx.message || ctx.update.message
-  let urls = filterTagsOnly(message)
+  let urls = message_decode(message, 'mix')
+  urls = filterTagsOnly(urls)
   ctx.session.sub.urls = [...ctx.session.sub.urls, ...urls]
 }
 
