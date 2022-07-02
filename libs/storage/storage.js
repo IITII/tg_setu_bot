@@ -11,19 +11,19 @@ class Storage {
   }
 
   async rpush(v) {
-    throw new Error("un-support")
+    throw new Error('un-support')
   }
 
   async lpop() {
-    throw new Error("un-support")
+    throw new Error('un-support')
   }
 
   async llen() {
-    throw new Error("un-support")
+    throw new Error('un-support')
   }
 
   async clear() {
-    throw new Error("un-support")
+    throw new Error('un-support')
   }
 }
 

@@ -28,7 +28,7 @@ async function fileTypeFromUrlHead(url) {
 
 async function fileTypeFromUrl(url) {
   await init()
-  return axios.get(url, {responseType: "stream"})
+  return axios.get(url, {responseType: 'stream'})
     .then(res => file_type.fileTypeFromStream(res.data))
 }
 

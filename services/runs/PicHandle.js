@@ -3,7 +3,7 @@
  * @date 2022/06/26
  */
 'use strict'
-const {difference, uniq} = require('lodash')
+const {uniq} = require('lodash')
 const {queueName, eventName, clip, DEBUG} = require('../../config/config'),
   eventBus = require('../../libs/event_bus'),
   Storage = require('../../libs/storage'),
@@ -53,7 +53,7 @@ async function handle_msg(bot, msg) {
         await send_text(chat_id, `这啥模式：${mode}`, message_id)
         break
     }
-    let endMsg = `#MarkAsDone\n[${title}](${original})`
+    let endMsg = `#MarkAsDone\n[${title}](${original})\n\n`
     endMsg += log_meta_tag(meta, true)
     endMsg += log_meta_tag(tags, false)
     logger.debug(endMsg)

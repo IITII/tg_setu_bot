@@ -1,26 +1,26 @@
 {
-    "version": "0.2.0",
-    "configurations": [
-        {
-            "name": "start",
-            "program": "${workspaceFolder}/App.js",
-            "request": "launch",
-            "skipFiles": [
-                "<node_internals>/**"
-            ],
-            "type": "node"
-        },
-        {
-            "name": "dev",
-            "program": "${workspaceFolder}/App.js",
-            "request": "launch",
-            "skipFiles": [
-                "<node_internals>/**"
-            ],
-            "env": {
-                "TG_DEBUG": "true"
-            },
-            "type": "node"
-        }
-    ]
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "start",
+      "program": "${workspaceFolder}/App.js",
+      "request": "launch",
+      "skipFiles": [
+        "<node_internals>/**"
+      ],
+      "type": "node"
+    },
+    {
+      "name": "dev",
+      "program": "${workspaceFolder}/App.js",
+      "request": "launch",
+      "skipFiles": [
+        "<node_internals>/**"
+      ],
+      "env": {
+        "TG_DEBUG": "true"
+      },
+      "type": "node"
+    }
+  ]
 }

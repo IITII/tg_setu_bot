@@ -7,5 +7,5 @@ services:
     ports:
       - "0.0.0.0:6379:6379"
     restart: unless-stopped
-    entrypoint: ["redis-server", "--requirepass", "review_pic"]
+    entrypoint: [ "redis-server", "--requirepass", "review_pic" ]
     network_mode: bridge

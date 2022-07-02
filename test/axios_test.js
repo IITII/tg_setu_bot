@@ -16,9 +16,9 @@ const config = {
   //   rejectUnauthorized: false,
   // }),
 }
-console.log(process.env.PROXY);
-axios.get("https://telegra.ph/%E6%B5%8B%E8%AF%95-03-28", config)
+console.log(process.env.PROXY)
+axios.get('https://telegra.ph/%E6%B5%8B%E8%AF%95-03-28', config)
   .then(_ => _.data)
   .then(r => {
-    console.log(r);
+    console.log(r)
   })

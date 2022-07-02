@@ -6,7 +6,7 @@
 const fs = require('fs'),
   path = require('path')
 const APPEND_TO_FILE = process.env.APPEND_TO_FILE !== 'false'
-const loggerLevel = process.env.LOG_LEVEL || "DEBUG"
+const loggerLevel = process.env.LOG_LEVEL || 'DEBUG'
 const logDir = process.env.LOG_DIR || path.resolve(__dirname, '../logs')
 
 if (!fs.existsSync(logDir)) {
@@ -15,40 +15,40 @@ if (!fs.existsSync(logDir)) {
 }
 
 let config = {
-  "appenders": {
+  'appenders': {
     console: {type: 'console'},
-    "app": {
-      "type": "dateFile",
-      "filename": `${logDir}/app.log`,
-      "pattern": "-yyyy-MM-dd",
-      "maxLogSize": 10485760,
-      "numBackups": 0,
-      "category": "http",
+    'app': {
+      'type': 'dateFile',
+      'filename': `${logDir}/app.log`,
+      'pattern': '-yyyy-MM-dd',
+      'maxLogSize': 10485760,
+      'numBackups': 0,
+      'category': 'http',
       compress: false,
     },
-    "errors": {
-      "type": "logLevelFilter",
-      "level": "ERROR",
-      "appender": "errorFile",
+    'errors': {
+      'type': 'logLevelFilter',
+      'level': 'ERROR',
+      'appender': 'errorFile',
     },
-    "errorFile": {
-      "type": "file",
-      "filename": `${logDir}/errors.log`,
-      "maxLogSize": 10485760,
-      "numBackups": 1,
+    'errorFile': {
+      'type': 'file',
+      'filename': `${logDir}/errors.log`,
+      'maxLogSize': 10485760,
+      'numBackups': 1,
     },
   },
-  "categories": {
-    "default": {
-      "appenders": ['console'],
-      "level": loggerLevel,
+  'categories': {
+    'default': {
+      'appenders': ['console'],
+      'level': loggerLevel,
       enableCallStack: true,
     },
   },
 }
 
 if (APPEND_TO_FILE) {
-  ["app", "errors"].forEach(c => {
+  ['app', 'errors'].forEach(c => {
     config.categories.default.appenders.push(c)
   })
 }

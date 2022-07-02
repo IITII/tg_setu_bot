@@ -3,9 +3,9 @@
  * @date 2022/06/25
  */
 'use strict'
-const {logger} = require("../../middlewares/logger")
-const axios = require("../axios_client")
-const {load} = require("cheerio")
+const {logger} = require('../../middlewares/logger')
+const axios = require('../axios_client')
+const {load} = require('cheerio')
 const {
   time_human_readable,
   zipWithIndex,
@@ -14,10 +14,10 @@ const {
   url_resolve,
   mkdir,
   titleFormat,
-} = require("../utils")
-const {uniq, uniqBy} = require("lodash")
-const path = require("path")
-const {clip} = require("../../config/config")
+} = require('../utils')
+const {uniq, uniqBy} = require('lodash')
+const path = require('path')
+const {clip} = require('../../config/config')
 
 module.exports = {
   get_dom,
@@ -37,7 +37,7 @@ async function get_dom(url, handle_dom) {
       meta: undefined, tags: undefined,
     }
     logger.debug(`Getting image urls from ${url}`)
-    await axios.get(url, {responseType: "document"})
+    await axios.get(url, {responseType: 'document'})
       .then(res => res.data)
       .then(doc => load(doc))
       .then(async $ => res = await handle_dom($, url))

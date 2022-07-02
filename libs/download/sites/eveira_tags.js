@@ -3,7 +3,7 @@
  * @date 2022/06/23
  */
 'use strict'
-const AbsDownloader = require("../AbsDownloader")
+const AbsDownloader = require('../AbsDownloader')
 const {get_dom, urlTextsToAbs, uniqUrlTexts} = require('../dl_utils')
 const {clip} = require('../../../config/config'),
   {logger} = require('../../../middlewares/logger'),

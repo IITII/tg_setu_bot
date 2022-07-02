@@ -36,7 +36,7 @@ module.exports = class Fa24 extends AbsDownloader {
   }
 
   async handle_dom($, original) {
-    const isMobile = $('.pos').text().includes("首页 > ")
+    const isMobile = $('.pos').text().includes('首页 > ')
     if (isMobile) {
       return self.handle_mobile_dom($, original)
     } else {
@@ -51,14 +51,14 @@ module.exports = class Fa24 extends AbsDownloader {
     // const imgs = await zipUrlExt(absImgs, getSaveDir(title))
     // 其他页面的图片
     const otherPagesRaw = $('.newshow table a').map((i, el) => {
-      return {url: el.attribs.href, text: $(el).text()}
-    }).get(),
+        return {url: el.attribs.href, text: $(el).text()}
+      }).get(),
       dropped = this.droppedPage(otherPagesRaw),
       otherPages = urlTextsToAbs(dropped, original)
     // 相关文章
     const relatedRaw = $('.box a').map((i, el) => {
-      return {url: el.attribs.href, text: $(el).text()}
-    }).get(),
+        return {url: el.attribs.href, text: $(el).text()}
+      }).get(),
       related = urlTextsToAbs(relatedRaw, original)
     const res = {title, imgs: absImgs, otherPages, related}
     return Promise.resolve(res)
@@ -69,23 +69,23 @@ module.exports = class Fa24 extends AbsDownloader {
     const rawUrls = $('#printBody #content img').map((i, el) => el.attribs.src).get()
     const absImgs = arrToAbsUrl(rawUrls, original)
     const otherPagesRaw = $('#printBody table a').map((i, el) => {
-      return { url: el.attribs.href, text: $(el).text() }
-    }).get(),
+        return {url: el.attribs.href, text: $(el).text()}
+      }).get(),
       dropped = this.droppedPage(otherPagesRaw),
       otherPages = urlTextsToAbs(dropped, original)
     const tagsR = $($('#middle .mframe .mframe .zh').get(0)).find('a').map((i, el) => {
-      return { url: el.attribs.href, text: $(el).text() }
-    }).get(),
+        return {url: el.attribs.href, text: $(el).text()}
+      }).get(),
       tags = urlTextsToAbs(tagsR, original)
     const relatedR = $($('#middle .mframe .mframe .wrapper').get(0)).find('a').map((i, el) => {
-      return { url: el.attribs.href, text: $(el).text() }
-    }).get(),
+        return {url: el.attribs.href, text: $(el).text()}
+      }).get(),
       related = urlTextsToAbs(relatedR, original)
     const res = {title, imgs: absImgs, otherPages, related, tags}
     return Promise.resolve(res)
   }
 
   droppedPage(otherPages) {
-    return  otherPages.filter(p => !dropText.some(d => p.text.includes(d)))
+    return otherPages.filter(p => !dropText.some(d => p.text.includes(d)))
   }
 }

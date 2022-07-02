@@ -19,7 +19,6 @@ console.log(a.clear().then(_ => console.log(34)))
 console.log(a)
 
 
-
 const redisStorage = new RedisStorage()
 redisStorage.llen()
   .then(_ => console.log(_))

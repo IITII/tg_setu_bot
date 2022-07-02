@@ -7,12 +7,13 @@
 const {chunk} = require('lodash')
 const {reqRateLimit, currMapLimit} = require('../libs/utils')
 
-async function one(){
+async function one() {
   return new Promise((resolve, reject) => {
     setTimeout(() => {
       console.log(1)
       return resolve(1)
-    }, 1000)})
+    }, 1000)
+  })
     .then(() => console.log(new Date()))
 }
 
@@ -43,14 +44,15 @@ async function main() {
 function ones() {
   console.log(new Date())
 }
+
 function f2() {
   console.log(new Date())
 }
 
 async function t2() {
-  console.log("一秒钟一条")
-  await reqRateLimit(ones, [1,2,3,4,5,6,7,8,9,10], 1000, 1, false)
-  console.log("一分钟20条")
+  console.log('一秒钟一条')
+  await reqRateLimit(ones, [1, 2, 3, 4, 5, 6, 7, 8, 9, 10], 1000, 1, false)
+  console.log('一分钟20条')
   await reqRateLimit(f2, [...new Array(20).keys()], 1000 * 60 / 20, 1, false)
 }
 
