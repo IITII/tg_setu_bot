@@ -95,7 +95,7 @@ async function task(url, info, handle, breakTime, start = format_date()) {
       info.latest = url_texts.map(_ => _.url).slice(0, taskLimit.latest)
       const urlTexts = log_url_texts(url_texts)
       // let text = `#${taskName} #${title}\n`
-      let text = `#${title}\n`
+      let text = `#Subscribed\n#${title}\n`
       text += `Start: ${start}\n`
       text += `Spent: ${spent}\n`
       text += `${urlTexts}`
