@@ -8,16 +8,17 @@ const {uniq} = require('lodash'),
   {check, taskName, taskLimit} = require('../../config/config'),
   {format_date, time_human_readable} = require('../../libs/utils'),
   {log_url_texts} = require('../utils/service_utils'),
+  {getIndexByUrl} = require('../utils/support_urls_utils'),
   {send_text} = require('../utils/msg_utils'),
   {get_random_next, HSET, HGETALL} = require('../tasks/redis_utils')
-const EveiraTags = require('../../libs/download/sites/eveira_tags'),
+const EveiraTags = require('../../libs/download/sites/EveiraTags'),
   Fa24Tags = require('../../libs/download/sites/Fa24Tags'),
   fa24c49 = require('../../libs/download/sites/Fa24C49'),
+  junMeiTags = require('../../libs/download/sites/JunMeiTags'),
   eveiraTags = new EveiraTags(),
   fa24Tags = new Fa24Tags()
 
-const special_url = /^https?:\/\/everia.club\/?$/,
-  supRaw = [
+const supRaw = [
     [
       'https://everia.club/tag/',
       'https://everia.club/category/',
@@ -32,31 +33,33 @@ const special_url = /^https?:\/\/everia.club\/?$/,
       'https://www.268w.cc/c49.aspx',
       'https://www.116w.cc/c49.aspx',
     ],
+    [
+      'https://www.junmeitu.com/tags/',
+      'https://www.junmeitu.com/xzjg/',
+      'https://www.junmeitu.com/model/',
+      'https://www.junmeitu.com/beauty/hot-1.html',
+    ],
   ],
   supRaw_flat = supRaw.flat(Infinity),
   handle_limit = [
     [eveiraTags, check.all],
     [fa24Tags, check.all],
     [fa24c49, check.all],
+    [junMeiTags, check.all],
   ]
+const special_url = [
+  [/^https?:\/\/everia.club\/?$/, 0],
+  [/^https?:\/\/www\.junmeitu\.com\/beauty\/?$/, 3],
+]
 
 function filterTagsOnly(arr) {
-  const arr1 = arr.filter(_ => _.match(special_url))
+  const arr1 = arr.filter(_ => special_url.some(r => r[0].test(_)))
   const arr2 = arr.filter(_ => supRaw_flat.some(s => _.startsWith(s)))
   return uniq(arr1.concat(arr2))
 }
 
-function getIndexByUrl(url) {
-  let idx
-  if (url.match(special_url)) {
-    idx = 0
-  } else {
-    idx = supRaw.findIndex(_ => _.some(s => url.startsWith(s)))
-  }
-  if (idx === -1) {
-    throw new Error(`No support handle for this url: ${url}`)
-  }
-  return idx
+function getTaskIndexByUrl(url) {
+  return getIndexByUrl(url, special_url, supRaw)
 }
 
 async function start() {
@@ -69,7 +72,7 @@ async function run() {
   for (const url in hall) {
     const info = hall[url]
     if (info.nextTime < Date.now()) {
-      const idx = getIndexByUrl(url)
+      const idx = getTaskIndexByUrl(url)
       const [handle, breakTime] = handle_limit[idx]
       if (!(handle && breakTime)) {
         throw new Error(`No support handle for this url: ${url}`)

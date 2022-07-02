@@ -13,7 +13,7 @@ const {get_dom, droppedPage, uniqUrlTexts, urlTextsToAbs, arrToAbsUrl} = require
 
 async function getImageArray(url) {
   const first_page = await get_dom(url, handle_dom)
-  let {pos, title, meta, imgs, pages, tags, related, cost, original} = first_page
+  let {title, meta, imgs, pages, tags, related, cost, original} = first_page
   const other_pages = calcOtherPages(pages),
     other_pages_res = await currMapLimit(other_pages, clip.pageLimit, handle_other_pages)
   imgs = uniq([imgs, other_pages_res.map(p => p.imgs)].flat(Infinity))
@@ -54,7 +54,6 @@ async function handle_other_pages(url) {
 }
 
 async function handle_dom($, original) {
-  const pos = $('.position').text()
   const title = titleFormat($('.main .content .title').text())
   const metaR = $('.main .content .picture-details a').map((i, el) => {
       return {url: el.attribs.href, text: $(el).text()}
@@ -75,7 +74,7 @@ async function handle_dom($, original) {
       return {url: el.attribs.href, text: $(el).text()}
     }).get(),
     related = urlTextsToAbs(relatedR, original)
-  const res = {pos, title, meta, imgs, pages, tags, related}
+  const res = {title, meta, imgs, pages, tags, related}
   return Promise.resolve(res)
 }
 

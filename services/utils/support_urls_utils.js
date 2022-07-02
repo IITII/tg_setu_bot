@@ -6,8 +6,7 @@
 const {clip} = require('../../config/config'),
   download = require('../../libs/download')
 
-const special_url = /^https?:\/\/everia.club\/?$/,
-  supRaw = [
+const supRaw = [
     [
       'https://telegra.ph/',
     ],
@@ -29,6 +28,12 @@ const special_url = /^https?:\/\/everia.club\/?$/,
       'https://www.116w.cc/',
     ],
     [
+      'https://www.junmeitu.com/tags/',
+      'https://www.junmeitu.com/xzjg/',
+      'https://www.junmeitu.com/model/',
+      'https://www.junmeitu.com/beauty/hot-1.html',
+    ],
+    [
       'https://www.junmeitu.com/beauty/'
     ],
   ],
@@ -39,27 +44,13 @@ const special_url = /^https?:\/\/everia.club\/?$/,
     [download.eveira, clip.eveLimit],
     [download.fa24Tags, clip.fa24Limit],
     [download.fa24, clip.fa24Limit],
-    [download.junMeiT, clip.junMeiLimit],
+    [download.junMeiTags, clip.junMeiLimit],
+    [download.junMei, clip.junMeiLimit],
   ]
-//   sup_handle_limit = get_sup_handle_limit()
-//
-// function get_sup_handle_limit() {
-//   const res = []
-//   for (let i = 0; i < supRaw.length; i++) {
-//     let sup = supRaw[i]
-//     sup = sup.map(u => {
-//       u = new URL(u)
-//       return {origin: u.origin, pathname: u.pathname}
-//     })
-//     const single = {
-//       origin: sup.map(_ => _.origin),
-//       pathname: sup.map(_ => _.pathname),
-//       handle: i
-//     }
-//     res.push(single)
-//   }
-//   return res
-// }
+const special_url = [
+  [/^https?:\/\/everia\.club\/?$/, 1],
+  [/^https?:\/\/www\.junmeitu\.com\/beauty\/?$/, 5]
+]
 
 function isSupport(text) {
   return text && supRaw_flat.some(_ => text.includes(_))
@@ -70,10 +61,10 @@ function filterSupStart(arr, img_or_tags = 'mix') {
   let allowArr = []
   switch (img_or_tags) {
     case 'img':
-      allowArr = [0, 2, 4, 5]
+      allowArr = [0, 2, 4, 6]
       break
     case 'tags':
-      allowArr = [1, 3]
+      allowArr = [1, 3, 5]
       break
     case 'mix':
     default:
@@ -83,12 +74,15 @@ function filterSupStart(arr, img_or_tags = 'mix') {
   return allowArr.length === 0 ? mix : mix.filter(_ => allowArr.includes(getIndexByUrl(_)))
 }
 
-function getIndexByUrl(url) {
+function getIndexByUrl(url,
+                       specArr = special_url,
+                       rawArr = supRaw) {
   let idx
-  if (url.match(special_url)) {
-    idx = 1
+  const i = specArr.findIndex(_ => _[0].test(url))
+  if (i > -1) {
+    idx = specArr[i][1]
   } else {
-    idx = supRaw.findIndex(_ => _.some(s => url.startsWith(s)))
+    idx = rawArr.findIndex(_ => _.some(s => url.startsWith(s)))
   }
   if (idx === -1) {
     throw new Error(`No support handle for this url: ${url}`)
@@ -111,4 +105,5 @@ module.exports = {
   filterSupStart,
   handle_sup_url,
   getLimitByUrl,
+  getIndexByUrl,
 }
