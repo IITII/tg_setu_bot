@@ -26,15 +26,14 @@
 
 ## Support Command
 
-|   Name    |        Des        |
-|:---------:|:-----------------:|
-|  /start   |      Hello消息      |
-| /download |        仅下载        |
-|   /copy   |     下载后发送回会话      |
-| /copy_del | 下载后发送回会话并删除远程临时文件 |
-|  /clean   |    删除所有远程临时文件     |
-|   /sub    |        订阅         |
-|  /u_sub   |       移除订阅        |
+|   Name    |    Des     |
+|:---------:|:----------:|
+|  /start   |  Hello消息   |
+| /download |    仅下载     |
+| /copy_del |  免下载直接发送   |
+|  /clean   | 删除所有远程临时文件 |
+|   /sub    |     订阅     |
+|  /u_sub   |    移除订阅    |
 
 ## ENV
 

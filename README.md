@@ -26,20 +26,19 @@
 
 ## Support Command
 
-|   Name    |                       Des                        |
-|:---------:|:------------------------------------------------:|
-|  /start   |                    Hello Msg                     |
-| /download |                     download                     |
-|   /copy   |           Send to chat after download            |
-| /copy_del | Send to chat after download and delete tmp files |
-|  /clean   |              Remove all temp files               |
-|   /sub    |     Subscribe to receive the latest pictures     |
-|  /u_sub   |   UN-Subscribe to receive the latest pictures    |
+|   Name    |                     Des                     |
+|:---------:|:-------------------------------------------:|
+|  /start   |                  Hello Msg                  |
+| /download |                  download                   |
+| /copy_del |        Send to chat without download        |
+|  /clean   |            Remove all temp files            |
+|   /sub    |  Subscribe to receive the latest pictures   |
+|  /u_sub   | UN-Subscribe to receive the latest pictures |
 
 ## ENV
 
 |   Name    |                    Des                    | Default |
-| :-------: | :---------------------------------------: | :-----: |
+|:---------:|:-----------------------------------------:|:-------:|
 | BOT_TOKEN |            Telegram Bot Token             | `NULL`  |
 | ADMIN_ID  |    Send start/stop message to ADMIN_ID    | `NULL`  |
 |   PROXY   |                Http Proxy                 | `NULL`  |

@@ -119,10 +119,17 @@ async function download(ctx) {
 
 // share actions
 async function img_or_tags(ctx, msg) {
+  const selected = '✅'
+  const arr_selected = img_or_tags_arr.map(([t, d]) => {
+    if (d === ctx.session.opts.img_or_tags) {
+      t = `${t} ${selected}`
+    }
+    return [t, d]
+  })
   return ctx.reply(msg, {
     parse_mode: 'Markdown',
     ...Markup.inlineKeyboard([
-      ...img_or_tags_arr.map(([hint, t]) => {
+      ...arr_selected.map(([hint, t]) => {
         return Markup.button.callback(hint, t)
       })
     ])
