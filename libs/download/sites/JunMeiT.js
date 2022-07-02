@@ -7,7 +7,7 @@
 const path = require('path')
 const {uniq} = require('lodash')
 const {clip} = require('../../../config/config')
-const {currMapLimit} = require('../../utils')
+const {currMapLimit, titleFormat} = require('../../utils')
 const {logger} = require('../../../middlewares/logger')
 const {get_dom, droppedPage, uniqUrlTexts, urlTextsToAbs, arrToAbsUrl} = require('../dl_utils')
 
@@ -55,7 +55,7 @@ async function handle_other_pages(url) {
 
 async function handle_dom($, original) {
   const pos = $('.position').text()
-  const title = $('.main .content .title').text()
+  const title = titleFormat($('.main .content .title').text())
   const metaR = $('.main .content .picture-details a').map((i, el) => {
       return {url: el.attribs.href, text: $(el).text()}
     }).get(),

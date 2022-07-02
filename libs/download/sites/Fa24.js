@@ -5,7 +5,7 @@
 'use strict'
 const AbsDownloader = require('../AbsDownloader')
 const {arrToAbsUrl, get_dom, urlTextsToAbs, droppedPage} = require('../dl_utils')
-const {currMapLimit} = require('../../utils')
+const {currMapLimit, titleFormat} = require('../../utils')
 const {uniq, uniqBy} = require('lodash')
 const {clip} = require('../../../config/config')
 let self = null
@@ -44,7 +44,7 @@ module.exports = class Fa24 extends AbsDownloader {
   }
 
   async handle_mobile_dom($, original) {
-    const title = $('.newshow header h1').text()
+    const title = titleFormat($('.newshow header h1').text())
     const rawUrls = $('.newshow article img').map((i, el) => el.attribs.src).get()
     const absImgs = arrToAbsUrl(rawUrls, original)
     // const imgs = await zipUrlExt(absImgs, getSaveDir(title))
@@ -64,7 +64,7 @@ module.exports = class Fa24 extends AbsDownloader {
   }
 
   async handle_web_dom($, original) {
-    const title = $('#printBody h1').text()
+    const title = titleFormat($('#printBody h1').text())
     const rawUrls = $('#printBody #content img').map((i, el) => el.attribs.src).get()
     const absImgs = arrToAbsUrl(rawUrls, original)
     const otherPagesRaw = $('#printBody table a').map((i, el) => {
