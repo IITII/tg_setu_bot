@@ -3,9 +3,12 @@
  * @date 2022/06/25
  */
 'use strict'
-const {logger} = require('../../middlewares/logger')
-const axios = require('../axios_client')
-const {load} = require('cheerio')
+const path = require('path'),
+  {uniq, uniqBy} = require('lodash'),
+  {load} = require('cheerio')
+const axios = require('../axios_client'),
+  {clip} = require('../../config/config'),
+  {logger} = require('../../middlewares/logger')
 const {
   time_human_readable,
   zipWithIndex,
@@ -15,9 +18,6 @@ const {
   mkdir,
   titleFormat,
 } = require('../utils')
-const {uniq, uniqBy} = require('lodash')
-const path = require('path')
-const {clip} = require('../../config/config')
 
 module.exports = {
   get_dom,
@@ -27,6 +27,7 @@ module.exports = {
   urlTextsToAbs,
   uniqUrlTexts,
   getSaveDir,
+  droppedPage,
 }
 
 async function get_dom(url, handle_dom) {
@@ -100,4 +101,9 @@ function getSaveDir(title, baseDir = clip.baseDir, create = true) {
   const saveDir = path.resolve(__dirname, fileDeep, baseDir, title)
   if (create) mkdir(saveDir)
   return saveDir
+}
+
+function droppedPage(url_texts,
+                     denyPages = '上一页,下一页'.split(',')) {
+  return url_texts.filter(p => !denyPages.some(d => p.text.includes(d)))
 }
