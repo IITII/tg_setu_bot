@@ -17,7 +17,11 @@ module.exports = class EveiraTags extends AbsDownloader {
     const urls = imgs.map(_ => _.url)
     const time = time_human_readable(cost)
     logger.debug(`Get ${title} total ${urls.length} in ${time} from tag ${original}`)
-    return await currMapLimit(urls, clip.eveTagLimit, eveira.getImageArray)
+    return await currMapLimit(urls, clip.eveTagLimit, this.keep_this)
+  }
+
+  async keep_this(url) {
+    return eveira.getImageArray(url)
   }
 
   async getTagUrls(url) {

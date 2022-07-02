@@ -69,7 +69,7 @@ async function fetchPhotos(urls) {
   const crawlStart = new Date()
   let photos = await currMapLimit(urls, clip.webLimit, handle_sup_url)
   photos = photos.flat(Infinity).filter(_ => _.imgs.length > 0)
-  const diff = difference(photos.map(_ => _.original), urls)
+  const diff = photos.filter(({original}) => !urls.includes(original))
   const cost = time_human_readable(new Date() - crawlStart)
   return {photos, diff, cost}
 }

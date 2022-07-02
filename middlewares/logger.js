@@ -16,7 +16,7 @@ const loggerMiddleware = async (ctx, next) => {
   const start = new Date()
   return next()
     .then(() => {
-      let message = ctx.update.message || ctx.update.edited_message
+      let message = ctx.update.message || ctx.update.edited_message || ctx.update.callback_query
       if (logger.isDebugEnabled()) {
         logger.debug(`cost: ${new Date() - start}ms ${JSON.stringify(message)}`)
       } else {

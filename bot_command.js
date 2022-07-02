@@ -37,13 +37,13 @@ const img_or_tags_arr = [
 ]
 
 const commands = [
-  '/start', hello,
-  '/unset', unset,
-  '/clean', cleanTmp,
-  '/copy_del', copy,
-  '/download', download,
-  '/sub', start_end_sub,
-  '/u_sub', start_end_sub,
+  ['/start', hello,],
+  ['/unset', unset,],
+  ['/clean', cleanTmp,],
+  ['/copy_del', copy,],
+  ['/download', download,],
+  ['/sub', start_end_sub,],
+  ['/u_sub', start_end_sub,],
 ]
 const actions = [
   ...img_or_tags_arr.map(([_, ac]) => [ac, action_img_or_tags]),
@@ -120,10 +120,11 @@ async function download(ctx) {
 async function img_or_tags(ctx, msg) {
   return ctx.reply(msg, {
     parse_mode: 'Markdown',
-    ...Markup.inlineKeyboard(
-      img_or_tags_arr.map(([text, action]) => {
-        Markup.button.callback(text, action)
-      })),
+    ...Markup.inlineKeyboard([
+      ...img_or_tags_arr.map(([hint, t]) => {
+        return Markup.button.callback(hint, t)
+      })
+    ])
   })
 }
 
