@@ -6,11 +6,11 @@
 const fs = require('fs'),
   path = require('path')
 
-function sendPhoto(source, caption = undefined) {
+function sendPhoto(source) {
   const res = {}
-  if (caption) {
-    res['caption'] = {caption}
-  }
+  // if (caption) {
+  //   res['caption'] = {caption}
+  // }
   switch (typeof source) {
     case 'string':
       let key
@@ -31,18 +31,20 @@ function sendPhoto(source, caption = undefined) {
 }
 
 function singleMedia(source, caption = undefined) {
+  let res = {media: source, caption, parse_mode: 'Markdown', type: 'photo'}
   switch (typeof source) {
     case 'string':
-      if (source.startsWith('http')) {
-        return {media: source, caption, type: 'photo'}
-      } else {
-        return {media: {source}, caption, type: 'photo'}
+      if (!source.startsWith('http')) {
+        res.media = {source}
       }
+      break
     case 'object':
-      return {media: {source: fs.createReadStream(source)}, caption, type: 'photo'}
+      res.media = {source: fs.createReadStream(source)}
+      break
     default:
       throw new Error('Invalid source type')
   }
+  return res
 }
 
 function getGroupMedia(sources, captionType = 'filename') {

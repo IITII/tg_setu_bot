@@ -46,7 +46,7 @@ async function handle_msg(bot, msg) {
         await handle_download(prefixMsg, imgs, saveDir, original, chat_id, message_id, limit)
         break
       case 'copy':
-        await sendMediaGroup(chat_id, imgs, title)
+        await sendMediaGroup(chat_id, imgs, prefixMsg)
         break
       case 'init':
       default:
