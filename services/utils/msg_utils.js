@@ -26,6 +26,7 @@ module.exports = {
   handle_media_group,
   sendBatchMsg,
   getTextMsg,
+  getPhotoMsg,
   getMediaGroupMsg,
 }
 
@@ -53,8 +54,7 @@ function emit(v) {
 
 async function send_text(chat_id, text, message_id = undefined, preview = false) {
   const msg = getTextMsg(chat_id, text, message_id, preview)
-  return storage.rpush(msg)
-    .then(_ => emit(_))
+  return storage.rpush(msg).then(_ => emit(_))
 }
 
 function getTextMsg(chat_id, text, message_id = undefined, preview = false) {
@@ -63,9 +63,13 @@ function getTextMsg(chat_id, text, message_id = undefined, preview = false) {
 }
 
 async function send_photo(chat_id, sub, cap) {
+  const msg = getPhotoMsg(chat_id, sub, cap)
+  return storage.rpush(msg).then(_ => emit(_))
+}
+
+function getPhotoMsg(chat_id, sub, cap) {
   const type = TypeEnum.PHOTO
-  return storage.rpush([{chat_id, type, sub, cap}])
-    .then(_ => emit(_))
+  return [{chat_id, type, sub, cap}]
 }
 
 async function send_media(chat_id, sub, cap) {
@@ -123,11 +127,10 @@ function getMediaGroupMsg(chat_id, urls, captionType = 'filename', showProgress 
     }
     let g = {chat_id, type, sub, cap}
     if (sub.length === 1) {
-      g.sub = sub[0]
-      g.type = TypeEnum.PHOTO
+      g = getPhotoMsg(chat_id, sub[0], cap)
     }
     return g
-  })
+  }).flat(Infinity)
 }
 
 async function sendBatchMsg(msgArr) {
