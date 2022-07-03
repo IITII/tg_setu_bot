@@ -56,10 +56,15 @@ const special_url = [
   [/^https?:\/\/www\.junmeitu\.com\/beauty\/?$/, 3],
 ]
 
-function filterTagsOnly(arr) {
+function filterTagsOnly(arr, formatHost = true) {
   const arr1 = arr.filter(_ => special_url.some(r => r[0].test(_)))
   const arr2 = arr.filter(_ => supRaw_flat.some(s => _.startsWith(s)))
-  return uniq(arr1.concat(arr2))
+  let res = uniq(arr1.concat(arr2))
+  // TODO: URL rewrite
+  if (formatHost) {
+
+  }
+  return res
 }
 
 function getTaskIndexByUrl(url) {
