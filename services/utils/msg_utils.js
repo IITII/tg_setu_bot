@@ -175,7 +175,7 @@ async function handle_text_msg(chat_id, text, message_id, preview, sep = '\n') {
 
 async function handle_photo(msg) {
   const {chat_id, sub, cap} = msg
-  return telegram.sendPhoto(chat_id, sendPhoto(sub, cap), {
+  return telegram.sendPhoto(chat_id, sendPhoto(sub), {
     caption: cap,
     parse_mode: 'Markdown',
   })
