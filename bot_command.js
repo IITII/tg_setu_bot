@@ -8,7 +8,7 @@ const {Markup} = require('telegraf'),
   {uniq} = require('lodash'),
   LocalSession = require('telegraf-session-local'),
   localSession = new LocalSession(db)
-const {loggerMiddleware} = require('./middlewares/logger'),
+const {loggerMiddleware, logger} = require('./middlewares/logger'),
   {clean} = require('./services/utils/msg_utils'),
   {message_decode} = require('./services/utils/service_utils'),
   {filterTagsOnly} = require('./services/runs/TaskRunner'),
@@ -24,6 +24,9 @@ const default_session = {
   sub: {
     // add, remove
     mode: 'init',
+    /**
+     * @deprecated due to session bugs
+     */
     urls: [],
   },
   opts: {
@@ -163,17 +166,19 @@ async function start_end_sub(ctx) {
   return ctx.reply(msg)
 }
 
+const subMap = new Map()
 async function end_sub(ctx) {
   ctx = sub_init(ctx)
   const isSub = ctx.session.sub.mode === 'add'
   const uid = ctx.message.from.id
-  let urls = ctx.session.sub.urls
-  let s = `${isSub ? '' : '取消'}订阅 ${urls.length} 条链接`
+  let urls = subMap.get(uid) || []
   urls = uniq(urls)
+  let s = `${isSub ? '' : '取消'}订阅 ${urls.length} 条链接`
   for (const url of urls) {
     const redis_handle = isSub ? redis_add_sub : redis_remove_sub
     await redis_handle(url, uid)
   }
+  subMap.delete(uid)
   ctx.session.sub = default_session.sub
   return s
 }
@@ -181,9 +186,12 @@ async function end_sub(ctx) {
 async function add_to_sub(ctx) {
   ctx = sub_init(ctx)
   const message = ctx.message || ctx.update.message
+  const uid = ctx.message.from.id
   let urls = message_decode(message, 'mix')
   urls = filterTagsOnly(urls)
-  ctx.session.sub.urls = [...ctx.session.sub.urls, ...urls]
+  const preUrls = subMap.get(uid) || []
+  logger.debug(`${uid} add ${urls.length}, pre: ${preUrls.length}`, urls)
+  subMap.set(uid, [...preUrls, ...urls])
 }
 
 
