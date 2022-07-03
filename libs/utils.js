@@ -184,7 +184,7 @@ function url_resolve(from, to) {
 }
 
 function format_date() {
-  const format = 'YYYY/MM/DD HH:mm:ss'
+  const format = 'YYYY/MM/DD HH:mm'
   return dayjs().format(format)
 }
 

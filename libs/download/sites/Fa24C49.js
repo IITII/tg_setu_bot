@@ -14,7 +14,8 @@ async function handle_dom($, original) {
   const title_r = $('.tm .tk').text(),
     title = titleFormat(title_r)
   const url_text_r = $('#dlNews tr a').map((i, el) => {
-      return {url: el.attribs.href, text: $(el).text()}
+      const poster = $(el).find('img').get(0).attribs.src
+      return {url: el.attribs.href, text: $(el).text(), poster}
     }).get(),
     imgs = urlTextsToAbs(url_text_r, original)
   const res = {title, imgs}

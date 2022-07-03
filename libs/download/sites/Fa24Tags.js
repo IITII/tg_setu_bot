@@ -33,8 +33,10 @@ module.exports = class Fa24Tags extends AbsDownloader {
   async handle_dom($, original) {
     const titleR = $('#middle .tmm b').text(),
       title = titleFormat(titleR)
+    let posters = $('.sumlist .title img').map((_, el) => el.attribs.src).get()
     const url_text_r = $('.sumlist .title a').map((i, el) => {
-        return {url: el.attribs.href, text: $(el).text()}
+        const poster = posters[i]
+        return {url: el.attribs.href, text: $(el).text(), poster}
       }).get(),
       imgs = urlTextsToAbs(url_text_r, original)
     const res = {title, imgs}

@@ -7,9 +7,8 @@
 const {uniq} = require('lodash'),
   {check, taskName, taskLimit} = require('../../config/config'),
   {format_date, time_human_readable} = require('../../libs/utils'),
-  {log_url_texts} = require('../utils/service_utils'),
   {getIndexByUrl} = require('../utils/support_urls_utils'),
-  {send_text} = require('../utils/msg_utils'),
+  {getPhotoMsg, sendBatchMsg, getTextMsg} = require('../utils/msg_utils'),
   {get_random_next, HSET, HGETALL} = require('../tasks/redis_utils')
 const EveiraTags = require('../../libs/download/sites/EveiraTags'),
   Fa24Tags = require('../../libs/download/sites/Fa24Tags'),
@@ -96,19 +95,24 @@ async function task(url, info, handle, breakTime, start = format_date()) {
     const url_texts = imgs.slice(0, index)
     if (url_texts.length > 0) {
       info.latest = url_texts.map(_ => _.url).slice(0, taskLimit.latest)
-      const urlTexts = log_url_texts(url_texts)
-      // let text = `#${taskName} #${title}\n`
-      let text = `#Subscribed\n#${title}\n`
-      text += `Start: ${start}\n`
-      text += `Spent: ${spent}\n`
-      text += `${urlTexts}`
-      for (const uid of info.uid) {
-        await send_text(uid, text, undefined, true)
-      }
+      let prefix = `#Subscribed\n#${title}\nStart: ${start} Spent: ${spent}\n`
+      await send_to_subscriber(prefix, info.uid, url_texts)
     }
   }
   info.nextTime = get_random_next(breakTime)
   await HSET(url, info)
+}
+
+async function send_to_subscriber(prefix, uidArr, url_texts) {
+  const msgArr = uidArr.map(u => {
+    return url_texts.map(url_text => {
+      const {url, text, poster} = url_text
+      const m = `${prefix}\n[${text}](${url})`
+      return poster ? getPhotoMsg(u, poster, m)
+        : getTextMsg(u, m, undefined, true)
+    })
+  }).flat(Infinity)
+  return sendBatchMsg(msgArr)
 }
 
 module.exports = {
