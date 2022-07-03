@@ -6,11 +6,13 @@
 const {queueName, eventName} = require('../../config/config'),
   eventBus = require('../../libs/event_bus'),
   Storage = require('../../libs/storage'),
+  {telegram} = require('../../libs/telegram_bot'),
   queue = queueName.pic_add,
   event = eventName.pic_add,
   storage = new Storage(queue)
-const {message_decode} = require('../utils/service_utils'),
-  {uniq} = require('lodash'),
+const {uniq} = require('lodash'),
+  {logger} = require('../../middlewares/logger'),
+  {message_decode} = require('../utils/service_utils'),
   {send_text} = require('../utils/msg_utils'),
   debMap = new Map()
 
@@ -51,12 +53,21 @@ async function debounce(urlInfo) {
 }
 
 async function timeout(chat_id, message_id, session, k, info) {
-  const s = `添加 ${info.count} 条链接到队列`
+  const s = `#Add_Queue\n添加 ${info.count} 条链接到队列`
   const v = {chat_id, message_id, session, urls: info.urls,}
   await storage.rpush(v)
   debMap.delete(k)
   eventBus.emit(event, v)
-  await send_text(chat_id, s)
+  try {
+    // 消息插队
+    await telegram.sendMessage(chat_id, s, {reply_to_message_id: message_id})
+  } catch (e) {
+    logger.error(`${e.message}`)
+    logger.error(e)
+    if (e.message.includes('429')) {
+      await send_text(chat_id, s, message_id)
+    }
+  }
 }
 
 module.exports = handle_ctx
