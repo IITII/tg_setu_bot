@@ -41,6 +41,10 @@ const supRaw = [
       'https://junmeitu.com/beauty/',
       'https://www.junmeitu.com/beauty/'
     ],
+    [
+      'https://www.javbus.com/star/',
+      'https://www.javbus.com/uncensored/star/',
+    ],
   ],
   supRaw_flat = supRaw.flat(Infinity),
   handle_limit = [
@@ -51,11 +55,13 @@ const supRaw = [
     [download.fa24, clip.fa24Limit],
     [download.junMeiTags, clip.junMeiLimit],
     [download.junMei, clip.junMeiLimit],
+    [download.busTags, clip.busTagLimit],
   ]
 const special_url = [
   [/^https?:\/\/everia\.club\/?$/, 1],
   [/^https?:\/\/junmeitu\.com\/beauty\/?$/, 5],
-  [/^https?:\/\/www\.junmeitu\.com\/beauty\/?$/, 5]
+  [/^https?:\/\/www\.junmeitu\.com\/beauty\/?$/, 5],
+  [/^https?:\/\/www\.javbus\.com\/?$/, 7],
 ]
 
 function isSupport(text) {

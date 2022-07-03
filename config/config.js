@@ -77,6 +77,7 @@ const config = {
     fa24Limit: 3,
     junMeiLimit: 3,
     junMeiTagLimit: 1,
+    busTagLimit: 1,
     // 图片 header
     headLimit: 20,
     // 上/下一页

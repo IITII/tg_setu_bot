@@ -14,6 +14,7 @@ const Fa24 = require('./sites/Fa24'),
 const Fa24Tags = require('./sites/Fa24Tags'),
   fa24Tags = new Fa24Tags()
 const junMei = require('./sites/JunMei'),
+  busTags = require('./sites/BusTags'),
   junMeiTags = require('./sites/JunMeiTags')
 
 
@@ -25,4 +26,5 @@ module.exports = {
   fa24Tags,
   junMei,
   junMeiTags,
+  busTags,
 }
