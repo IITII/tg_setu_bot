@@ -18,19 +18,24 @@ const {isSupport, filterSupStart} = require('./support_urls_utils')
 
 function message_decode(message, img_or_tags = 'mix') {
   let urls = []
-  if (isSupport(message.text)) {
-    const text = message.text
-    urls.push(text.split('\n'))
-  }
-  if (message.entities) {
-    const text_link = message.entities
-      .filter(_ => _.type === 'text_link')
-      .map(_ => _.url)
-    const url = message.entities
-      .filter(_ => _.type === 'url')
-      .map(os => message.text.substring(os.offset, os.offset + os.length))
-    urls.push(text_link, url)
-  }
+  const raw = [
+    {text: message.text, entities: message.entities},
+    {text: message.caption, entities: message.caption_entities},
+  ]
+  raw.forEach(({text, entities}) => {
+    if (isSupport(text)) {
+      urls.push(text.split('\n'))
+    }
+    if (entities) {
+      const text_link = entities
+        .filter(_ => _.type === 'text_link')
+        .map(_ => _.url)
+      const url = entities
+        .filter(_ => _.type === 'url')
+        .map(os => text.substring(os.offset, os.offset + os.length))
+      urls.push(text_link, url)
+    }
+  })
   urls = filterSupStart(uniq(urls.flat(Infinity)), img_or_tags)
   return urls
 }
