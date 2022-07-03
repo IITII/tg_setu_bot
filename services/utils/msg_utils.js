@@ -24,6 +24,9 @@ module.exports = {
   handle_text_msg,
   handle_photo,
   handle_media_group,
+  sendBatchMsg,
+  getTextMsg,
+  getMediaGroupMsg,
 }
 
 const fs = require('fs'),
@@ -49,26 +52,31 @@ function emit(v) {
 }
 
 async function send_text(chat_id, text, message_id = undefined, preview = false) {
-  const type = TypeEnum.TEXT
-  return storage.rpush({chat_id, type, text, message_id, preview})
+  const msg = getTextMsg(chat_id, text, message_id, preview)
+  return storage.rpush(msg)
     .then(_ => emit(_))
+}
+
+function getTextMsg(chat_id, text, message_id = undefined, preview = false) {
+  const type = TypeEnum.TEXT
+  return [{chat_id, type, text, message_id, preview}]
 }
 
 async function send_photo(chat_id, sub, cap) {
   const type = TypeEnum.PHOTO
-  return storage.rpush({chat_id, type, sub, cap})
+  return storage.rpush([{chat_id, type, sub, cap}])
     .then(_ => emit(_))
 }
 
 async function send_media(chat_id, sub, cap) {
   const type = TypeEnum.MEDIA_GROUP
-  return storage.rpush({chat_id, type, sub, cap})
+  return storage.rpush([{chat_id, type, sub, cap}])
     .then(_ => emit(_))
 }
 
 async function send_del_file(chat_id, dirs, text, message_id = undefined, preview = false) {
   const type = TypeEnum.DEL_FILE
-  return storage.rpush({chat_id, type, dirs, text, message_id, preview})
+  return storage.rpush([{chat_id, type, dirs, text, message_id, preview}])
     .then(_ => emit(_))
 }
 
@@ -98,6 +106,33 @@ async function sendMediaGroup(chat_id, urls, captionType = 'filename', showProgr
   // 线性处理
   return reqRateLimit(func, grouped, 1, false)
     .then(_ => emit(_))
+}
+
+function getMediaGroupMsg(chat_id, urls, captionType = 'filename', showProgress = true) {
+  if (!Array.isArray(urls)) {
+    urls = [].concat(urls)
+  }
+  let {cur, total} = {cur: 0, total: urls.length}
+  const grouped = chunk(urls, maxMediaGroupLength)
+  const type = TypeEnum.MEDIA_GROUP
+  return grouped.map(sub => {
+    cur += sub.length
+    let cap = captionType
+    if (showProgress) {
+      cap = `${captionType} ${cur}/${total}`
+    }
+    let g = {chat_id, type, sub, cap}
+    if (sub.length === 1) {
+      g.sub = sub[0]
+      g.type = TypeEnum.PHOTO
+    }
+    return g
+  })
+}
+
+async function sendBatchMsg(msgArr) {
+  msgArr = [].concat(msgArr)
+  return storage.rpush(msgArr).then(_ => emit(_))
 }
 
 

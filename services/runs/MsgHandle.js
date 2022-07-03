@@ -12,7 +12,7 @@ const {queueName, eventName} = require('../../config/config'),
 
 const {run_out_mq} = require('./mq_utils')
 const {TypeEnum, handle_text, handle_photo, handle_media_group, handle_del_file} = require('../utils/msg_utils')
-const {sleep} = require('../../libs/utils')
+const {sleep, currMapLimit} = require('../../libs/utils')
 const {logger} = require('../../middlewares/logger')
 
 
@@ -26,7 +26,13 @@ async function consume() {
 }
 
 async function handle_queue(bot, msg) {
-  return await handle_429(msg)
+  const msgArr = [].concat(msg)
+  // for (const m of msgArr) {
+  //   await handle_429(m)
+  //   // 无流控，完全靠 handle429 决定等待时间
+  //   await sleep(1000)
+  // }
+  return await currMapLimit(msgArr, 1, handle_429)
 }
 
 

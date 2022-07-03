@@ -14,7 +14,7 @@ const {run_out_mq} = require('./mq_utils'),
   {logger} = require('../../middlewares/logger'),
   {currMapLimit, time_human_readable, downloadFile} = require('../../libs/utils'),
   {zipUrlExt, getSaveDir} = require('../../libs/download/dl_utils'),
-  {send_text, sendMediaGroup} = require('../utils/msg_utils'),
+  {send_text, getMediaGroupMsg, getTextMsg, sendBatchMsg} = require('../utils/msg_utils'),
   {log_ph, log_related, log_meta_tag} = require('../utils/service_utils'),
   {getLimitByUrl, handle_sup_url} = require('../utils/support_urls_utils')
 
@@ -39,6 +39,7 @@ async function handle_msg(bot, msg) {
     if (DEBUG) continue
     let {title, meta, tags, imgs, original} = ph
     const prefixMsg = `[${title}](${original})`
+    let batchMsg = []
     switch (mode) {
       case 'download':
         const limit = getLimitByUrl(original)
@@ -46,7 +47,8 @@ async function handle_msg(bot, msg) {
         await handle_download(prefixMsg, imgs, saveDir, original, chat_id, message_id, limit)
         break
       case 'copy':
-        await sendMediaGroup(chat_id, imgs, prefixMsg)
+        batchMsg = getMediaGroupMsg(chat_id, imgs, prefixMsg)
+        // await sendMediaGroup(chat_id, imgs, prefixMsg)
         break
       case 'init':
       default:
@@ -57,7 +59,12 @@ async function handle_msg(bot, msg) {
     endMsg += log_meta_tag(meta, true)
     endMsg += log_meta_tag(tags, false)
     logger.debug(endMsg)
-    await send_text(chat_id, endMsg, message_id)
+    if (batchMsg.length > 0) {
+      batchMsg.push(getTextMsg(chat_id, endMsg, message_id))
+      await sendBatchMsg(batchMsg)
+    } else {
+      await send_text(chat_id, endMsg, message_id)
+    }
   }
   const related_msg = log_related(photos)
   if (related_msg) {
