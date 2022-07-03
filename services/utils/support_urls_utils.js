@@ -28,12 +28,17 @@ const supRaw = [
       'https://www.116w.cc/',
     ],
     [
+      'https://junmeitu.com/tags/',
+      'https://junmeitu.com/xzjg/',
+      'https://junmeitu.com/model/',
+      'https://junmeitu.com/beauty/hot-1.html',
       'https://www.junmeitu.com/tags/',
       'https://www.junmeitu.com/xzjg/',
       'https://www.junmeitu.com/model/',
       'https://www.junmeitu.com/beauty/hot-1.html',
     ],
     [
+      'https://junmeitu.com/beauty/',
       'https://www.junmeitu.com/beauty/'
     ],
   ],
@@ -49,6 +54,7 @@ const supRaw = [
   ]
 const special_url = [
   [/^https?:\/\/everia\.club\/?$/, 1],
+  [/^https?:\/\/junmeitu\.com\/beauty\/?$/, 5],
   [/^https?:\/\/www\.junmeitu\.com\/beauty\/?$/, 5]
 ]
 
