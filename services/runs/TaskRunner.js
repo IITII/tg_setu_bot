@@ -6,7 +6,7 @@
 
 const {uniq} = require('lodash'),
   {check, taskName, taskLimit} = require('../../config/config'),
-  {format_date, time_human_readable} = require('../../libs/utils'),
+  {format_date} = require('../../libs/utils'),
   {getIndexByUrl} = require('../utils/support_urls_utils'),
   {getPhotoMsg, sendBatchMsg, getTextMsg} = require('../utils/msg_utils'),
   {get_random_next, HSET, HGETALL} = require('../tasks/redis_utils')
@@ -14,6 +14,7 @@ const EveiraTags = require('../../libs/download/sites/EveiraTags'),
   Fa24Tags = require('../../libs/download/sites/Fa24Tags'),
   fa24c49 = require('../../libs/download/sites/Fa24C49'),
   junMeiTags = require('../../libs/download/sites/JunMeiTags'),
+  busTags = require('../../libs/download/sites/BusTags'),
   eveiraTags = new EveiraTags(),
   fa24Tags = new Fa24Tags()
 
@@ -42,6 +43,10 @@ const supRaw = [
       'https://www.junmeitu.com/model/',
       'https://www.junmeitu.com/beauty/hot-1.html',
     ],
+    [
+      'https://www.javbus.com/star/',
+      'https://www.javbus.com/uncensored/star/',
+    ],
   ],
   supRaw_flat = supRaw.flat(Infinity),
   handle_limit = [
@@ -49,11 +54,13 @@ const supRaw = [
     [fa24Tags, check.all],
     [fa24c49, check.all],
     [junMeiTags, check.all],
+    [busTags, check.all],
   ]
 const special_url = [
   [/^https?:\/\/everia.club\/?$/, 0],
   [/^https?:\/\/junmeitu\.com\/beauty\/?$/, 3],
   [/^https?:\/\/www\.junmeitu\.com\/beauty\/?$/, 3],
+  [/^https?:\/\/www\.javbus\.com\/?$/, 3],
 ]
 
 function filterTagsOnly(arr, formatHost = true) {
@@ -92,8 +99,7 @@ async function run() {
 }
 
 async function task(url, info, handle, breakTime, start = format_date()) {
-  const {title, imgs, cost} = await handle.getTagUrls(url),
-    spent = time_human_readable(cost)
+  const {title, imgs} = await handle.getTagUrls(url)
   if (imgs && imgs.length > 0) {
     let index = imgs.length
     if (info.latest.length === 0) {
@@ -105,7 +111,7 @@ async function task(url, info, handle, breakTime, start = format_date()) {
     const url_texts = imgs.slice(0, index)
     if (url_texts.length > 0) {
       info.latest = url_texts.map(_ => _.url).slice(0, taskLimit.latest)
-      let prefix = `#Subscribed\n#${title}\nStart: ${start} Spent: ${spent}\n`
+      let prefix = `#Subscribed\n#${title}\nStart: ${start}`
       await send_to_subscriber(prefix, info.uid, url_texts)
     }
   }
