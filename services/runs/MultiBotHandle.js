@@ -44,6 +44,7 @@ async function start() {
       logger.info(`pic workers launched: ${picWorkers.length}`)
     })
   }
+  return Promise.resolve()
 }
 
 async function stop() {
@@ -61,6 +62,7 @@ async function stop() {
       logger.info(`pic workers stopped: ${picWorkers.length}`)
     })
   }
+  return Promise.resolve()
 }
 
 // check usage before move to async func
@@ -79,6 +81,7 @@ async function handle_sub(msg) {
 }
 
 async function handle_429_wrapper(msg) {
+  logger.debug(`handle_429_wrapper: ${JSON.stringify(msg)}`)
   return handle_429(msg_common_handle, msg)
 }
 
@@ -104,25 +107,27 @@ async function msg_common_handle(msg, tg = mainBot?.telegram) {
   return res
 }
 
-async function handle_batch_msg(msg) {
+async function handle_batch_msg(bot, msg) {
   const msgArr = [].concat(msg)
   const msgLen = msgArr.length,
     isMediaGroup = msgArr[0].type === TypeEnum.MEDIA_GROUP
   if (msgLen > 2 && isMediaGroup && hasPicBot()) {
-    return worker_accept(msgArr)
+    logger.debug(`handle_batch_msg: ${JSON.stringify(msgArr[0])}`)
+    return await worker_accept(msgArr)
   } else {
     // for (const m of msgArr) {
     //   await handle_429(m)
     //   // 无流控，完全靠 handle429 决定等待时间
     //   await sleep(1000)
     // }
+    logger.debug(`handle_429_wrapper: ${JSON.stringify(msgArr[0])}`)
     return await currMapLimit(msgArr, 1, handle_429_wrapper)
   }
 
 }
 
 async function worker_accept(msgArr) {
-  let idx = picWorkers.findIndex(picWorkers.find(w => !w.busy))
+  let idx = picWorkers.findIndex(w => !w.busy)
   if (idx > -1) {
     logger.debug(`worker ${picWorkers[idx].name} handle: ${JSON.stringify(msgArr[0])}`)
     worker_handle(idx, msgArr).then(() => {
