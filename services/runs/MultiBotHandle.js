@@ -23,8 +23,8 @@ let picWorkers = null
 
 async function start() {
   if (subBot) {
-    await subBot.launch().then(r => {
-      logger.info(`subscribe bot launched: ${r}`)
+    await subBot.launch().then(() => {
+      logger.info(`subscribe bot launched`)
     })
   }
   if (picWorkerTokens.length > 0) {
@@ -48,8 +48,8 @@ async function start() {
 
 async function stop() {
   if (subBot) {
-    await subBot.stop().then(r => {
-      logger.info(`subscribe bot stopped: ${r}`)
+    await subBot.stop().then(() => {
+      logger.info(`subscribe bot stopped`)
     })
   }
   if (picWorkers) {
