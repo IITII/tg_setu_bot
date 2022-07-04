@@ -6,7 +6,7 @@
 
 const {BOT_TOKEN, tokens, timeout} = require('../../config/config'),
   {logger} = require('../../middlewares/logger'),
-  {currMapLimit, sleep} = require('../../libs/utils'),
+  {currMapLimit, sleep, time_human_readable} = require('../../libs/utils'),
   TelegramBot = require('../../libs/bots/TelegramBot.js'),
   mainBot = require('../../libs/telegram_bot.js'),
   picWorkerTokens = [].concat(tokens.picWorkers || []),
@@ -133,11 +133,17 @@ async function worker_accept(msgArr) {
     const worker = picWorkers[idx]
     logger.debug(`worker ${worker.name} handle: ${JSON.stringify(msgArr[0])}`)
     const chat_id = msgArr[0].chat_id
+    let start = Date.now(),
+      handleMsg = ''
     handle_chat_not_found(worker.name, chat_id, worker_handle, idx, msgArr)
       .then(() => {
-        logger.info(`worker ${worker.name} handled`)
+        handleMsg = `worker ${worker.name} handled`
       }).catch(e => {
-      logger.error(`worker ${worker.name} handled error: ${e}`)
+      handleMsg = `worker ${worker.name} handle error: ${e.message}`
+      logger.error(e)
+    }).finally(() => {
+      handleMsg += `, cost: ${time_human_readable(Date.now() - start)}ms`
+      logger.debug(handleMsg)
     })
   } else {
     const sleepTime = timeout.checkWorker
