@@ -34,6 +34,7 @@
 |  /clean   | 删除所有远程临时文件 |
 |   /sub    |     订阅     |
 |  /u_sub   |    移除订阅    |
+|  /unset   | 清空session  |
 
 ## ENV
 

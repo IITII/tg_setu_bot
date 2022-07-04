@@ -34,6 +34,7 @@
 |  /clean   |            Remove all temp files            |
 |   /sub    |  Subscribe to receive the latest pictures   |
 |  /u_sub   | UN-Subscribe to receive the latest pictures |
+|  /unset   |                clear session                |
 
 ## ENV
 
