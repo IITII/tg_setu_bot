@@ -17,7 +17,7 @@ const {
   handle_text,
   handle_media_group,
   handle_del_file,
-  handle_429,
+  handle_429, send_text, handle_text_msg,
 } = require('../utils/msg_utils')
 let picWorkers = null
 
@@ -98,7 +98,7 @@ async function msg_common_handle(msg, tg = mainBot?.telegram) {
       res = await handle_sub(msg)
       break
     case TypeEnum.MEDIA_GROUP:
-      res = await handle_media_group(msg)
+      res = await handle_media_group(msg, tg)
       break
     case TypeEnum.DEL_FILE:
       res = await handle_del_file(msg, tg)
@@ -131,9 +131,14 @@ async function handle_batch_msg(bot, msg) {
 async function worker_accept(msgArr) {
   let idx = picWorkers.findIndex(w => !w.busy)
   if (idx > -1) {
-    logger.debug(`worker ${picWorkers[idx].name} handle: ${JSON.stringify(msgArr[0])}`)
-    worker_handle(idx, msgArr).then(() => {
-      logger.info(`worker ${picWorkers[idx].name} handled`)
+    const worker = picWorkers[idx]
+    logger.debug(`worker ${worker.name} handle: ${JSON.stringify(msgArr[0])}`)
+    const chat_id = msgArr[0].chat_id
+    handle_chat_not_found(worker.name, chat_id, worker_handle, idx, msgArr)
+      .then(() => {
+        logger.info(`worker ${worker.name} handled`)
+      }).catch(e => {
+      logger.error(`worker ${worker.name} handled error: ${e}`)
     })
   } else {
     const sleepTime = timeout.checkWorker
@@ -141,6 +146,22 @@ async function worker_accept(msgArr) {
     await sleep(sleepTime)
     return worker_accept(msgArr)
   }
+}
+
+async function handle_chat_not_found(prefix, chat_id, handle, ...args) {
+  let res = Promise.resolve()
+  try {
+    res = await handle(...args)
+  } catch (e) {
+    if (e.message.toLowerCase().includes('chat not found')) {
+      const msg = `${prefix} chat not found, plz chat with bot first`
+      logger.error(msg)
+      await handle_text_msg(chat_id, msg, mainBot.telegram)
+    } else {
+      throw e
+    }
+  }
+  return res
 }
 
 async function worker_handle(i, msgArr) {
