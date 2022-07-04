@@ -1,0 +1,165 @@
+/**
+ * @author IITII <ccmejx@gmail.com>
+ * @date 2022/07/04
+ */
+'use strict'
+
+const {BOT_TOKEN, tokens, timeout} = require('../../config/config'),
+  {logger} = require('../../middlewares/logger'),
+  {currMapLimit, sleep} = require('../../libs/utils'),
+  TelegramBot = require('../../libs/bots/TelegramBot.js'),
+  mainBot = require('../../libs/telegram_bot.js'),
+  picWorkerTokens = [].concat(tokens.picWorkers || []),
+  subBot = tokens.subscribe ? TelegramBot(tokens.subscribe) : null
+const {
+  handle_photo,
+  TypeEnum,
+  handle_text,
+  handle_media_group,
+  handle_del_file,
+  handle_429,
+} = require('../utils/msg_utils')
+let picWorkers = null
+
+async function start() {
+  if (subBot) {
+    await subBot.launch().then(r => {
+      logger.info(`subscribe bot launched: ${r}`)
+    })
+  }
+  if (picWorkerTokens.length > 0) {
+    let i = 0
+    picWorkers = picWorkerTokens.map(t => {
+      const name = `picWorker${i++}`
+      const bot = TelegramBot(t)
+      const {telegram} = bot
+      const busy = false
+      return {name, bot, telegram, token: t, busy}
+    })
+    await Promise.all(picWorkers.map(w => {
+      return w.bot.launch().then(() => {
+        logger.info(`${w.name} bot launched`)
+      })
+    })).then(() => {
+      logger.info(`pic workers launched: ${picWorkers.length}`)
+    })
+  }
+}
+
+async function stop() {
+  if (subBot) {
+    await subBot.stop().then(r => {
+      logger.info(`subscribe bot stopped: ${r}`)
+    })
+  }
+  if (picWorkers) {
+    await Promise.all(picWorkers.map(w => {
+      return w.bot.stop().then(() => {
+        logger.info(`${w.name} bot stopped`)
+      })
+    })).then(() => {
+      logger.info(`pic workers stopped: ${picWorkers.length}`)
+    })
+  }
+}
+
+// check usage before move to async func
+function hasPicBot() {
+  return picWorkers && picWorkers.length > 0
+}
+
+async function handle_sub(msg) {
+  let res
+  if (subBot) {
+    res = handle_photo(msg, subBot.telegram)
+  } else {
+    res = handle_photo(msg)
+  }
+  return res
+}
+
+async function handle_429_wrapper(msg) {
+  return handle_429(msg_common_handle, msg)
+}
+
+async function msg_common_handle(msg, tg = mainBot?.telegram) {
+  let res
+  switch (msg.type) {
+    case TypeEnum.TEXT:
+      res = await handle_text(msg, tg)
+      break
+    case TypeEnum.PHOTO:
+      res = await handle_photo(msg, tg)
+      break
+    case TypeEnum.SUBSCRIBE:
+      res = await handle_sub(msg)
+      break
+    case TypeEnum.MEDIA_GROUP:
+      res = await handle_media_group(msg)
+      break
+    case TypeEnum.DEL_FILE:
+      res = await handle_del_file(msg, tg)
+      break
+  }
+  return res
+}
+
+async function handle_batch_msg(msg) {
+  const msgArr = [].concat(msg)
+  const msgLen = msgArr.length,
+    isMediaGroup = msgArr[0].type === TypeEnum.MEDIA_GROUP
+  if (msgLen > 2 && isMediaGroup && hasPicBot()) {
+    return worker_accept(msgArr)
+  } else {
+    // for (const m of msgArr) {
+    //   await handle_429(m)
+    //   // 无流控，完全靠 handle429 决定等待时间
+    //   await sleep(1000)
+    // }
+    return await currMapLimit(msgArr, 1, handle_429_wrapper)
+  }
+
+}
+
+async function worker_accept(msgArr) {
+  let idx = picWorkers.findIndex(picWorkers.find(w => !w.busy))
+  if (idx > -1) {
+    logger.debug(`worker ${picWorkers[idx].name} handle: ${JSON.stringify(msgArr[0])}`)
+    worker_handle(idx, msgArr).then(() => {
+      logger.info(`worker ${picWorkers[idx].name} handled`)
+    })
+  } else {
+    const sleepTime = timeout.checkWorker
+    logger.debug(`no worker available, try again after ${sleepTime}ms`)
+    await sleep(sleepTime)
+    return worker_accept(msgArr)
+  }
+}
+
+async function worker_handle(i, msgArr) {
+  picWorkers[i].busy = true
+  try {
+    async function msg_handle(msg) {
+      const worker = picWorkers[i]
+      // 其他 worker 可没上下文，所以不能reply msg id
+      if (worker.token !== BOT_TOKEN) {
+        delete msg.message_id
+      }
+      return msg_common_handle(msg, picWorkers[i].telegram)
+    }
+
+    async function worker_429_wrapper(msg) {
+      return handle_429(msg_handle, msg)
+    }
+
+    return await currMapLimit(msgArr, 1, worker_429_wrapper)
+  } finally {
+    picWorkers[i].busy = false
+  }
+}
+
+module.exports = {
+  start,
+  stop,
+  handle_batch_msg,
+}

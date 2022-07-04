@@ -9,25 +9,7 @@ const TypeEnum = {
   PHOTO: 'photo',
   MEDIA_GROUP: 'media_group',
   DEL_FILE: 'del_file',
-}
-
-module.exports = {
-  TypeEnum,
-  send_text,
-  send_photo,
-  send_media,
-  send_del_file,
-  clean,
-  sendMediaGroup,
-  handle_text,
-  handle_del_file,
-  handle_text_msg,
-  handle_photo,
-  handle_media_group,
-  sendBatchMsg,
-  getTextMsg,
-  getPhotoMsg,
-  getMediaGroupMsg,
+  SUBSCRIBE: 'subscribe',
 }
 
 const fs = require('fs'),
@@ -44,7 +26,7 @@ const {clip, telegram: telegramConf} = require('../../config/config'),
   {maxMediaGroupLength, maxMessageLength} = telegramConf,
   {logger} = require('../../middlewares/logger'),
   {sendPhoto, getGroupMedia} = require('../../libs/media'),
-  {reqRateLimit} = require('../../libs/utils'),
+  {reqRateLimit, sleep} = require('../../libs/utils'),
   bot = require('../../libs/telegram_bot'),
   telegram = bot.telegram
 
@@ -62,13 +44,13 @@ function getTextMsg(chat_id, text, message_id = undefined, preview = false) {
   return [{chat_id, type, text, message_id, preview}]
 }
 
-async function send_photo(chat_id, sub, cap) {
-  const msg = getPhotoMsg(chat_id, sub, cap)
+async function send_photo(chat_id, sub, cap, isSub = false) {
+  const msg = getPhotoMsg(chat_id, sub, cap, isSub)
   return storage.rpush(msg).then(_ => emit(_))
 }
 
-function getPhotoMsg(chat_id, sub, cap) {
-  const type = TypeEnum.PHOTO
+function getPhotoMsg(chat_id, sub, cap, isSub = false) {
+  const type = isSub ? TypeEnum.SUBSCRIBE : TypeEnum.PHOTO
   return [{chat_id, type, sub, cap}]
 }
 
@@ -138,27 +120,9 @@ async function sendBatchMsg(msgArr) {
   return storage.rpush(msgArr).then(_ => emit(_))
 }
 
-
-async function handle_text(msg) {
+async function handle_text(msg, tg = telegram) {
   let {chat_id, text, message_id, preview} = msg
-  return handle_text_msg(chat_id, text, message_id, preview)
-}
-
-async function handle_del_file(msg) {
-  let {chat_id, dirs, text, message_id, preview} = msg
-  const rm = fs.rm || fs.rmdir
-  dirs.forEach(dir => {
-    rm(dir, {recursive: true}, err => {
-      const relative = path.relative(clip.baseDir, dir) || 'Temp'
-      let msg = `${relative} dirs/files cleaned`
-      if (err) {
-        msg = `${relative} dirs/files clean error: ${err.message}`
-      }
-      logger.info(`chat_id: ${chat_id}, dir: ${dir}, ${msg}`)
-      text += `\n${text}`
-    })
-  })
-  return handle_text_msg(chat_id, text, message_id, preview)
+  return handle_text_msg(chat_id, text, message_id, preview, '\n', tg)
 }
 
 async function clean(chat_id, dir) {
@@ -174,7 +138,24 @@ async function clean(chat_id, dir) {
   })
 }
 
-async function handle_text_msg(chat_id, text, message_id, preview, sep = '\n') {
+async function handle_del_file(msg, tg = telegram) {
+  let {chat_id, dirs, text, message_id, preview} = msg
+  const rm = fs.rm || fs.rmdir
+  dirs.forEach(dir => {
+    rm(dir, {recursive: true}, err => {
+      const relative = path.relative(clip.baseDir, dir) || 'Temp'
+      let msg = `${relative} dirs/files cleaned`
+      if (err) {
+        msg = `${relative} dirs/files clean error: ${err.message}`
+      }
+      logger.info(`chat_id: ${chat_id}, dir: ${dir}, ${msg}`)
+      text += `\n${text}`
+    })
+  })
+  return handle_text_msg(chat_id, text, message_id, preview, '\n', tg)
+}
+
+async function handle_text_msg(chat_id, text, message_id, preview, sep = '\n', tg = telegram) {
   if (text.length > maxMessageLength) {
     const split = text.split(sep)
     const rawText = []
@@ -207,19 +188,67 @@ async function handle_text_msg(chat_id, text, message_id, preview, sep = '\n') {
       // protect_content: true
     }
     opts.disable_web_page_preview = !preview
-    return telegram.sendMessage(chat_id, text, opts)
+    return tg.sendMessage(chat_id, text, opts)
   }
 }
 
-async function handle_photo(msg) {
+async function handle_photo(msg, tg = telegram) {
   const {chat_id, sub, cap} = msg
-  return telegram.sendPhoto(chat_id, sendPhoto(sub), {
+  return tg.sendPhoto(chat_id, sendPhoto(sub), {
     caption: cap,
     parse_mode: 'Markdown',
   })
 }
 
-async function handle_media_group(msg) {
+async function handle_media_group(msg, tg = telegram) {
   const {chat_id, sub, cap} = msg
-  return telegram.sendMediaGroup(chat_id, getGroupMedia(sub, cap))
+  return tg.sendMediaGroup(chat_id, getGroupMedia(sub, cap))
+}
+
+
+async function handle_429(handle, msg, retry = 0) {
+  const msg_429 = 'Too Many Requests: retry after'
+  let res
+  try {
+    res = await handle(msg)
+  } catch (e) {
+    const eMsg = e.message
+    if (eMsg.includes(msg_429)) {
+      const index = eMsg.indexOf(msg_429)
+      const sleepTimeRaw = eMsg.substring(index + msg_429.length)
+      const sleepTime = parseInt(sleepTimeRaw) + 1
+      const retryMsg = `retry ${retry + 1} after ${sleepTime}s`
+      logger.warn(`${msg.chat_id || ''}: ${retryMsg}`)
+      await sleep(sleepTime * 1000)
+      if (msg.type === TypeEnum.PHOTO || msg.type === TypeEnum.MEDIA_GROUP) {
+        if (msg.cap) {
+          msg.cap += `(${retryMsg}`
+        }
+      }
+      return handle_429(handle, msg, retry + 1)
+    } else {
+      throw e
+    }
+  }
+  return res
+}
+
+module.exports = {
+  TypeEnum,
+  send_text,
+  send_photo,
+  send_media,
+  send_del_file,
+  clean,
+  sendMediaGroup,
+  handle_text,
+  handle_del_file,
+  handle_text_msg,
+  handle_photo,
+  handle_media_group,
+  sendBatchMsg,
+  getTextMsg,
+  getPhotoMsg,
+  getMediaGroupMsg,
+  handle_429,
 }

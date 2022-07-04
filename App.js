@@ -51,6 +51,7 @@ function lis_stop() {
   return Promise.resolve()
     // .then(_ => bot.telegram.sendMessage(ADMIN_ID, stopped))
     // .then(_ => telegram_msg_sender.stop())
+    .then(_ => msgHandle.stop())
     .then(_ => bot.stop())
     .finally(_ => {
       process.exit(0)
