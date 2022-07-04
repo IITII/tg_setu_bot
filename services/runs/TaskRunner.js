@@ -124,7 +124,8 @@ async function send_to_subscriber(prefix, uidArr, url_texts) {
     return url_texts.map(url_text => {
       const {url, text, poster} = url_text
       const m = `${prefix}\n[${text}](${url})`
-      return poster ? getPhotoMsg(u, poster, m)
+      return poster ? getPhotoMsg(u, poster, m, true)
+        // 虽然可能有吧，但是基本不可能
         : getTextMsg(u, m, undefined, true)
     })
   }).flat(Infinity)
