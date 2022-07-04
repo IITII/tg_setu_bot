@@ -30,7 +30,7 @@ async function start() {
   if (picWorkerTokens.length > 0) {
     let i = 0
     picWorkers = picWorkerTokens.map(t => {
-      const name = `picWorker${i++}`
+      const name = `picWorker_${i++}`
       const bot = TelegramBot(t)
       const {telegram} = bot
       const busy = false
@@ -110,8 +110,10 @@ async function msg_common_handle(msg, tg = mainBot?.telegram) {
 async function handle_batch_msg(bot, msg) {
   const msgArr = [].concat(msg)
   const msgLen = msgArr.length,
+    hasPicBots = hasPicBot(),
     isMediaGroup = msgArr[0].type === TypeEnum.MEDIA_GROUP
-  if (msgLen > 2 && isMediaGroup && hasPicBot()) {
+  logger.debug(`handle_batch_msg: ${msgLen}, ${isMediaGroup}, ${hasPicBots}`)
+  if (msgLen > 1 && isMediaGroup && hasPicBots) {
     logger.debug(`handle_batch_msg: ${JSON.stringify(msgArr[0])}`)
     return await worker_accept(msgArr)
   } else {
