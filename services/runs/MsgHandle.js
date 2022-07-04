@@ -29,8 +29,8 @@ async function stop() {
   }).catch(e => {
     logger.error(e)
   }).finally(() => {
-    eventBus.removeListener(event, consume)
-    eventBus.emit(event, 'stop')
+    // eventBus.removeListener(event, consume)
+    // eventBus.emit(event, 'stop')
   })
 }
 
