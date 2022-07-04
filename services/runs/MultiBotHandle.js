@@ -17,7 +17,7 @@ const {
   handle_text,
   handle_media_group,
   handle_del_file,
-  handle_429, send_text, handle_text_msg,
+  handle_429, handle_text_msg,
 } = require('../utils/msg_utils')
 let picWorkers = null
 
@@ -49,15 +49,14 @@ async function start() {
 
 async function stop() {
   if (subBot) {
-    await subBot.stop().then(() => {
-      logger.info(`subscribe bot stopped`)
-    })
+    await subBot.stop()
+    logger.info(`subscribe bot stopped`)
   }
   if (picWorkers) {
-    await Promise.all(picWorkers.map(w => {
-      return w.bot.stop().then(() => {
-        logger.info(`${w.name} bot stopped`)
-      })
+    await Promise.all(picWorkers.map(async w => {
+      let r = await w.bot.stop()
+      logger.info(`${w.name} bot stopped`)
+      return r
     })).then(() => {
       logger.info(`pic workers stopped: ${picWorkers.length}`)
     })
