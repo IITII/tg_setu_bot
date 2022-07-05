@@ -9,6 +9,13 @@ const fs = require('fs'),
 const config = {
   DEBUG: process.env.TG_DEBUG === 'true',
   BOT_TOKEN: process.env.BOT_TOKEN,
+  // 添加不同的token后，务必先访问 bot，否则消息不会发送
+  tokens: {
+    // 订阅专用 token
+    subscribe: process.env.SUBSCRIBE_TOKEN,
+    // 图片专用 token, 支持多个token
+    picWorkers: process.env.WORKERS_TOKEN?.split(',') || [],
+  },
   // ADMIN_ID : process.env.ADMIN_ID,
   ADMIN_ID: process.env.ADMIN_ID,
   PROXY: process.env.PROXY,
@@ -16,7 +23,8 @@ const config = {
     database: process.env.DB_FILE || '../db/db.json',
   },
   timeout: {
-    sendMsg: 1000
+    sendMsg: 1000,
+    checkWorker: 1000,
   },
   telegram: {
     maxMediaGroupLength: 10, // 2-10
