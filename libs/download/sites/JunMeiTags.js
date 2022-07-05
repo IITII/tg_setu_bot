@@ -29,7 +29,7 @@ async function handle_dom($, original) {
 }
 
 async function getImageArray(url) {
-  const {title, imgs, original, cost} = await this.getTagUrls(url)
+  const {title, imgs, original, cost} = await getTagUrls(url)
   const urls = imgs.map(_ => _.url)
   const time = time_human_readable(cost)
   logger.debug(`Get ${title} total ${urls.length} in ${time} from tag ${original}`)

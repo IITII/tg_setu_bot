@@ -5,7 +5,7 @@
 'use strict'
 
 const {uniq} = require('lodash'),
-  {check, taskName, taskLimit} = require('../../config/config'),
+  {check, taskName, taskLimit, clip} = require('../../config/config'),
   {format_date} = require('../../libs/utils'),
   {getIndexByUrl} = require('../utils/support_urls_utils'),
   {getPhotoMsg, sendBatchMsg, getTextMsg} = require('../utils/msg_utils'),
@@ -17,6 +17,7 @@ const EveiraTags = require('../../libs/download/sites/EveiraTags'),
   busTags = require('../../libs/download/sites/BusTags'),
   eveiraTags = new EveiraTags(),
   fa24Tags = new Fa24Tags()
+const download = require('../../libs/download')
 
 const supRaw = [
     [
@@ -47,6 +48,16 @@ const supRaw = [
       'https://www.javbus.com/star/',
       'https://www.javbus.com/uncensored/star/',
     ],
+    [
+      'https://dongtidemi.com/category/tu/xiezhen',
+      'https://dongtidemi.com/category/tu/%e7%a6%8f%e5%88%a9%e5%a7%ac',
+      'https://dongtidemi.com/category/tu/cos',
+    ],
+    [
+      'https://dongtidemi.com/tag/',
+      'https://dongtidemi.com/?s=',
+      'https://dongtidemi.com/category/tu'
+    ],
   ],
   supRaw_flat = supRaw.flat(Infinity),
   handle_limit = [
@@ -55,6 +66,8 @@ const supRaw = [
     [fa24c49, check.all],
     [junMeiTags, check.all],
     [busTags, check.all],
+    [download.dongTiTagsTu, clip.dongTiTagLimit],
+    [download.dongTiTags, clip.dongTiTagLimit],
   ]
 const special_url = [
   [/^https?:\/\/everia.club\/?$/, 0],

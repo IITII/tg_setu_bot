@@ -38,7 +38,14 @@ async function get_dom(url, handle_dom) {
       meta: undefined, tags: undefined,
     }
     logger.debug(`Getting image urls from ${url}`)
-    await axios.get(url, {responseType: 'document'})
+    await axios.get(url, {
+      responseType: 'document',
+      headers: {
+        'referer': url,
+        Host: new URL(url).host,
+        Connection: 'keep-alive',
+      },
+    })
       .then(res => res.data)
       .then(doc => load(doc))
       .then(async $ => res = await handle_dom($, url))

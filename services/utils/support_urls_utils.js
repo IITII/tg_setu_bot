@@ -45,6 +45,19 @@ const supRaw = [
       'https://www.javbus.com/star/',
       'https://www.javbus.com/uncensored/star/',
     ],
+    [
+      'https://dongtidemi.com/category/tu/xiezhen',
+      'https://dongtidemi.com/category/tu/%e7%a6%8f%e5%88%a9%e5%a7%ac',
+      'https://dongtidemi.com/category/tu/cos',
+    ],
+    [
+      'https://dongtidemi.com/tag/',
+      'https://dongtidemi.com/?s=',
+      'https://dongtidemi.com/category/tu'
+    ],
+    [
+      'https://dongtidemi.com/',
+    ],
   ],
   supRaw_flat = supRaw.flat(Infinity),
   handle_limit = [
@@ -56,6 +69,9 @@ const supRaw = [
     [download.junMeiTags, clip.junMeiLimit],
     [download.junMei, clip.junMeiLimit],
     [download.busTags, clip.busTagLimit],
+    [download.dongTiTagsTu, clip.dongTiTagLimit],
+    [download.dongTiTags, clip.dongTiTagLimit],
+    [download.dongTi, clip.dongTiLimit],
   ]
 const special_url = [
   [/^https?:\/\/everia\.club\/?$/, 1],
@@ -73,10 +89,10 @@ function filterSupStart(arr, img_or_tags = 'mix') {
   let allowArr = []
   switch (img_or_tags) {
     case 'img':
-      allowArr = [0, 2, 4, 6]
+      allowArr = [0, 2, 4, 6, 10]
       break
     case 'tags':
-      allowArr = [1, 3, 5]
+      allowArr = [1, 3, 5, 8, 9]
       break
     case 'mix':
     default:
