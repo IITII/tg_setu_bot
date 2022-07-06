@@ -53,7 +53,7 @@ async function debounce(urlInfo) {
 }
 
 async function timeout(chat_id, message_id, session, k, info) {
-  const s = `#Add_Queue\n添加 ${info.count} 条链接到队列`
+  const s = `#Add_Queue\n#${session.pic.mode}\n添加 ${info.count} 条链接到队列`
   const v = {chat_id, message_id, session, urls: info.urls,}
   await storage.rpush(v)
   debMap.delete(k)
