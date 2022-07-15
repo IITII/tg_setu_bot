@@ -5,7 +5,7 @@
 'use strict'
 
 const redis = require('../../libs/redis_client')
-const {ADMIN_ID, check, taskName} = require('../../config/config')
+const {ADMIN_ID, check, taskName, taskLimit} = require('../../config/config')
 const {logger} = require('../../middlewares/logger')
 
 async function redis_init() {
@@ -101,6 +101,24 @@ function get_random_next(breakTime) {
   return negative ? curr - random : curr + random
 }
 
+async function get_sent_sub(prefix = taskLimit.sub_prefix) {
+  await redis_init()
+  const keys = await redis.KEYS(`${prefix}*`)
+  // const mul = redis.multi()
+  // keys.forEach(k => mul.get(k))
+  // return await mul.exec()
+  return keys.map(k => k.replace(prefix, ''))
+}
+
+async function set_sent_sub(urls, prefix = taskLimit.sub_prefix, expire = taskLimit.sub_expire) {
+  await redis_init()
+  const mul = redis.multi()
+  urls.forEach(url => {
+    mul.SETEX(`${prefix}${url}`, expire,  `${Date.now()}`)
+  })
+  await mul.exec()
+}
+
 module.exports = {
   redis_add_sub,
   redis_remove_sub,
@@ -109,4 +127,6 @@ module.exports = {
   HGETALL,
   HSETALL,
   get_random_next,
+  get_sent_sub,
+  set_sent_sub,
 }

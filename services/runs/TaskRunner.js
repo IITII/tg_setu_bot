@@ -4,12 +4,12 @@
  */
 'use strict'
 
-const {uniq} = require('lodash'),
+const {uniq, uniqBy} = require('lodash'),
   {check, taskName, taskLimit, clip} = require('../../config/config'),
   {format_date} = require('../../libs/utils'),
   {getIndexByUrl} = require('../utils/support_urls_utils'),
   {getPhotoMsg, sendBatchMsg, getTextMsg} = require('../utils/msg_utils'),
-  {get_random_next, HSET, HGETALL} = require('../tasks/redis_utils')
+  {get_random_next, HSET, HGETALL, get_sent_sub, set_sent_sub} = require('../tasks/redis_utils')
 const EveiraTags = require('../../libs/download/sites/EveiraTags'),
   Fa24Tags = require('../../libs/download/sites/Fa24Tags'),
   fa24c49 = require('../../libs/download/sites/Fa24C49'),
@@ -121,15 +121,24 @@ async function task(url, info, handle, breakTime, start = format_date()) {
     info.latest.forEach(u => {
       index = Math.min(index, imgs.findIndex(_ => _.url === u))
     })
-    const url_texts = imgs.slice(0, index)
+    let url_texts = imgs.slice(0, index)
+    url_texts = await filterNonSent(url_texts)
     if (url_texts.length > 0) {
       info.latest = url_texts.map(_ => _.url).slice(0, taskLimit.latest)
       let prefix = `#Subscribed\n#${title}\nStart: ${start}`
       await send_to_subscriber(prefix, info.uid, url_texts)
+      await set_sent_sub(url_texts.map(_ => _.url))
     }
   }
   info.nextTime = get_random_next(breakTime)
   await HSET(url, info)
+}
+
+async function filterNonSent(newToSend) {
+  newToSend = uniqBy(newToSend, 'url')
+  newToSend = uniqBy(newToSend, 'text')
+  const sent = await get_sent_sub()
+  return newToSend.filter(_ => !sent.some(s => s === _.url))
 }
 
 async function send_to_subscriber(prefix, uidArr, url_texts) {

@@ -68,6 +68,10 @@ const config = {
     latest: 3,
     // 第一次运行时最多发送条数
     firstMax: 20,
+    // 订阅已发送链接过期时间
+    sub_expire: 60 * 60 * 24 * 3,
+    // 订阅已发送链接
+    sub_prefix: 'bot_sent_sub_',
   },
   redis: {
     url: process.env.REDIS_URL || 'redis://:review_pic@127.0.0.1:6379',
