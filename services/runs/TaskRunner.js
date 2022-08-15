@@ -4,9 +4,9 @@
  */
 'use strict'
 
-const {uniq, uniqBy} = require('lodash'),
+const {uniq, uniqBy, differenceBy} = require('lodash'),
   {check, taskName, taskLimit, clip} = require('../../config/config'),
-  {format_date} = require('../../libs/utils'),
+  {format_date, spendTime} = require('../../libs/utils'),
   {getIndexByUrl} = require('../utils/support_urls_utils'),
   {getPhotoMsg, sendBatchMsg, getTextMsg} = require('../utils/msg_utils'),
   {get_random_next, HSET, HGETALL, get_sent_sub, set_sent_sub} = require('../tasks/redis_utils')
@@ -18,6 +18,7 @@ const EveiraTags = require('../../libs/download/sites/EveiraTags'),
   eveiraTags = new EveiraTags(),
   fa24Tags = new Fa24Tags()
 const download = require('../../libs/download')
+const {log_url_texts} = require('../utils/service_utils')
 
 const supRaw = [
     [
@@ -122,26 +123,57 @@ async function task(url, info, handle, breakTime, start = format_date()) {
       index = Math.min(index, imgs.findIndex(_ => _.url === u))
     })
     let url_texts = imgs.slice(0, index)
-    url_texts = await filterNonSent(url_texts)
-    if (url_texts.length > 0) {
-      info.latest = url_texts.map(_ => _.url).slice(0, taskLimit.latest)
-      let prefix = `#Subscribed\n#${title}\nStart: ${start}`
-      await send_to_subscriber(prefix, info.uid, url_texts)
-      await set_sent_sub(url_texts.map(_ => _.url))
+
+    // filter
+    const filtered = await spendTime('filterNonSent', filterNonSent, url_texts)
+    if (filtered.length > 0) {
+      info.latest = filtered.map(_ => _.url).slice(0, taskLimit.latest)
     }
+    // add filtered msg
+    let addiMsg = ''
+    const dup = differenceBy(filtered, url_texts, 'url')
+    if (dup.length > 0) {
+      addiMsg = `#Clean\n移除重复链接：${dup.length}条`
+      addiMsg += `\n${log_url_texts(dup)}`
+    }
+    // add new sub msg
+    let prefix = `#Subscribed\n#${title}\nStart: ${start}`
+    await send_to_subscriber(prefix, info.uid, filtered, addiMsg)
+    await set_sent_sub(filtered.map(({url, text}) => ({url, text: format_sub_title(text)})))
   }
   info.nextTime = get_random_next(breakTime)
   await HSET(url, info)
 }
 
-async function filterNonSent(newToSend) {
+async function filterNonSent(old) {
+  let newToSend = old
   newToSend = uniqBy(newToSend, 'url')
   newToSend = uniqBy(newToSend, 'text')
-  const sent = await get_sent_sub()
-  return newToSend.filter(_ => !sent.some(s => s === _.url))
+  const sent_urls = await get_sent_sub(taskLimit.sub_prefix.url)
+  const sent_texts = await get_sent_sub(taskLimit.sub_prefix.text)
+  newToSend = newToSend.filter(_ => !sent_urls.includes(_.url))
+  newToSend = newToSend.filter(_ => !sent_texts.includes(format_sub_title(_.text)))
+  return newToSend
 }
 
-async function send_to_subscriber(prefix, uidArr, url_texts) {
+function format_sub_title(raw) {
+  let res = raw
+  res = res.replace(/[\[\]()+*.\\/\-—?${}@!&\n\r]/g, ' ')
+  res = res.replace(/[~`|=+;:'"<>。，《》【】「」、！￥—\-]/g, ' ')
+  res = res.replace(/\d+月\d+日?会员(资源)?/g, ' ')
+  res = res.replace(/福利(姬)?/g, ' ')
+  res = res.replace(/COS(ER)?/ig, ' ')
+  res = res.replace(/写真(集|套图)/g, ' ')
+  res = res.replace(/(网红|套图)/g, ' ')
+  res = res.replace(/\d+P/ig, ' ')
+  res = res.replace(/\d+[MG]B/ig, ' ')
+  res = res.replace(/\s+/g, '')
+  return res
+}
+
+async function send_to_subscriber(prefix, uidArr, url_texts, addi = '') {
+  // TODO: send to admin only
+  const addiMsg = addi ? getTextMsg(uidArr[0], `${prefix}\n${addi}`, undefined, false) : []
   const msgArr = uidArr.map(u => {
     return url_texts.map(url_text => {
       const {url, text, poster} = url_text
@@ -150,7 +182,7 @@ async function send_to_subscriber(prefix, uidArr, url_texts) {
         // 虽然可能有吧，但是基本不可能
         : getTextMsg(u, m, undefined, true)
     })
-  }).flat(Infinity)
+  }).concat(addiMsg).flat(Infinity)
   return sendBatchMsg(msgArr)
 }
 

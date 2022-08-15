@@ -7,6 +7,7 @@
 const redis = require('../../libs/redis_client')
 const {ADMIN_ID, check, taskName, taskLimit} = require('../../config/config')
 const {logger} = require('../../middlewares/logger')
+const {spendTime} = require('../../libs/utils')
 
 async function redis_init() {
   const name = `redis_utils`
@@ -101,20 +102,22 @@ function get_random_next(breakTime) {
   return negative ? curr - random : curr + random
 }
 
-async function get_sent_sub(prefix = taskLimit.sub_prefix) {
+async function get_sent_sub(prefix = taskLimit.sub_prefix.url) {
   await redis_init()
-  const keys = await redis.KEYS(`${prefix}*`)
+  const keys = await spendTime(`redis.KEYS ${prefix}*`, redis.KEYS, `${prefix}*`)
   // const mul = redis.multi()
   // keys.forEach(k => mul.get(k))
   // return await mul.exec()
   return keys.map(k => k.replace(prefix, ''))
 }
 
-async function set_sent_sub(urls, prefix = taskLimit.sub_prefix, expire = taskLimit.sub_expire) {
+async function set_sent_sub(url_texts, prefix = taskLimit.sub_prefix, expire = taskLimit.sub_expire) {
+  if (Array.isArray(url_texts) && url_texts.length === 0) return
   await redis_init()
   const mul = redis.multi()
-  urls.forEach(url => {
-    mul.SETEX(`${prefix}${url}`, expire,  `${Date.now()}`)
+  url_texts.forEach(({url, text}) => {
+    mul.SETEX(`${prefix.url}${url}`, expire, text)
+    mul.SETEX(`${prefix.text}${text}`, expire, url)
   })
   await mul.exec()
 }
