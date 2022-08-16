@@ -4,9 +4,9 @@
  */
 'use strict'
 
-const {BOT_TOKEN, tokens, timeout} = require('../../config/config'),
-  {logger} = require('../../middlewares/logger'),
-  {currMapLimit, sleep, time_human_readable} = require('../../libs/utils'),
+const { BOT_TOKEN, tokens, timeout } = require('../../config/config'),
+  { logger } = require('../../middlewares/logger'),
+  { currMapLimit, sleep, time_human_readable } = require('../../libs/utils'),
   TelegramBot = require('../../libs/bots/TelegramBot.js'),
   mainBot = require('../../libs/telegram_bot.js'),
   picWorkerTokens = [].concat(tokens.picWorkers || []),
@@ -32,9 +32,9 @@ async function start() {
     picWorkers = picWorkerTokens.map(t => {
       const name = `picWorker_${i++}`
       const bot = TelegramBot(t)
-      const {telegram} = bot
+      const { telegram } = bot
       const busy = false
-      return {name, bot, telegram, token: t, busy}
+      return { name, bot, telegram, token: t, busy }
     })
     await Promise.all(picWorkers.map(w => {
       return w.bot.launch().then(() => {
@@ -108,6 +108,7 @@ async function msg_common_handle(msg, tg = mainBot?.telegram) {
 
 async function handle_batch_msg(bot, msg) {
   const msgArr = [].concat(msg)
+  if (msgArr.length === 0) return
   const msgLen = msgArr.length,
     hasPicBots = hasPicBot(),
     isMediaGroup = msgArr[0].type === TypeEnum.MEDIA_GROUP
@@ -139,12 +140,12 @@ async function worker_accept(msgArr) {
       .then(() => {
         handleMsg = `worker ${worker.name} handled`
       }).catch(e => {
-      handleMsg = `worker ${worker.name} handle error: ${e.message}`
-      logger.error(e)
-    }).finally(() => {
-      handleMsg += `, cost: ${time_human_readable(Date.now() - start)}ms`
-      logger.debug(handleMsg)
-    })
+        handleMsg = `worker ${worker.name} handle error: ${e.message}`
+        logger.error(e)
+      }).finally(() => {
+        handleMsg += `, cost: ${time_human_readable(Date.now() - start)}ms`
+        logger.debug(handleMsg)
+      })
   } else {
     const sleepTime = timeout.checkWorker
     logger.debug(`no worker available, try again after ${sleepTime}ms`)
