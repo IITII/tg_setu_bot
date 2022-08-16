@@ -104,7 +104,7 @@ function get_random_next(breakTime) {
 
 async function get_sent_sub(prefix = taskLimit.sub_prefix.url) {
   await redis_init()
-  const keys = await spendTime(`redis.KEYS ${prefix}*`, redis.KEYS, `${prefix}*`)
+  const keys = await redis.KEYS(`${prefix}*`)
   // const mul = redis.multi()
   // keys.forEach(k => mul.get(k))
   // return await mul.exec()
