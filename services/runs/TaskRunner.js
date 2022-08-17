@@ -139,7 +139,7 @@ async function task(url, info, handle, breakTime, start = format_date()) {
     // add new sub msg
     let prefix = `#Subscribed\n#${title}\nStart: ${start}`
     await send_to_subscriber(prefix, info.uid, filtered, addiMsg)
-    await set_sent_sub(filtered.map(({ url, text }) => ({ url, text: format_sub_title(text) })))
+    await set_sent_sub(url_texts.map(({ url, text }) => ({ url, text: format_sub_title(text) })))
   }
   info.nextTime = get_random_next(breakTime)
   await HSET(url, info)
