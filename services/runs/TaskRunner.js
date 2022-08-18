@@ -67,8 +67,8 @@ const supRaw = [
     [fa24c49, check.all],
     [junMeiTags, check.all],
     [busTags, check.all],
-    [download.dongTiTagsTu, clip.dongTiTagLimit],
-    [download.dongTiTags, clip.dongTiTagLimit],
+    [download.dongTiTagsTu, check.all],
+    [download.dongTiTags, check.all],
   ]
 const special_url = [
   [/^https?:\/\/everia.club\/?$/, 0],

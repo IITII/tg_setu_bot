@@ -95,6 +95,10 @@ async function HSETALL(data, taskKey = taskName) {
   }
 }
 
+/**
+ * get next exec time with random wait time
+ * @example breakTime = 3h => [3h * 0.8, 3h * 1.2]
+ */
 function get_random_next(breakTime) {
   const curr = Date.now()
   const negative = Math.random() < 0.5
