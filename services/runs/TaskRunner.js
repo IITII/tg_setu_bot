@@ -159,7 +159,7 @@ async function filterNonSent(old) {
 function format_sub_title(raw) {
   let res = raw
   res = res.replace(/[\[\]()+*.\\/\-—?${}@!&\n\r]/g, ' ')
-  res = res.replace(/[~`|=+;:：'"<>。，《》【】「」、！￥—\-]/g, ' ')
+  res = res.replace(/[~`|=+#…%;；:：'"<>。，《》【】「」、！￥—\-]/g, ' ')
   res = res.replace(/\d+月\d+日?会员(资源)?/g, ' ')
   res = res.replace(/福利(姬)?/g, ' ')
   res = res.replace(/COS(ER)?/ig, ' ')

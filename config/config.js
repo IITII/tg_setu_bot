@@ -68,8 +68,8 @@ const config = {
     latest: 3,
     // 第一次运行时最多发送条数
     firstMax: 20,
-    // 订阅已发送链接过期时间
-    sub_expire: 60 * 60 * 24 * 30 * 3,
+    // 订阅已发送链接过期时间, 12month
+    sub_expire: 60 * 60 * 24 * 30 * 12,
     // 订阅已发送链接
     sub_prefix: {
       url: 'bot_sent_sub_url_',
