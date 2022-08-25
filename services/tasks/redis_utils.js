@@ -7,7 +7,6 @@
 const redis = require('../../libs/redis_client')
 const {ADMIN_ID, check, taskName, taskLimit} = require('../../config/config')
 const {logger} = require('../../middlewares/logger')
-const {spendTime} = require('../../libs/utils')
 
 async function redis_init() {
   const name = `redis_utils`
@@ -48,7 +47,7 @@ async function redis_add_sub(url, uid, taskKey = taskName) {
     }
   } else {
     json.uid.push(uid)
-    json.nextTime = get_random_next()
+    json.nextTime = get_random_next(0)
   }
   await redis.HSET(taskKey, url, JSON.stringify(json))
 }

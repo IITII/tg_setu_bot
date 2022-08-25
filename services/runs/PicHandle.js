@@ -12,11 +12,12 @@ const {queueName, eventName, clip, DEBUG} = require('../../config/config'),
   storage = new Storage(queue)
 const {run_out_mq} = require('./mq_utils'),
   {logger} = require('../../middlewares/logger'),
-  {currMapLimit, time_human_readable, downloadFile} = require('../../libs/utils'),
+  {currMapLimit, time_human_readable, downloadFile, format_sub_title} = require('../../libs/utils'),
   {zipUrlExt, getSaveDir} = require('../../libs/download/dl_utils'),
   {send_text, getMediaGroupMsg, getTextMsg, sendBatchMsg} = require('../utils/msg_utils'),
   {log_ph, log_related, log_meta_tag} = require('../utils/service_utils'),
   {getLimitByUrl, handle_sup_url} = require('../utils/support_urls_utils')
+const {set_sent_sub} = require('../tasks/redis_utils')
 
 async function start() {
   eventBus.on(event, consume)
@@ -70,6 +71,8 @@ async function handle_msg(bot, msg) {
   if (related_msg) {
     await send_text(chat_id, related_msg, message_id)
   }
+  // update redis
+  await set_sent_sub(photos.map(({title, original}) => ({url: original, text: format_sub_title(title)})))
 }
 
 async function fetchPhotos(urls) {

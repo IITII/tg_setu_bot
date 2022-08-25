@@ -4,12 +4,12 @@
  */
 'use strict'
 
-const { uniq, uniqBy, differenceBy } = require('lodash'),
-  { check, taskName, taskLimit, clip } = require('../../config/config'),
-  { format_date, spendTime } = require('../../libs/utils'),
-  { getIndexByUrl } = require('../utils/support_urls_utils'),
-  { getPhotoMsg, sendBatchMsg, getTextMsg } = require('../utils/msg_utils'),
-  { get_random_next, HSET, HGETALL, get_sent_sub, set_sent_sub } = require('../tasks/redis_utils')
+const {uniq, uniqBy, differenceBy} = require('lodash'),
+  {check, taskName, taskLimit, clip} = require('../../config/config'),
+  {format_date, spendTime, time_human_readable, format_sub_title} = require('../../libs/utils'),
+  {getIndexByUrl} = require('../utils/support_urls_utils'),
+  {getPhotoMsg, sendBatchMsg, getTextMsg} = require('../utils/msg_utils'),
+  {get_random_next, HSET, HGETALL, get_sent_sub, set_sent_sub} = require('../tasks/redis_utils')
 const EveiraTags = require('../../libs/download/sites/EveiraTags'),
   Fa24Tags = require('../../libs/download/sites/Fa24Tags'),
   fa24c49 = require('../../libs/download/sites/Fa24C49'),
@@ -18,48 +18,49 @@ const EveiraTags = require('../../libs/download/sites/EveiraTags'),
   eveiraTags = new EveiraTags(),
   fa24Tags = new Fa24Tags()
 const download = require('../../libs/download')
-const { log_url_texts } = require('../utils/service_utils')
+const {log_url_texts} = require('../utils/service_utils')
+const {logger} = require('../../middlewares/logger')
 
 const supRaw = [
-  [
-    'https://everia.club/tag/',
-    'https://everia.club/category/',
+    [
+      'https://everia.club/tag/',
+      'https://everia.club/category/',
+    ],
+    [
+      'https://www.24fa.com/search.aspx',
+      'https://www.268w.cc/search.aspx',
+      'https://www.116w.cc/search.aspx',
+    ],
+    [
+      'https://www.24fa.com/c49.aspx',
+      'https://www.268w.cc/c49.aspx',
+      'https://www.116w.cc/c49.aspx',
+    ],
+    [
+      'https://junmeitu.com/tags/',
+      'https://junmeitu.com/xzjg/',
+      'https://junmeitu.com/model/',
+      'https://junmeitu.com/beauty/hot-1.html',
+      'https://www.junmeitu.com/tags/',
+      'https://www.junmeitu.com/xzjg/',
+      'https://www.junmeitu.com/model/',
+      'https://www.junmeitu.com/beauty/hot-1.html',
+    ],
+    [
+      'https://www.javbus.com/star/',
+      'https://www.javbus.com/uncensored/star/',
+    ],
+    [
+      'https://dongtidemi.com/category/tu/xiezhen',
+      'https://dongtidemi.com/category/tu/%e7%a6%8f%e5%88%a9%e5%a7%ac',
+      'https://dongtidemi.com/category/tu/cos',
+    ],
+    [
+      'https://dongtidemi.com/tag/',
+      'https://dongtidemi.com/?s=',
+      'https://dongtidemi.com/category/tu',
+    ],
   ],
-  [
-    'https://www.24fa.com/search.aspx',
-    'https://www.268w.cc/search.aspx',
-    'https://www.116w.cc/search.aspx',
-  ],
-  [
-    'https://www.24fa.com/c49.aspx',
-    'https://www.268w.cc/c49.aspx',
-    'https://www.116w.cc/c49.aspx',
-  ],
-  [
-    'https://junmeitu.com/tags/',
-    'https://junmeitu.com/xzjg/',
-    'https://junmeitu.com/model/',
-    'https://junmeitu.com/beauty/hot-1.html',
-    'https://www.junmeitu.com/tags/',
-    'https://www.junmeitu.com/xzjg/',
-    'https://www.junmeitu.com/model/',
-    'https://www.junmeitu.com/beauty/hot-1.html',
-  ],
-  [
-    'https://www.javbus.com/star/',
-    'https://www.javbus.com/uncensored/star/',
-  ],
-  [
-    'https://dongtidemi.com/category/tu/xiezhen',
-    'https://dongtidemi.com/category/tu/%e7%a6%8f%e5%88%a9%e5%a7%ac',
-    'https://dongtidemi.com/category/tu/cos',
-  ],
-  [
-    'https://dongtidemi.com/tag/',
-    'https://dongtidemi.com/?s=',
-    'https://dongtidemi.com/category/tu'
-  ],
-],
   supRaw_flat = supRaw.flat(Infinity),
   handle_limit = [
     [eveiraTags, check.all],
@@ -113,7 +114,7 @@ async function run() {
 }
 
 async function task(url, info, handle, breakTime, start = format_date()) {
-  const { title, imgs } = await handle.getTagUrls(url)
+  const {title, imgs} = await handle.getTagUrls(url)
   if (imgs && imgs.length > 0) {
     let index = imgs.length
     if (info.latest.length === 0) {
@@ -139,10 +140,12 @@ async function task(url, info, handle, breakTime, start = format_date()) {
     // add new sub msg
     let prefix = `#Subscribed\n#${title}\nStart: ${start}`
     await send_to_subscriber(prefix, info.uid, filtered, addiMsg)
-    await set_sent_sub(url_texts.map(({ url, text }) => ({ url, text: format_sub_title(text) })))
+    await set_sent_sub(url_texts.map(({url, text}) => ({url, text: format_sub_title(text)})))
   }
-  info.nextTime = get_random_next(breakTime)
+  const nextTime = get_random_next(breakTime)
+  info.nextTime = nextTime
   await HSET(url, info)
+  logger.debug(`task: start: ${start}, next: ${format_date(nextTime)}, break: ${time_human_readable(breakTime)}, url: ${url}`)
 }
 
 async function filterNonSent(old) {
@@ -156,27 +159,12 @@ async function filterNonSent(old) {
   return newToSend
 }
 
-function format_sub_title(raw) {
-  let res = raw
-  res = res.replace(/[\[\]()+*.\\/\-—?${}@!&\n\r]/g, ' ')
-  res = res.replace(/[~`|=+#…%;；:：'"<>。，《》【】「」、！￥—\-]/g, ' ')
-  res = res.replace(/\d+月\d+日?会员(资源)?/g, ' ')
-  res = res.replace(/福利(姬)?/g, ' ')
-  res = res.replace(/COS(ER)?/ig, ' ')
-  res = res.replace(/写真(集|套图)/g, ' ')
-  res = res.replace(/(网红|套图)/g, ' ')
-  res = res.replace(/\d+P/ig, ' ')
-  res = res.replace(/\d+[MG]B/ig, ' ')
-  res = res.replace(/\s+/g, '')
-  return res
-}
-
 async function send_to_subscriber(prefix, uidArr, url_texts, addi = '') {
   // TODO: send to admin only
   const addiMsg = addi ? getTextMsg(uidArr[0], `${prefix}\n${addi}`, undefined, false) : []
   const msgArr = uidArr.map(u => {
     return url_texts.map(url_text => {
-      const { url, text, poster } = url_text
+      const {url, text, poster} = url_text
       const m = `${prefix}\n[${text}](${url})`
       return poster ? getPhotoMsg(u, poster, m, true)
         // 虽然可能有吧，但是基本不可能
