@@ -5,7 +5,7 @@
 'use strict'
 
 const {uniq, uniqBy, differenceBy} = require('lodash'),
-  {check, taskName, taskLimit, clip} = require('../../config/config'),
+  {check, taskName, taskLimit} = require('../../config/config'),
   {format_date, spendTime, time_human_readable, format_sub_title} = require('../../libs/utils'),
   {getIndexByUrl} = require('../utils/support_urls_utils'),
   {getPhotoMsg, sendBatchMsg, getTextMsg} = require('../utils/msg_utils'),
@@ -54,11 +54,17 @@ const supRaw = [
       'https://dongtidemi.com/category/tu/xiezhen',
       'https://dongtidemi.com/category/tu/%e7%a6%8f%e5%88%a9%e5%a7%ac',
       'https://dongtidemi.com/category/tu/cos',
+      'https://dongtidemimi.org/category/tu/xiezhen',
+      'https://dongtidemimi.org/category/tu/%e7%a6%8f%e5%88%a9%e5%a7%ac',
+      'https://dongtidemimi.org/category/tu/cos',
     ],
     [
       'https://dongtidemi.com/tag/',
       'https://dongtidemi.com/?s=',
       'https://dongtidemi.com/category/tu',
+      'https://dongtidemimi.org/tag/',
+      'https://dongtidemimi.org/?s=',
+      'https://dongtidemimi.org/category/tu',
     ],
   ],
   supRaw_flat = supRaw.flat(Infinity),

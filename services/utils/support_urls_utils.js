@@ -49,14 +49,21 @@ const supRaw = [
       'https://dongtidemi.com/category/tu/xiezhen',
       'https://dongtidemi.com/category/tu/%e7%a6%8f%e5%88%a9%e5%a7%ac',
       'https://dongtidemi.com/category/tu/cos',
+      'https://dongtidemimi.org/category/tu/xiezhen',
+      'https://dongtidemimi.org/category/tu/%e7%a6%8f%e5%88%a9%e5%a7%ac',
+      'https://dongtidemimi.org/category/tu/cos',
     ],
     [
       'https://dongtidemi.com/tag/',
       'https://dongtidemi.com/?s=',
-      'https://dongtidemi.com/category/tu'
+      'https://dongtidemi.com/category/tu',
+      'https://dongtidemimi.org/tag/',
+      'https://dongtidemimi.org/?s=',
+      'https://dongtidemimi.org/category/tu',
     ],
     [
       'https://dongtidemi.com/',
+      'https://dongtidemimi.org/',
     ],
   ],
   supRaw_flat = supRaw.flat(Infinity),
