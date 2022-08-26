@@ -100,9 +100,11 @@ async function HSETALL(data, taskKey = taskName) {
  */
 function get_random_next(breakTime) {
   const curr = Date.now()
+  if (breakTime === 0) return curr
   const negative = Math.random() < 0.5
   const random = Math.floor(Math.random() * breakTime * check.randomRate)
-  return negative ? curr - random : curr + random
+  const breakT = negative ? breakTime - random : breakTime + random
+  return curr + breakT
 }
 
 async function get_sent_sub(prefix = taskLimit.sub_prefix.url) {
