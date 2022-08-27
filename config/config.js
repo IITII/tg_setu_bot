@@ -93,7 +93,7 @@ const config = {
     junMeiLimit: 3,
     junMeiTagLimit: 1,
     busTagLimit: 1,
-    dongTiLimit: 3,
+    dongTiLimit: 1,
     dongTiTagLimit: 1,
     // 图片 header
     headLimit: 20,
@@ -121,7 +121,7 @@ mkdir(path.dirname(config.db.database))
 
 function mkdir(dir) {
   if (!fs.existsSync(dir)) {
-    fs.mkdirSync(dir, {recursive: true})
+    fs.mkdirSync(dir, { recursive: true })
     console.log(`mkdir ${dir}`)
   }
 }
