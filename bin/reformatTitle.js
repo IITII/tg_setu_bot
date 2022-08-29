@@ -17,14 +17,16 @@ async function main(prefix = taskLimit.sub_prefix, expire = taskLimit.sub_expire
     const ss = format_sub_title(s)
     if (ss !== s) {
       console.log(`${s} -> ${ss}`)
-      diff.push(ss)
+      diff.push([s, ss])
     }
   })
   console.log(`Reformat: ${diff.length}`)
   const v = `reformat at ${new Date()}`
   const mul = redis.multi()
   diff.forEach(d => {
-    mul.SETEX(`${prefix.text}${d}`, expire, v)
+    const [s, ss] = d
+    mul.DEL(`${prefix.text}${s}`)
+    mul.SETEX(`${prefix.text}${ss}`, expire, v)
   })
   await mul.exec()
   await redis.quit()
