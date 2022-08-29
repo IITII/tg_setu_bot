@@ -184,7 +184,7 @@ async function handle_text_msg(chat_id, text, message_id, preview, sep = '\n', t
     logger.debug(`${chat_id}: ${text}`)
     const opts = {
       reply_to_message_id: message_id,
-      parse_mode: parse_mode || 'Markdown',
+      parse_mode: parse_mode === undefined ? 'Markdown' : parse_mode,
       // disable_notification: true,
       // protect_content: true
     }
