@@ -64,18 +64,23 @@ async function get_dom(url, handle_dom) {
   })
 }
 
-async function zipUrlExt(imgArr, saveDir) {
+async function zipUrlExt(imgArr, saveDir, limit = clip.headLimit) {
   const uniqArr = uniq(imgArr)
   const zipArr = zipWithIndex(uniqArr)
 
   async function zipHandle(arr) {
     const url = arr[0], i = arr[1]
-    const ext = await extFormat(url)
-    const savePath = path.resolve(saveDir + path.sep + (i + 1) + ext)
-    return {url, savePath}
+    try {
+      const ext = await extFormat(url)
+      const savePath = path.resolve(saveDir + path.sep + (i + 1) + ext)
+      return {url, savePath}
+    } catch (e) {
+      logger.error("zipHandle", e)
+      return {url, savePath: ""}
+    }
   }
 
-  return await currMapLimit(zipArr, clip.headLimit, zipHandle)
+  return await currMapLimit(zipArr, limit, zipHandle)
 }
 
 function arrToAbsUrl(urls, origin) {

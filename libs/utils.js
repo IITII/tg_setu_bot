@@ -74,8 +74,7 @@ async function downloadFile(url, filePath, referer = '') {
       })
       .then(() => logger.debug(`Downloaded ${url} to ${filePath}`))
       .catch(e => {
-        logger.error(`Download error: ${e.message}`)
-        logger.error(e)
+        logger.error(`Download error ${e.status}: ${e.message}`, e)
         return reject(e)
       })
   })

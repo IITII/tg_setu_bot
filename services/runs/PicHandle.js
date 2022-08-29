@@ -12,7 +12,7 @@ const {queueName, eventName, clip, DEBUG} = require('../../config/config'),
   storage = new Storage(queue)
 const {run_out_mq} = require('./mq_utils'),
   {logger} = require('../../middlewares/logger'),
-  {currMapLimit, time_human_readable, downloadFile, format_sub_title} = require('../../libs/utils'),
+  {currMapLimit, time_human_readable, downloadFile, format_sub_title, sleep} = require('../../libs/utils'),
   {zipUrlExt, getSaveDir} = require('../../libs/download/dl_utils'),
   {send_text, getMediaGroupMsg, getTextMsg, sendBatchMsg} = require('../utils/msg_utils'),
   {log_ph, log_related, log_meta_tag} = require('../utils/service_utils'),
@@ -45,7 +45,8 @@ async function handle_msg(bot, msg) {
       case 'download':
         const limit = getLimitByUrl(original)
         const saveDir = getSaveDir(title, clip.baseDir)
-        await handle_download(prefixMsg, imgs, saveDir, original, chat_id, message_id, limit)
+        const sleepT = new URL(original).hostname.includes("dongtidemi") ? 800 : 0
+        await handle_download(prefixMsg, imgs, saveDir, original, chat_id, message_id, limit, sleepT)
         break
       case 'copy':
         batchMsg = getMediaGroupMsg(chat_id, imgs, prefixMsg)
@@ -87,13 +88,22 @@ async function fetchPhotos(urls) {
 async function handle_download(prefixMsg, imgs, saveDir, refers,
                                chat_id, message_id,
                                limit = clip.telegrafLimit,
+                               sleepTime = 0,
                                start = Date.now()) {
-  const url_saves = await zipUrlExt(imgs, saveDir)
+  let url_saves = await zipUrlExt(imgs, saveDir, limit)
+  url_saves = url_saves.filter(_ => _.savePath)
+  if (imgs.length !== url_saves.length) {
+    prefixMsg += `#后缀获取失败\n后缀获取失败: ${imgs.length - url_saves.length}条\n`
+  }
   const headCost = time_human_readable(Date.now() - start)
   await send_text(chat_id, `${prefixMsg} ${url_saves.length} in ${headCost}, 下载开始...`)
 
   async function handle(json) {
-    return downloadFile(json.url, json.savePath, refers)
+    const res = await downloadFile(json.url, json.savePath, refers)
+    if (sleepTime > 0) {
+      await sleep(sleepTime)
+    }
+    return res
   }
 
   return currMapLimit(url_saves, limit, handle)
@@ -102,7 +112,7 @@ async function handle_download(prefixMsg, imgs, saveDir, refers,
       prefixMsg += `下载完成, ${url_saves.length} in ${cost}\n`
     })
     .catch(e => {
-      prefixMsg += `下载失败, ${e.message}\n`
+      prefixMsg += `下载失败, ${e.message}\n#下载失败\n`
       logger.error(e)
     })
     .finally(async () => {
