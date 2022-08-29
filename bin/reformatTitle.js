@@ -27,6 +27,7 @@ async function main(prefix = taskLimit.sub_prefix, expire = taskLimit.sub_expire
     mul.SETEX(`${prefix.text}${d}`, expire, v)
   })
   await mul.exec()
+  await redis.quit()
 }
 
 main()
