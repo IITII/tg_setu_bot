@@ -3,7 +3,7 @@
  * @date 2022/06/26
  */
 'use strict'
-const {queueName, eventName, telegram: tgLimit} = require('../../config/config'),
+const {queueName, eventName} = require('../../config/config'),
   eventBus = require('../../libs/event_bus'),
   Storage = require('../../libs/storage'),
   {telegram} = require('../../libs/telegram_bot'),
@@ -61,7 +61,7 @@ async function timeout(chat_id, message_id, session, k, info) {
   try {
     const url_t = info.urls.join('\n')
     const msg = `${s}\n${url_t}`
-    if (msg >= tgLimit.maxMessageLength - 50) {
+    if (msg.length >= 3000) {
       await send_text(chat_id, msg, message_id)
     } else {
       // 消息插队
