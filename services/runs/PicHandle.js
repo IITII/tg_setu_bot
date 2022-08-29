@@ -12,7 +12,7 @@ const {queueName, eventName, clip, DEBUG} = require('../../config/config'),
   storage = new Storage(queue)
 const {run_out_mq} = require('./mq_utils'),
   {logger} = require('../../middlewares/logger'),
-  {currMapLimit, time_human_readable, downloadFile, format_sub_title, sleep} = require('../../libs/utils'),
+  {currMapLimit, time_human_readable, downloadFile, format_sub_title, sleep, format_date} = require('../../libs/utils'),
   {zipUrlExt, getSaveDir} = require('../../libs/download/dl_utils'),
   {send_text, getMediaGroupMsg, getTextMsg, sendBatchMsg} = require('../utils/msg_utils'),
   {log_ph, log_related, log_meta_tag} = require('../utils/service_utils'),
@@ -29,6 +29,7 @@ async function consume() {
 }
 
 async function handle_msg(bot, msg) {
+  const start = Date.now()
   const {chat_id, message_id, session, urls} = msg
   const {mode} = session.pic
   const {photos, diff, cost} = await fetchPhotos(uniq(urls))
@@ -68,10 +69,12 @@ async function handle_msg(bot, msg) {
       await send_text(chat_id, endMsg, message_id)
     }
   }
-  const related_msg = log_related(photos)
-  if (related_msg) {
-    await send_text(chat_id, related_msg, message_id)
-  }
+  let related_msg = log_related(photos)
+  related_msg += `\n#BatchDone
+Start: ${format_date(start)}
+End: ${format_date()}
+Cost: ${time_human_readable(Date.now() - start)}`
+  await send_text(chat_id, related_msg, message_id)
   // update redis
   await set_sent_sub(photos.map(({title, original}) => ({url: original, text: format_sub_title(title)})))
 }
