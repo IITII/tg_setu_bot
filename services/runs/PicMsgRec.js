@@ -62,7 +62,7 @@ async function timeout(chat_id, message_id, session, k, info) {
     const url_t = info.urls.join('\n')
     const msg = `${s}\n${url_t}`
     if (msg.length >= 3000) {
-      await send_text(chat_id, msg, message_id)
+      await send_text(chat_id, msg, message_id, false, 'HTML')
     } else {
       // 消息插队
       await telegram.sendMessage(chat_id, msg, {reply_to_message_id: message_id, disable_web_page_preview: true})

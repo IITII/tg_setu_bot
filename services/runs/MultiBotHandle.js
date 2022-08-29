@@ -162,7 +162,7 @@ async function handle_chat_not_found(prefix, chat_id, handle, ...args) {
     if (e.message.toLowerCase().includes('chat not found')) {
       const msg = `${prefix} chat not found, plz chat with bot first`
       logger.error(msg)
-      await handle_text_msg(chat_id, msg, mainBot.telegram)
+      await handle_text_msg(chat_id, msg, undefined, undefined, '\n', mainBot.telegram)
     } else {
       throw e
     }

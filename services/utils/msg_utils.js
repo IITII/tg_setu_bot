@@ -14,19 +14,19 @@ const TypeEnum = {
 
 const fs = require('fs'),
   path = require('path'),
-  { chunk } = require('lodash')
+  {chunk} = require('lodash')
 
-const { queueName, eventName } = require('../../config/config'),
+const {queueName, eventName} = require('../../config/config'),
   eventBus = require('../../libs/event_bus'),
   Storage = require('../../libs/storage'),
   queue = queueName.msg_send,
   event = eventName.msg_send,
   storage = new Storage(queue)
-const { clip, telegram: telegramConf } = require('../../config/config'),
-  { maxMediaGroupLength, maxMessageLength } = telegramConf,
-  { logger } = require('../../middlewares/logger'),
-  { sendPhoto, getGroupMedia } = require('../../libs/media'),
-  { reqRateLimit, sleep } = require('../../libs/utils'),
+const {clip, telegram: telegramConf} = require('../../config/config'),
+  {maxMediaGroupLength, maxMessageLength} = telegramConf,
+  {logger} = require('../../middlewares/logger'),
+  {sendPhoto, getGroupMedia} = require('../../libs/media'),
+  {reqRateLimit, sleep} = require('../../libs/utils'),
   bot = require('../../libs/telegram_bot'),
   telegram = bot.telegram
 
@@ -34,14 +34,14 @@ function emit(v) {
   return eventBus.emit(event, v)
 }
 
-async function send_text(chat_id, text, message_id = undefined, preview = false) {
-  const msg = getTextMsg(chat_id, text, message_id, preview)
+async function send_text(chat_id, text, message_id = undefined, preview = false, parse_mode = undefined) {
+  const msg = getTextMsg(chat_id, text, message_id, preview, parse_mode)
   return storage.rpush(msg).then(_ => emit(_))
 }
 
-function getTextMsg(chat_id, text, message_id = undefined, preview = false) {
+function getTextMsg(chat_id, text, message_id = undefined, preview = false, parse_mode = undefined) {
   const type = TypeEnum.TEXT
-  return [{ chat_id, type, text, message_id, preview }]
+  return [{chat_id, type, text, message_id, preview, parse_mode}]
 }
 
 async function send_photo(chat_id, sub, cap, isSub = false) {
@@ -51,18 +51,18 @@ async function send_photo(chat_id, sub, cap, isSub = false) {
 
 function getPhotoMsg(chat_id, sub, cap, isSub = false) {
   const type = isSub ? TypeEnum.SUBSCRIBE : TypeEnum.PHOTO
-  return [{ chat_id, type, sub, cap }]
+  return [{chat_id, type, sub, cap}]
 }
 
 async function send_media(chat_id, sub, cap) {
   const type = TypeEnum.MEDIA_GROUP
-  return storage.rpush([{ chat_id, type, sub, cap }])
+  return storage.rpush([{chat_id, type, sub, cap}])
     .then(_ => emit(_))
 }
 
 async function send_del_file(chat_id, dirs, text, message_id = undefined, preview = false) {
   const type = TypeEnum.DEL_FILE
-  return storage.rpush([{ chat_id, type, dirs, text, message_id, preview }])
+  return storage.rpush([{chat_id, type, dirs, text, message_id, preview}])
     .then(_ => emit(_))
 }
 
@@ -71,7 +71,7 @@ async function sendMediaGroup(chat_id, urls, captionType = 'filename', showProgr
   if (!Array.isArray(urls)) {
     urls = [].concat(urls)
   }
-  let { cur, total } = { cur: 0, total: urls.length }
+  let {cur, total} = {cur: 0, total: urls.length}
 
   async function func(sub) {
     let res
@@ -98,7 +98,7 @@ function getMediaGroupMsg(chat_id, urls, captionType = 'filename', showProgress 
   if (!Array.isArray(urls)) {
     urls = [].concat(urls)
   }
-  let { cur, total } = { cur: 0, total: urls.length }
+  let {cur, total} = {cur: 0, total: urls.length}
   const grouped = chunk(urls, maxMediaGroupLength)
   const type = TypeEnum.MEDIA_GROUP
   return grouped.map(sub => {
@@ -107,7 +107,7 @@ function getMediaGroupMsg(chat_id, urls, captionType = 'filename', showProgress 
     if (showProgress) {
       cap = `${captionType} ${cur}/${total}`
     }
-    let g = { chat_id, type, sub, cap }
+    let g = {chat_id, type, sub, cap}
     if (sub.length === 1) {
       g = getPhotoMsg(chat_id, sub[0], cap)
     }
@@ -122,13 +122,13 @@ async function sendBatchMsg(msgArr) {
 }
 
 async function handle_text(msg, tg = telegram) {
-  let { chat_id, text, message_id, preview } = msg
-  return handle_text_msg(chat_id, text, message_id, preview, '\n', tg)
+  let {chat_id, text, message_id, preview, parse_mode} = msg
+  return handle_text_msg(chat_id, text, message_id, preview, '\n', tg, parse_mode)
 }
 
 async function clean(chat_id, dir) {
   const rm = fs.rm || fs.rmdir
-  rm(dir, { recursive: true }, err => {
+  rm(dir, {recursive: true}, err => {
     const relative = path.relative(clip.baseDir, dir) || 'Temp'
     let msg = `${relative} dirs/files cleaned`
     if (err) {
@@ -140,10 +140,10 @@ async function clean(chat_id, dir) {
 }
 
 async function handle_del_file(msg, tg = telegram) {
-  let { chat_id, dirs, text, message_id, preview } = msg
+  let {chat_id, dirs, text, message_id, preview} = msg
   const rm = fs.rm || fs.rmdir
   dirs.forEach(dir => {
-    rm(dir, { recursive: true }, err => {
+    rm(dir, {recursive: true}, err => {
       const relative = path.relative(clip.baseDir, dir) || 'Temp'
       let msg = `${relative} dirs/files cleaned`
       if (err) {
@@ -156,7 +156,7 @@ async function handle_del_file(msg, tg = telegram) {
   return handle_text_msg(chat_id, text, message_id, preview, '\n', tg)
 }
 
-async function handle_text_msg(chat_id, text, message_id, preview, sep = '\n', tg = telegram) {
+async function handle_text_msg(chat_id, text, message_id, preview, sep = '\n', tg = telegram, parse_mode = undefined) {
   if (text.length > maxMessageLength) {
     const split = text.split(sep)
     const rawText = []
@@ -178,13 +178,13 @@ async function handle_text_msg(chat_id, text, message_id, preview, sep = '\n', t
     rawText.push(JSON.parse(JSON.stringify(tmp)).join(sep))
     for (let t of rawText) {
       logger.debug(`${chat_id}: split ${text.length} to ${rawText.length}`)
-      await send_text(chat_id, t, message_id, preview)
+      await send_text(chat_id, t, message_id, preview, parse_mode)
     }
   } else {
     logger.debug(`${chat_id}: ${text}`)
     const opts = {
       reply_to_message_id: message_id,
-      parse_mode: 'Markdown',
+      parse_mode: parse_mode || 'Markdown',
       // disable_notification: true,
       // protect_content: true
     }
@@ -194,7 +194,7 @@ async function handle_text_msg(chat_id, text, message_id, preview, sep = '\n', t
 }
 
 async function handle_photo(msg, tg = telegram) {
-  const { chat_id, sub, cap } = msg
+  const {chat_id, sub, cap} = msg
   return tg.sendPhoto(chat_id, sendPhoto(sub), {
     caption: cap,
     parse_mode: 'Markdown',
@@ -202,7 +202,7 @@ async function handle_photo(msg, tg = telegram) {
 }
 
 async function handle_media_group(msg, tg = telegram) {
-  const { chat_id, sub, cap } = msg
+  const {chat_id, sub, cap} = msg
   return tg.sendMediaGroup(chat_id, getGroupMedia(sub, cap))
 }
 
