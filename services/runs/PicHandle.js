@@ -45,7 +45,7 @@ async function handle_msg(bot, msg) {
       case 'download':
         const limit = getLimitByUrl(original)
         const saveDir = getSaveDir(title, clip.baseDir)
-        const sleepT = new URL(original).hostname.includes("dongtidemi") ? 1500 : 0
+        const sleepT = new URL(original).hostname.includes("dongtidemi") ? 800 : 0
         await handle_download(prefixMsg, imgs, saveDir, original, chat_id, message_id, limit, sleepT)
         break
       case 'copy':
