@@ -54,8 +54,13 @@ function mkdir(dir) {
 async function downloadFile(url, filePath, referer = '') {
   return await new Promise((resolve, reject) => {
     if (fs.existsSync(filePath)) {
-      logger.warn(`File ${filePath} already exists`)
-      return resolve(filePath)
+      if (fs.statSync(filePath).size === 0) {
+        logger.warn(`File ${filePath} exists but empty, removed.`)
+        fs.unlinkSync(filePath)
+      } else {
+        logger.warn(`File ${filePath} already exists`)
+        return resolve(filePath)
+      }
     }
     const writeStream = fs.createWriteStream(filePath)
     logger.debug(`Downloading ${url}...`)
@@ -121,16 +126,13 @@ function titleFormat(title) {
 
 function format_sub_title(raw, multiSpace = '') {
   let res = raw
-  res = res.replace(/[\[\]()+*.\\/\-—?${}@!&\n\r]/g, ' ')
-  res = res.replace(/[~`|=+#…%;；:：'"<>。，《》【】「」、！￥—\-]/g, ' ')
+  res = res.replace(/[\[\]()+*.\\/\-—–?${}@!&\n\r~`|=#…%;；:：'"<>。，,《》【】「」、！￥（）～]/g, ' ')
   res = res.replace(/\d+月\d+日?会员(资源)?/g, ' ')
   res = res.replace(/福利(姬)?/g, ' ')
   res = res.replace(/COS(ER)?/ig, ' ')
   res = res.replace(/写真(集|套图)/g, ' ')
   res = res.replace(/(网红|套图)/g, ' ')
-  res = res.replace(/\d+P/ig, ' ')
-  res = res.replace(/\d+V/ig, ' ')
-  res = res.replace(/\d+[MG]B/ig, ' ')
+  res = res.replace(/\s\d+P(\d+[MG]B)?(\d+V)?/ig, ' ')
   res = res.replace(/\s+/g, multiSpace)
   return res
 }
