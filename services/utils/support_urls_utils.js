@@ -39,7 +39,7 @@ const supRaw = [
     ],
     [
       'https://junmeitu.com/beauty/',
-      'https://www.junmeitu.com/beauty/'
+      'https://www.junmeitu.com/beauty/',
     ],
     [
       'https://www.javbus.com/star/',
@@ -65,6 +65,13 @@ const supRaw = [
       'https://dongtidemi.com/',
       'https://dongtidemimi.org/',
     ],
+    [
+      'https://theasiagirl.com/tag/',
+      'https://theasiagirl.com/?s=',
+    ],
+    [
+      'https://theasiagirl.com/',
+    ],
   ],
   supRaw_flat = supRaw.flat(Infinity),
   handle_limit = [
@@ -79,12 +86,15 @@ const supRaw = [
     [download.dongTiTagsTu, clip.dongTiTagLimit],
     [download.dongTiTags, clip.dongTiTagLimit],
     [download.dongTi, clip.dongTiLimit],
+    [download.asiaGTags, clip.asiaGTagsLimit],
+    [download.asiaG, clip.asiaGLimit],
   ]
 const special_url = [
   [/^https?:\/\/everia\.club\/?$/, 1],
   [/^https?:\/\/junmeitu\.com\/beauty\/?$/, 5],
   [/^https?:\/\/www\.junmeitu\.com\/beauty\/?$/, 5],
   [/^https?:\/\/www\.javbus\.com\/?$/, 7],
+  [/^https?:\/\/theasiagirl\.com\/?$/, 11],
 ]
 
 function isSupport(text) {

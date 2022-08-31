@@ -5,7 +5,7 @@
 'use strict'
 
 const {uniq, uniqBy, differenceBy} = require('lodash'),
-  {check, taskName, taskLimit} = require('../../config/config'),
+  {check, taskName, taskLimit, clip} = require('../../config/config'),
   {format_date, spendTime, time_human_readable, format_sub_title} = require('../../libs/utils'),
   {getIndexByUrl} = require('../utils/support_urls_utils'),
   {getPhotoMsg, sendBatchMsg, getTextMsg} = require('../utils/msg_utils'),
@@ -76,12 +76,14 @@ const supRaw = [
     [busTags, check.all],
     [download.dongTiTagsTu, check.all],
     [download.dongTiTags, check.all],
+    [download.asiaGTags, check.all],
   ]
 const special_url = [
   [/^https?:\/\/everia.club\/?$/, 0],
   [/^https?:\/\/junmeitu\.com\/beauty\/?$/, 3],
   [/^https?:\/\/www\.junmeitu\.com\/beauty\/?$/, 3],
   [/^https?:\/\/www\.javbus\.com\/?$/, 3],
+  [/^https?:\/\/theasiagirl\.com\/?$/, 7],
 ]
 
 function filterTagsOnly(arr, formatHost = true) {

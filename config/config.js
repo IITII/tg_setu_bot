@@ -88,13 +88,22 @@ const config = {
     faTagLimit: 1,
     // 下载图片
     telegrafLimit: 10,
+    // eve
     eveLimit: 12,
+    // fa24
     fa24Limit: 3,
+    // junMei
     junMeiLimit: 3,
     junMeiTagLimit: 1,
+    // bus
     busTagLimit: 1,
+    // dongTi
     dongTiLimit: 1,
     dongTiTagLimit: 1,
+    // asiaG
+    asiaGLimit: 1,
+    asiaGTagsLimit: 1,
+    // dua
     // 图片 header
     headLimit: 20,
     // 上/下一页

@@ -46,8 +46,8 @@ async function handle_msg(bot, msg) {
       case 'download':
         const limit = getLimitByUrl(original)
         const saveDir = getSaveDir(title, clip.baseDir)
-        const sleepT = new URL(original).hostname.includes("dongtidemi") ? 800 : 0
-        await handle_download(prefixMsg, imgs, saveDir, original, chat_id, message_id, limit, sleepT)
+        // const sleepT = new URL(original).hostname.includes("dongtidemi") ? 800 : 0
+        await handle_download(prefixMsg, imgs, saveDir, original, chat_id, message_id, limit)
         break
       case 'copy':
         batchMsg = getMediaGroupMsg(chat_id, imgs, prefixMsg)
@@ -104,6 +104,11 @@ async function handle_download(prefixMsg, imgs, saveDir, refers,
   async function handle(json) {
     const res = await downloadFile(json.url, json.savePath, refers)
     if (sleepTime > 0) {
+      await sleep(sleepTime)
+    }
+    if (new URL(json.url).hostname.includes('wp.com')) {
+      sleepTime = 900
+      logger.debug(`sleep another ${sleepTime}ms for wp.com...`)
       await sleep(sleepTime)
     }
     return res

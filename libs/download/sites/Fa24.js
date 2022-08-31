@@ -4,10 +4,8 @@
  */
 'use strict'
 const AbsDownloader = require('../AbsDownloader')
-const {arrToAbsUrl, get_dom, urlTextsToAbs, droppedPage} = require('../dl_utils')
-const {currMapLimit, titleFormat} = require('../../utils')
-const {uniq, uniqBy} = require('lodash')
-const {clip} = require('../../../config/config')
+const {arrToAbsUrl, urlTextsToAbs, droppedPage, getImgArr} = require('../dl_utils')
+const {titleFormat} = require('../../utils')
 let self = null
 
 module.exports = class Fa24 extends AbsDownloader {
@@ -17,21 +15,7 @@ module.exports = class Fa24 extends AbsDownloader {
   }
 
   async getImageArray(url) {
-    const firstPage = await get_dom(url, self.handle_dom)
-    let {title, imgs, otherPages, related, cost, original, tags} = firstPage
-    const otherUrls = otherPages.map(p => p.url)
-    const otherInfos = await currMapLimit(otherUrls, clip.pageLimit, self.handle_other_pages)
-    imgs = uniq(imgs.concat(otherInfos.map(i => i.imgs)).flat(Infinity))
-    // imgs = await zipUrlExt(imgs, getSaveDir(title))
-    related = related.concat(otherInfos.map(i => i.related)).flat(Infinity)
-    related = uniqBy(related, 'url')
-    cost += otherInfos.reduce((acc, i) => acc + i.cost, 0)
-    const res = {title, imgs, related, cost, original, tags}
-    return Promise.resolve(res)
-  }
-
-  async handle_other_pages(url) {
-    return get_dom(url, self.handle_dom)
+    return getImgArr(url, self.handle_dom)
   }
 
   async handle_dom($, original) {

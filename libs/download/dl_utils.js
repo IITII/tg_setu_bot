@@ -21,6 +21,8 @@ const {
 
 module.exports = {
   get_dom,
+  getImgArr,
+  getTagImgArr,
   zipUrlExt,
   arrToAbsUrl,
   toAbsUrl,
@@ -63,6 +65,37 @@ async function get_dom(url, handle_dom) {
       })
   })
 }
+
+async function getImgArr(url, handle_dom, handle_other_pages = undefined) {
+  if (!handle_other_pages) {
+    handle_other_pages = u => get_dom(u, handle_dom)
+  }
+  const firstPage = await get_dom(url, handle_dom)
+  let {title, imgs, otherPages, related, cost, original, tags} = firstPage
+  if (!otherPages || otherPages.length === 0) {
+    return Promise.resolve(firstPage)
+  }
+  logger.debug(`Find another ${otherPages.length} pages, Get Image from other pages...`)
+  const otherUrls = uniq(otherPages.map(p => p.url))
+  const otherInfos = await currMapLimit(otherUrls, clip.pageLimit, handle_other_pages)
+  imgs = uniq(imgs.concat(otherInfos.map(i => i.imgs)).flat(Infinity))
+  if (related) {
+    related = related.concat(otherInfos.map(i => i.related)).flat(Infinity)
+    related = uniqBy(related, 'url')
+  }
+  cost += otherInfos.reduce((acc, i) => acc + i.cost, 0)
+  const res = {title, imgs, related, cost, original, tags}
+  return Promise.resolve(res)
+}
+
+async function getTagImgArr(url, getTagUrls, getImageArray, limit = clip.telegrafLimit) {
+  const {title, url_texts, original, cost} = await getTagUrls(url)
+  const urls = url_texts.map(_ => _.url)
+  const time = time_human_readable(cost)
+  logger.debug(`Get ${title} total ${urls.length} in ${time} from tag ${original}`)
+  return await currMapLimit(urls, limit, getImageArray)
+}
+
 
 async function zipUrlExt(imgArr, saveDir, limit = clip.headLimit) {
   const uniqArr = uniq(imgArr)
