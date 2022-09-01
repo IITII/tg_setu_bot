@@ -21,6 +21,8 @@ const junMei = require('./sites/JunMei'),
   junMeiTags = require('./sites/JunMeiTags')
 const asiaG = require('./sites/AsiaG'),
   asiaGTags = require('./sites/AsiaGTags')
+const dua = require('./sites/Dua'),
+  duaTags = require('./sites/DuaTags')
 
 
 module.exports = {
@@ -37,4 +39,6 @@ module.exports = {
   dongTiTagsTu,
   asiaG,
   asiaGTags,
+  dua,
+  duaTags,
 }

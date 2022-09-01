@@ -126,8 +126,8 @@ function toAbsUrl(url, origin) {
   return url_resolve(base, url)
 }
 
-function urlTextsToAbs(url_texts, original) {
-  return url_texts.map(raw => {
+function urlTextsToAbs(url_texts, original, uniq = false) {
+  let dup = url_texts.map(raw => {
     let {url, text, poster} = raw
     url = toAbsUrl(url, original)
     text = titleFormat(text)
@@ -136,6 +136,14 @@ function urlTextsToAbs(url_texts, original) {
     }
     return {...raw, url, text, poster}
   })
+  if (uniq) {
+    'url'
+    // 'url,text'
+      .split(',').forEach(e => {
+      dup = uniqBy(dup, e)
+    })
+  }
+  return dup
 }
 
 function uniqUrlTexts(url_texts) {

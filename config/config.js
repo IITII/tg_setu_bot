@@ -104,6 +104,8 @@ const config = {
     asiaGLimit: 1,
     asiaGTagsLimit: 1,
     // dua
+    duaLimit: 1,
+    duaTagsLimit: 1,
     // 图片 header
     headLimit: 20,
     // 上/下一页

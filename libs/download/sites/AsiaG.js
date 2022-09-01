@@ -30,8 +30,8 @@ async function handle_dom($, original) {
   imgs = arrToAbsUrl(imgs, original)
   otherPages = droppedPage(otherPages, '«,»'.split(','))
   otherPages = urlTextsToAbs(otherPages, original)
-  tags = urlTextsToAbs(tags, original)
-  related = urlTextsToAbs(related, original)
+  tags = urlTextsToAbs(tags, original, true)
+  related = urlTextsToAbs(related, original, true)
   const res = {title, imgs, otherPages, related, tags}
   return Promise.resolve(res)
 }

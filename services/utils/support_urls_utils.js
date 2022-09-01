@@ -72,6 +72,13 @@ const supRaw = [
     [
       'https://theasiagirl.com/',
     ],
+    [
+      'https://buondua.com/?search=',
+      'https://buondua.com/tag/',
+    ],
+    [
+      'https://buondua.com/'
+    ],
   ],
   supRaw_flat = supRaw.flat(Infinity),
   handle_limit = [
@@ -88,6 +95,8 @@ const supRaw = [
     [download.dongTi, clip.dongTiLimit],
     [download.asiaGTags, clip.asiaGTagsLimit],
     [download.asiaG, clip.asiaGLimit],
+    [download.duaTags, clip.duaTagsLimit],
+    [download.dua, clip.duaLimit],
   ]
 const special_url = [
   [/^https?:\/\/everia\.club\/?$/, 1],
@@ -95,6 +104,8 @@ const special_url = [
   [/^https?:\/\/www\.junmeitu\.com\/beauty\/?$/, 5],
   [/^https?:\/\/www\.javbus\.com\/?$/, 7],
   [/^https?:\/\/theasiagirl\.com\/?$/, 11],
+  [/^https?:\/\/buondua\.com\/?$/, 13],
+  [/^https?:\/\/buondua\.com\/hot\/?$/, 13],
 ]
 
 function isSupport(text) {
@@ -106,10 +117,10 @@ function filterSupStart(arr, img_or_tags = 'mix') {
   let allowArr = []
   switch (img_or_tags) {
     case 'img':
-      allowArr = [0, 2, 4, 6, 10, 12]
+      allowArr = [0, 2, 4, 6, 10, 12, 14]
       break
     case 'tags':
-      allowArr = [1, 3, 5, 8, 9, 11]
+      allowArr = [1, 3, 5, 8, 9, 11, 13]
       break
     case 'mix':
     default:

@@ -66,6 +66,14 @@ const supRaw = [
       'https://dongtidemimi.org/?s=',
       'https://dongtidemimi.org/category/tu',
     ],
+    [
+      'https://theasiagirl.com/tag/',
+      'https://theasiagirl.com/?s=',
+    ],
+    [
+      'https://buondua.com/?search=',
+      'https://buondua.com/tag/',
+    ],
   ],
   supRaw_flat = supRaw.flat(Infinity),
   handle_limit = [
@@ -77,6 +85,7 @@ const supRaw = [
     [download.dongTiTagsTu, check.all],
     [download.dongTiTags, check.all],
     [download.asiaGTags, check.all],
+    [download.duaTags, check.all],
   ]
 const special_url = [
   [/^https?:\/\/everia.club\/?$/, 0],
@@ -84,6 +93,7 @@ const special_url = [
   [/^https?:\/\/www\.junmeitu\.com\/beauty\/?$/, 3],
   [/^https?:\/\/www\.javbus\.com\/?$/, 3],
   [/^https?:\/\/theasiagirl\.com\/?$/, 7],
+  [/^https?:\/\/buondua\.com\/hot\/?$/, 8],
 ]
 
 function filterTagsOnly(arr, formatHost = true) {

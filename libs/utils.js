@@ -135,6 +135,7 @@ function format_sub_title(raw, multiSpace = '') {
   res = res.replace(/email\s?protected/g, ' ')
   // res = res.replace(/\d+\s?photos/g, ' ')
   res = res.replace(/photos/g, ' ')
+  res = res.replace(/Page\s\d+/g, ' ')
   // res = res.replace(/\s\d+P(\d+[MG]B)?(\d+V)?/ig, ' ')
   res = res.replace(/P(\d+[MG]B)?(\d+V)?/ig, 'P')
   res = res.replace(/\s+/g, multiSpace)
