@@ -106,10 +106,10 @@ function filterSupStart(arr, img_or_tags = 'mix') {
   let allowArr = []
   switch (img_or_tags) {
     case 'img':
-      allowArr = [0, 2, 4, 6, 10]
+      allowArr = [0, 2, 4, 6, 10, 12]
       break
     case 'tags':
-      allowArr = [1, 3, 5, 8, 9]
+      allowArr = [1, 3, 5, 8, 9, 11]
       break
     case 'mix':
     default:
