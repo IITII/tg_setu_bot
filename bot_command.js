@@ -179,6 +179,7 @@ async function end_sub(ctx) {
     await redis_handle(url, uid)
   }
   subMap.delete(uid)
+  ctx.session.sub = default_session.sub
   // 订阅后默认回滚 pic_init
   ctx = pic_init(ctx)
   return s
