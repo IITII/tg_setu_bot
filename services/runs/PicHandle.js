@@ -71,9 +71,9 @@ async function handle_msg(bot, msg) {
   }
   let related_msg = log_related(photos)
   related_msg += `\n#BatchDone
+Cost: ${time_human_readable(Date.now() - start)}
 Start: ${format_date(start)}
-End: ${format_date()}
-Cost: ${time_human_readable(Date.now() - start)}`
+End: ${format_date()}`
   await send_text(chat_id, related_msg, message_id)
   // update redis
   await set_sent_sub(photos.map(({title, original}) => ({url: original, text: format_sub_title(title)})))
