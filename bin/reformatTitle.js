@@ -1,4 +1,5 @@
 /**
+ * 将之前的 redis 里面的信息按新逻辑重新格式化
  * @author IITII <ccmejx@gmail.com>
  * @date 2022/08/29
  */

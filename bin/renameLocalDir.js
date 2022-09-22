@@ -1,4 +1,5 @@
 /**
+ * 文件夹名称格式化, 将之前的文件夹按新逻辑重新格式化
  * @author IITII <ccmejx@gmail.com>
  * @date 2022/09/01
  */
