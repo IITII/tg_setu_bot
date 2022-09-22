@@ -66,7 +66,7 @@ async function downloadFile(url, filePath, referer = '') {
     logger.debug(`Downloading ${url}...`)
     const opts = {
       responseType: 'stream',
-      headers: axios.defaults.headers
+      headers: axios.defaults.headers,
     }
     if (referer) {
       opts.headers['referer'] = referer
@@ -144,8 +144,10 @@ function format_sub_title(raw, multiSpace = '') {
 
 async function extFormat(imgUrl, allowTypes = /\.(jpe?g|png|webp|jiff)/) {
   return await new Promise(async (resolve, reject) => {
-    const suffix = path.extname(imgUrl)
+    let suffix = path.extname(imgUrl)
     if (suffix && suffix.match(allowTypes)) {
+      let idx = suffix.indexOf('?')
+      suffix = idx > -1 ? suffix.substring(0, idx) : suffix
       logger.debug(`File suffix get from path.extname: ${suffix}`)
       return resolve(suffix)
     }
