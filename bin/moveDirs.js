@@ -38,13 +38,13 @@ function main(dir) {
       const d = dict.find(_ => b.includes(_)) || curr_d
       // 避免自己移动自己
       if (d !== b) {
-        renameDir(d, b)
+        moveTo(d, b)
       }
     })
   logger.info(`${dir} done!`)
 }
 
-function renameDir(b, from) {
+function moveTo(b, from) {
   if (!fs.existsSync(b)) {
     logger.info(`create dir ${b}`)
     fs.mkdirSync(b)
