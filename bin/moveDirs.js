@@ -36,7 +36,10 @@ function main(dir) {
     .map(_ => path.basename(_))
     .forEach(b => {
       const d = dict.find(_ => b.includes(_)) || curr_d
-      renameDir(d, b)
+      // 避免自己移动自己
+      if (d !== b) {
+        renameDir(d, b)
+      }
     })
   logger.info(`${dir} done!`)
 }
