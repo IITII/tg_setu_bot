@@ -17,6 +17,7 @@ yarn-error.log*
 package-lock.json
 env.sh
 .DS_Store
+tg.dict.txt
 
 # Runtime data
 pids

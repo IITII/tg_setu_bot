@@ -8,7 +8,7 @@
 const fs = require('fs')
 const path = require('path')
 const {logger} = require('../middlewares/logger')
-const base = process.env.TG_BASE || '/Volumes/DATA/A/tg/'
+const base = process.env.TG_BASE || '.'
 
 dfs(base)
 logger.info(`${base} done!`)
