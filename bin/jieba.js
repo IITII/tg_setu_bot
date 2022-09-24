@@ -6,12 +6,12 @@
 'use strict'
 const fs = require('fs'),
   path = require('path')
-const jb = require("nodejieba")
+// const jb = require("nodejieba")
 const base = process.env.TG_BASE || '.'
 
-const userDict = process.env.TG_USER_DICT || path.resolve(__dirname, './dict.txt')
+// const userDict = process.env.TG_USER_DICT || path.resolve(__dirname, './dict.txt')
 
-jb.load({userDict})
+// jb.load({userDict})
 
 function main(dir) {
   fs.readdirSync(dir)

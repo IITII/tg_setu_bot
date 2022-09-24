@@ -33,9 +33,11 @@ function dfs(dir, allowTypes = /\.(jpe?g|png|webp|jiff)/) {
 }
 
 function format(pt, allowTypes) {
+  logger.debug(`deal ${pt}`)
   const suffix = path.extname(pt)
   if (suffix && suffix.match(allowTypes)) {
     let idx = suffix.indexOf('?')
+    idx = idx === -1 ? suffix.indexOf('_') : idx
     let suf = idx > -1 ? suffix.substring(0, idx) : suffix
     if (suffix === suf) return
     logger.debug(`File suffix ${suffix} => ${suf}`)

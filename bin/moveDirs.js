@@ -9,18 +9,11 @@ const fs = require('fs'),
   path = require('path')
 const dayjs = require('dayjs')
 const {logger} = require('../middlewares/logger')
-const userDict = process.env.TG_USER_DICT || path.resolve(__dirname, './dict.txt')
+const dict = require('./dict.js')
+const dictLower = dict.map(d => d.map(_ => _.toLowerCase()))
 const base = process.env.TG_BASE || '.'
 
 main(base)
-
-function loadDict(dict) {
-  const c = fs.readFileSync(dict).toString()
-  return c.split('\n')
-    .map(_ => _.trim())
-    .filter(_ => _.length > 0)
-    .map(_ => _.split(' ')[0])
-}
 
 function curr_day(format = 'YYYY.MM.DD') {
   return dayjs().format(format)
@@ -28,14 +21,15 @@ function curr_day(format = 'YYYY.MM.DD') {
 
 function main(dir) {
   dir = dir.trim()
-  const dict = loadDict(userDict)
   const curr_d = curr_day()
   fs.readdirSync(dir)
     .map(_ => path.resolve(dir, _))
     .filter(_ => fs.statSync(_).isDirectory())
     .map(_ => path.basename(_))
     .forEach(b => {
-      const d = dict.find(_ => b.includes(_)) || curr_d
+      const bl = b.toLowerCase()
+      const idx = dictLower.findIndex(d => d.some(e => bl.includes(e)))
+      const d = idx !== -1 ? dict[idx][0] : curr_d
       // 避免自己移动自己
       if (d !== b) {
         moveTo(d, b)

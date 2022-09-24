@@ -8,7 +8,7 @@
 const fs = require('fs')
 const path = require('path')
 const {format_sub_title} = require('../libs/utils')
-const base = process.env.TG_BASE || '/Volumes/DATA/A/tg/'
+const base = process.env.TG_BASE || '.'
 
 const exi = []
 fs.readdirSync(base)
