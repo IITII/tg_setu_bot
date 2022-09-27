@@ -12,7 +12,7 @@ const {queueName, eventName} = require('../../config/config'),
 
 const {run_out_mq} = require('../utils/mq_utils'),
   {logger} = require('../../middlewares/logger'),
-  multiBotHandle = require('./UserMsgMultiBotSender')
+  multiBotHandle = require('./UserMsgSenders')
 
 
 async function start() {

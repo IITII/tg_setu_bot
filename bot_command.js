@@ -9,36 +9,11 @@ const {Markup} = require('telegraf'),
   LocalSession = require('telegraf-session-local'),
   localSession = new LocalSession(db)
 const {loggerMiddleware, logger} = require('./middlewares/logger'),
-  {clean, send_action} = require('./services/utils/msg_utils'),
+  {clean, send_action, img_or_tags_arr, default_session, done_arr} = require('./services/utils/msg_utils'),
   {message_decode} = require('./services/utils/service_utils'),
   {filterTagsOnly} = require('./services/tasks/TaskRunner'),
   picMsgRec = require('./services/msg/UserMsgReceiver'),
   {redis_add_sub, redis_remove_sub} = require('./services/utils/redis_utils')
-const default_session = {
-  // init, pic, sub
-  curr: 'init',
-  pic: {
-    // init, download, copy
-    mode: 'init',
-  },
-  sub: {
-    // add, remove
-    mode: 'init',
-    /**
-     * @deprecated due to session bugs
-     */
-    urls: [],
-  },
-  opts: {
-    // img, tags, mix
-    img_or_tags: 'img',
-  },
-}
-const img_or_tags_arr = [
-  ['只要图', 'img'],
-  ['只要Tag', 'tags'],
-  ['我全都要', 'mix'],
-]
 
 const commands = [
   ['/start', hello,],
@@ -150,9 +125,11 @@ async function action_img_or_tags(ctx) {
 
 async function action_async_handler(ctx) {
   const {match, update} = ctx
-  const message = update?.callback_query
+  const message = update?.callback_query?.message
+  // const message = update?.callback_query
   await send_action({match, message})
-  return ctx.answerCbQuery(`在处理了...`)
+  const [text, _] = done_arr.find(([_, ac]) => ac === ctx.match[0])
+  return ctx.answerCbQuery(`${text || '我要什么来着???'}!!!`)
 }
 
 // sub commands

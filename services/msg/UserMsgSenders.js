@@ -17,7 +17,7 @@ const {
   handle_text,
   handle_media_group,
   handle_del_file,
-  handle_429, handle_text_msg,
+  handle_429, handle_text_msg, handle_done_text,
 } = require('../utils/msg_utils')
 const {actions} = require('../../bot_command')
 let picWorkers = null
@@ -94,6 +94,9 @@ async function msg_common_handle(msg, tg = mainBot?.telegram) {
   switch (msg.type) {
     case TypeEnum.TEXT:
       res = await handle_text(msg, tg)
+      break
+    case TypeEnum.MARK_AS_DONE:
+      res = await handle_done_text(msg, tg)
       break
     case TypeEnum.PHOTO:
       res = await handle_photo(msg, tg)

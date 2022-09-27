@@ -14,7 +14,7 @@ const {run_out_mq} = require('../utils/mq_utils'),
   {logger} = require('../../middlewares/logger'),
   {currMapLimit, time_human_readable, downloadFile, format_sub_title, sleep, format_date} = require('../../libs/utils'),
   {zipUrlExt, getSaveDir} = require('../../libs/download/dl_utils'),
-  {send_text, getMediaGroupMsg, getTextMsg, sendBatchMsg} = require('../utils/msg_utils'),
+  {send_text, getMediaGroupMsg, sendBatchMsg, getDoneTextMsg} = require('../utils/msg_utils'),
   {log_ph, log_related, log_meta_tag} = require('../utils/service_utils'),
   {getLimitByUrl, handle_sup_url} = require('../utils/support_urls_utils')
 const {set_sent_sub} = require('../utils/redis_utils')
@@ -63,7 +63,7 @@ async function handle_msg(bot, msg) {
     endMsg += log_meta_tag(tags, false)
     logger.debug(endMsg)
     if (batchMsg.length > 0) {
-      batchMsg = [batchMsg, getTextMsg(chat_id, endMsg, message_id)].flat(Infinity)
+      batchMsg = [batchMsg, getDoneTextMsg(chat_id, endMsg, message_id)].flat(Infinity)
       await sendBatchMsg(batchMsg)
     } else {
       await send_text(chat_id, endMsg, message_id)

@@ -4,16 +4,9 @@
  */
 'use strict'
 
-const TypeEnum = {
-  TEXT: 'text',
-  PHOTO: 'photo',
-  MEDIA_GROUP: 'media_group',
-  DEL_FILE: 'del_file',
-  SUBSCRIBE: 'subscribe',
-}
-
 const fs = require('fs'),
   path = require('path'),
+  {Markup} = require('telegraf'),
   {chunk} = require('lodash')
 
 const {queueName, eventName} = require('../../config/config'),
@@ -33,6 +26,43 @@ const {clip, telegram: telegramConf} = require('../../config/config'),
   bot = require('../../libs/telegram_bot'),
   telegram = bot.telegram
 
+const TypeEnum = {
+  TEXT: 'text',
+  MARK_AS_DONE: 'mark_as_done',
+  PHOTO: 'photo',
+  MEDIA_GROUP: 'media_group',
+  DEL_FILE: 'del_file',
+  SUBSCRIBE: 'subscribe',
+}
+
+const default_session = {
+  // init, pic, sub
+  curr: 'init',
+  pic: {
+    // init, download, copy
+    mode: 'init',
+  },
+  sub: {
+    // add, remove
+    mode: 'init',
+    /**
+     * @deprecated due to session bugs
+     */
+    urls: [],
+  },
+  opts: {
+    // img, tags, mix
+    img_or_tags: 'img',
+  },
+}
+const img_or_tags_arr = [
+  ['只要图', 'img'],
+  ['只要Tag', 'tags'],
+  ['我全都要', 'mix'],
+]
+const done_arr_end = '_done'
+const done_arr = img_or_tags_arr.map(([v1, v2]) => [v1, `${v2}${done_arr_end}`])
+
 function emit(v, eve = event) {
   return eventBus.emit(eve, v)
 }
@@ -44,6 +74,16 @@ async function send_text(chat_id, text, message_id = undefined, preview = false,
 
 function getTextMsg(chat_id, text, message_id = undefined, preview = false, parse_mode = undefined) {
   const type = TypeEnum.TEXT
+  return [{chat_id, type, text, message_id, preview, parse_mode}]
+}
+
+async function send_done_text(chat_id, text, message_id = undefined, preview = false, parse_mode = undefined) {
+  const msg = getDoneTextMsg(chat_id, text, message_id, preview, parse_mode)
+  return storage.rpush(msg).then(_ => emit(_))
+}
+
+function getDoneTextMsg(chat_id, text, message_id = undefined, preview = false, parse_mode = undefined) {
+  const type = TypeEnum.MARK_AS_DONE
   return [{chat_id, type, text, message_id, preview, parse_mode}]
 }
 
@@ -127,6 +167,23 @@ async function sendBatchMsg(msgArr) {
 async function handle_text(msg, tg = telegram) {
   let {chat_id, text, message_id, preview, parse_mode} = msg
   return handle_text_msg(chat_id, text, message_id, preview, '\n', tg, parse_mode)
+}
+
+async function handle_done_text(msg, tg = telegram) {
+  let {chat_id, text, message_id, preview, parse_mode} = msg
+  const opts = {
+    reply_to_message_id: message_id,
+    parse_mode: parse_mode === undefined ? 'Markdown' : parse_mode,
+    // disable_notification: true,
+    // protect_content: true,
+    ...Markup.inlineKeyboard([
+      ...done_arr.map(([hint, t]) => {
+        return Markup.button.callback(hint, t)
+      })
+    ])
+  }
+  opts.disable_web_page_preview = !preview
+  return tg.sendMessage(chat_id, text, opts)
 }
 
 async function clean(chat_id, dir) {
@@ -243,6 +300,10 @@ async function send_action(json) {
 
 module.exports = {
   TypeEnum,
+  default_session,
+  img_or_tags_arr,
+  done_arr,
+  done_arr_end,
   send_text,
   send_photo,
   send_media,
@@ -260,4 +321,7 @@ module.exports = {
   getMediaGroupMsg,
   handle_429,
   send_action,
+  send_done_text,
+  getDoneTextMsg,
+  handle_done_text,
 }

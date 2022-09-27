@@ -5,6 +5,7 @@ const {logger} = require('./middlewares/logger'),
 
 const bot_command = require('./bot_command'),
   picHandle = require('./services/handler/PicHandler'),
+  actionHandler = require('./services/handler/ActionHandler'),
   msgHandle = require('./services/msg/UserMsgSender'),
   taskRunner = require('./services/tasks/TaskRunner')
 
@@ -17,6 +18,7 @@ async function main() {
 Promise.resolve()
   .then(_ => msgHandle.start())
   .then(_ => picHandle.start())
+  .then(_ => actionHandler.start())
   .then(_ => taskRunner.start())
   .then(_ => main())
   .then(_ => {

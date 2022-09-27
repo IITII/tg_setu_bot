@@ -11,7 +11,7 @@ const config = {
   BOT_TOKEN: process.env.BOT_TOKEN,
   // 添加不同的token后，务必先访问 bot，否则消息不会发送
   tokens: {
-    // 订阅专用 token
+    // 订阅专用 token, 必填, 且加入到 forward channel 中
     subscribe: process.env.SUBSCRIBE_TOKEN,
     // 图片专用 token, 支持多个token
     picWorkers: process.env.WORKERS_TOKEN?.split(',') || [],
