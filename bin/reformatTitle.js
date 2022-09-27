@@ -7,7 +7,7 @@
 
 
 const redis = require('../libs/redis_client')
-const {get_sent_sub} = require('../services/tasks/redis_utils')
+const {get_sent_sub} = require('../services/utils/redis_utils')
 const {taskLimit} = require('../config/config')
 const {format_sub_title} = require('../libs/utils')
 

@@ -19,6 +19,9 @@ const fs = require('fs'),
 const {queueName, eventName} = require('../../config/config'),
   eventBus = require('../../libs/event_bus'),
   Storage = require('../../libs/storage'),
+  action_worker_queue = queueName.action_worker,
+  action_worker_event = eventName.action_worker,
+  action_worker_storage = new Storage(action_worker_queue),
   queue = queueName.msg_send,
   event = eventName.msg_send,
   storage = new Storage(queue)
@@ -30,8 +33,8 @@ const {clip, telegram: telegramConf} = require('../../config/config'),
   bot = require('../../libs/telegram_bot'),
   telegram = bot.telegram
 
-function emit(v) {
-  return eventBus.emit(event, v)
+function emit(v, eve = event) {
+  return eventBus.emit(eve, v)
 }
 
 async function send_text(chat_id, text, message_id = undefined, preview = false, parse_mode = undefined) {
@@ -234,6 +237,10 @@ async function handle_429(handle, msg, retry = 0) {
   return res
 }
 
+async function send_action(json) {
+  return action_worker_storage.rpush(json).then(_ => emit(_, action_worker_event))
+}
+
 module.exports = {
   TypeEnum,
   send_text,
@@ -252,4 +259,5 @@ module.exports = {
   getPhotoMsg,
   getMediaGroupMsg,
   handle_429,
+  send_action,
 }

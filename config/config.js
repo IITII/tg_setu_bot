@@ -52,10 +52,12 @@ const config = {
   queueName: {
     pic_add: 'bot_pic_queue',
     msg_send: 'bot_msg_queue',
+    action_worker: 'bot_worker_action_queue',
   },
   eventName: {
     pic_add: 'pic_add',
     msg_send: 'msg_send',
+    action_worker: 'bot_worker_action',
   },
   check: {
     // 随机时长比例

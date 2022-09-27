@@ -10,14 +10,14 @@ const {queueName, eventName, clip, DEBUG} = require('../../config/config'),
   queue = queueName.pic_add,
   event = eventName.pic_add,
   storage = new Storage(queue)
-const {run_out_mq} = require('./mq_utils'),
+const {run_out_mq} = require('../utils/mq_utils'),
   {logger} = require('../../middlewares/logger'),
   {currMapLimit, time_human_readable, downloadFile, format_sub_title, sleep, format_date} = require('../../libs/utils'),
   {zipUrlExt, getSaveDir} = require('../../libs/download/dl_utils'),
   {send_text, getMediaGroupMsg, getTextMsg, sendBatchMsg} = require('../utils/msg_utils'),
   {log_ph, log_related, log_meta_tag} = require('../utils/service_utils'),
   {getLimitByUrl, handle_sup_url} = require('../utils/support_urls_utils')
-const {set_sent_sub} = require('../tasks/redis_utils')
+const {set_sent_sub} = require('../utils/redis_utils')
 
 async function start() {
   eventBus.on(event, consume)

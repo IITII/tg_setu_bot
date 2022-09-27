@@ -19,6 +19,7 @@ const {
   handle_del_file,
   handle_429, handle_text_msg,
 } = require('../utils/msg_utils')
+const {actions} = require('../../bot_command')
 let picWorkers = null
 
 async function start() {
@@ -37,6 +38,10 @@ async function start() {
       return {name, bot, telegram, token: t, busy}
     })
     await Promise.all(picWorkers.map(w => {
+      // register action handler
+      actions.forEach(([action, handler]) => {
+        w.bot.action(action, handler)
+      })
       return w.bot.launch().then(() => {
         logger.info(`${w.name} bot launched`)
       })

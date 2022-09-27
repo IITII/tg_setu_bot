@@ -4,7 +4,7 @@
  */
 'use strict'
 
-const redis_utils = require('../services/tasks/redis_utils')
+const redis_utils = require('../services/utils/redis_utils')
 
 redis_utils.get_sent_sub().then(subs => console.log(subs))
 redis_utils.set_sent_sub([1,2,3,4,5,6]).then(subs => console.log(subs))

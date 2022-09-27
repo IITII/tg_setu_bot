@@ -5,7 +5,7 @@
 'use strict'
 const fs = require('fs')
 const file = './redis_exporter.json'
-const {HGETALL} = require('../services/tasks/redis_utils')
+const {HGETALL} = require('../services/utils/redis_utils')
 const {taskName} = require('../config/config')
 
 async function sub_exporter() {

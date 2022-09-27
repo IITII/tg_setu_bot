@@ -5,11 +5,11 @@
 'use strict'
 
 const {uniq, uniqBy, differenceBy} = require('lodash'),
-  {check, taskName, taskLimit, clip} = require('../../config/config'),
+  {check, taskName, taskLimit} = require('../../config/config'),
   {format_date, spendTime, time_human_readable, format_sub_title} = require('../../libs/utils'),
   {getIndexByUrl} = require('../utils/support_urls_utils'),
   {getPhotoMsg, sendBatchMsg, getTextMsg} = require('../utils/msg_utils'),
-  {get_random_next, HSET, HGETALL, get_sent_sub, set_sent_sub} = require('../tasks/redis_utils')
+  {get_random_next, HSET, HGETALL, get_sent_sub, set_sent_sub} = require('../utils/redis_utils')
 const EveiraTags = require('../../libs/download/sites/EveiraTags'),
   Fa24Tags = require('../../libs/download/sites/Fa24Tags'),
   fa24c49 = require('../../libs/download/sites/Fa24C49'),

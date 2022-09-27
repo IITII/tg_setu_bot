@@ -4,13 +4,13 @@ const {logger} = require('./middlewares/logger'),
   bot = require('./libs/telegram_bot')
 
 const bot_command = require('./bot_command'),
-  picHandle = require('./services/runs/PicHandle'),
-  msgHandle = require('./services/runs/MsgHandle'),
-  taskRunner = require('./services/runs/TaskRunner')
+  picHandle = require('./services/handler/PicHandler'),
+  msgHandle = require('./services/msg/UserMsgSender'),
+  taskRunner = require('./services/tasks/TaskRunner')
 
 // bot commands
 async function main() {
-  return await bot_command(bot).then(_ => bot)
+  return await bot_command.start(bot).then(_ => bot)
 }
 
 // Error Handling

@@ -9,11 +9,11 @@ const {Markup} = require('telegraf'),
   LocalSession = require('telegraf-session-local'),
   localSession = new LocalSession(db)
 const {loggerMiddleware, logger} = require('./middlewares/logger'),
-  {clean} = require('./services/utils/msg_utils'),
+  {clean, send_action} = require('./services/utils/msg_utils'),
   {message_decode} = require('./services/utils/service_utils'),
-  {filterTagsOnly} = require('./services/runs/TaskRunner'),
-  picMsgRec = require('./services/runs/PicMsgRec'),
-  {redis_add_sub, redis_remove_sub} = require('./services/tasks/redis_utils')
+  {filterTagsOnly} = require('./services/tasks/TaskRunner'),
+  picMsgRec = require('./services/msg/UserMsgReceiver'),
+  {redis_add_sub, redis_remove_sub} = require('./services/utils/redis_utils')
 const default_session = {
   // init, pic, sub
   curr: 'init',
@@ -51,6 +51,7 @@ const commands = [
 ]
 const actions = [
   ...img_or_tags_arr.map(([_, ac]) => [ac, action_img_or_tags]),
+  [/.+/, action_async_handler],
 ]
 
 function init_session(ctx) {
@@ -147,6 +148,13 @@ async function action_img_or_tags(ctx) {
   return ctx.answerCbQuery(`${text || '我要什么来着???'}!!!`)
 }
 
+async function action_async_handler(ctx) {
+  const {match, update} = ctx
+  const message = update?.callback_query
+  await send_action({match, message})
+  return ctx.answerCbQuery(`在处理了...`)
+}
+
 // sub commands
 async function start_end_sub(ctx) {
   ctx = sub_init(ctx)
@@ -224,7 +232,7 @@ async function message_forward(ctx) {
   }
 }
 
-module.exports = async bot => {
+async function start(bot) {
   bot.use(localSession.middleware())
   bot.use(loggerMiddleware)
   commands.forEach(([cmd, handler]) => {
@@ -234,4 +242,11 @@ module.exports = async bot => {
     bot.action(action, handler)
   })
   bot.on('message', message_forward)
+}
+
+module.exports = {
+  start,
+  actions,
+  commands,
+  default_session,
 }
