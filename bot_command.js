@@ -3,7 +3,7 @@
  * @date 2022/06/29
  */
 'use strict'
-const {ADMIN_ID, db, clip} = require('./config/config')
+const {ids, db, clip} = require('./config/config')
 const {Markup} = require('telegraf'),
   {uniq} = require('lodash'),
   LocalSession = require('telegraf-session-local'),
@@ -101,7 +101,7 @@ async function unset(ctx) {
 // pic commands
 async function cleanTmp(ctx) {
   const uid = ctx.from.id
-  if (uid === ADMIN_ID) {
+  if (uid === ids.adminId) {
     return clean(ctx.chat.id, clip.baseDir)
   } else {
     return ctx.reply('你又不是狗管理')

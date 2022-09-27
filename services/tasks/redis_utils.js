@@ -5,7 +5,7 @@
 'use strict'
 
 const redis = require('../../libs/redis_client')
-const {ADMIN_ID, check, taskName, taskLimit} = require('../../config/config')
+const {check, taskName, taskLimit} = require('../../config/config')
 const {logger} = require('../../middlewares/logger')
 
 async function redis_init() {
@@ -21,18 +21,6 @@ async function redis_init() {
       .catch(err => {
         logger.error(`${name} Connect Error`, err)
       })
-  }
-}
-
-async function admin_init() {
-  const hall = await HGETALL()
-  if (!(hall && Object.keys(hall).length > 0) && ADMIN_ID) {
-    const arr = [
-      'https://everia.club',
-    ]
-    for (const url of arr) {
-      await redis_add_sub(url, ADMIN_ID)
-    }
   }
 }
 
@@ -130,7 +118,6 @@ async function set_sent_sub(url_texts, prefix = taskLimit.sub_prefix, expire = t
 module.exports = {
   redis_add_sub,
   redis_remove_sub,
-  admin_init,
   HSET,
   HGETALL,
   HSETALL,

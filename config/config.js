@@ -16,8 +16,11 @@ const config = {
     // 图片专用 token, 支持多个token
     picWorkers: process.env.WORKERS_TOKEN?.split(',') || [],
   },
-  // ADMIN_ID : process.env.ADMIN_ID,
-  ADMIN_ID: process.env.ADMIN_ID,
+  ids: {
+    // 管理员 uid
+    adminId: process.env.ADMIN_ID,
+    forwardId: process.env.FORWARD_ID,
+  },
   PROXY: process.env.PROXY,
   db: {
     database: process.env.DB_FILE || '../db/db.json',
