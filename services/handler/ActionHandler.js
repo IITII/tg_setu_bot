@@ -70,8 +70,12 @@ async function forward_channel(message) {
   // const fromChatId = message.chat.id
   // const msgId = message.chat.id
   // await bot.forwardMessage(ids.forwardId, chat_id, message_id, {disable_notification: true})
+  const opts = {
+    parse_mode: 'Markdown',
+    disable_web_page_preview: true,
+  }
   const text = rebuildTextMsg(message)
-  return subBot.telegram.sendMessage(ids.forwardId, text, {parse_mode: 'Markdown',})
+  return subBot.telegram.sendMessage(ids.forwardId, text, opts)
 }
 
 function rebuildTextMsg(message) {
