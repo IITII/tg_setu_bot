@@ -52,6 +52,7 @@ const supRaw = [
       'https://dongtidemimi.org/category/tu/xiezhen',
       'https://dongtidemimi.org/category/tu/%e7%a6%8f%e5%88%a9%e5%a7%ac',
       'https://dongtidemimi.org/category/tu/cos',
+      'https://dongtidemimi.org/category/tu/tu2',
     ],
     [
       'https://dongtidemi.com/tag/',
