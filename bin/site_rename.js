@@ -22,13 +22,18 @@ function replace(url, pre = pre_domain, cur = curr_domain) {
 async function reformat_sub() {
     const all = await HGETALL()
     let diff = []
+    let del = []
     for (let s in all) {
         let info = all[s],
             ss = replace(s)
-        if (s !== ss && !all[ss]) {
-            console.log(`${s} -> ${ss}`)
-            info.latest = info.latest.map(e => replace(e))
-            diff.push([s, ss, info])
+        if (s !== ss) {
+            if (all[ss]) {
+                del.push(s)
+            } else {
+                console.log(`${s} -> ${ss}`)
+                info.latest = info.latest.map(e => replace(e))
+                diff.push([s, ss, info])
+            }
         }
     }
     console.log(`affects: ${diff.length}`)
@@ -36,6 +41,9 @@ async function reformat_sub() {
     diff.forEach(d => {
         const [s, ss, info] = d
         mul.HSETNX(taskName, ss, JSON.stringify(info))
+        mul.HDEL(taskName, s)
+    })
+    del.forEach(s => {
         mul.HDEL(taskName, s)
     })
     await mul.exec()
