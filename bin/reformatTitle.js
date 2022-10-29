@@ -5,33 +5,9 @@
  */
 'use strict'
 
-
-const redis = require('../libs/redis_client')
-const {get_sent_sub} = require('../services/utils/redis_utils')
 const {taskLimit} = require('../config/config')
 const {format_sub_title} = require('../libs/utils')
+const {reformat_keys} = require("./redis_sub_utils");
 
-async function main(prefix = taskLimit.sub_prefix, expire = taskLimit.sub_expire) {
-  const sent_texts = await get_sent_sub(taskLimit.sub_prefix.text)
-  let diff = []
-  sent_texts.forEach(s => {
-    const ss = format_sub_title(s)
-    if (ss !== s) {
-      console.log(`${s} -> ${ss}`)
-      diff.push([s, ss])
-    }
-  })
-  console.log(`Reformat: ${diff.length}`)
-  const v = `reformat at ${new Date()}`
-  const mul = redis.multi()
-  diff.forEach(d => {
-    const [s, ss] = d
-    mul.DEL(`${prefix.text}${s}`)
-    mul.SETEX(`${prefix.text}${ss}`, expire, v)
-  })
-  await mul.exec()
-  await redis.quit()
-}
-
-main()
+reformat_keys(format_sub_title, taskLimit.sub_prefix.text)
   .catch(e => console.log(e))
