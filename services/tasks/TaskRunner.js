@@ -58,6 +58,10 @@ const supRaw = [
       'https://dongtidemimi.org/category/tu/%e7%a6%8f%e5%88%a9%e5%a7%ac',
       'https://dongtidemimi.org/category/tu/cos',
       'https://dongtidemimi.org/category/tu/tu2',
+      'https://dongti2022.com/category/tu/xiezhen',
+      'https://dongti2022.com/category/tu/%e7%a6%8f%e5%88%a9%e5%a7%ac',
+      'https://dongti2022.com/category/tu/cos',
+      'https://dongti2022.com/category/tu/tu2',
     ],
     [
       'https://dongtidemi.com/tag/',
@@ -66,6 +70,9 @@ const supRaw = [
       'https://dongtidemimi.org/tag/',
       'https://dongtidemimi.org/?s=',
       'https://dongtidemimi.org/category/tu',
+      'https://dongti2022.com/tag/',
+      'https://dongti2022.com/?s=',
+      'https://dongti2022.com/category/tu',
     ],
     [
       'https://theasiagirl.com/tag/',
