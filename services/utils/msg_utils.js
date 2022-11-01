@@ -263,7 +263,7 @@ async function handle_photo(msg, tg = telegram) {
 
 async function handle_media_group(msg, tg = telegram) {
   const {chat_id, sub, cap} = msg
-  const medias = await getGroupMedia(sub, cap)
+  const medias = getGroupMedia(sub, cap)
   return tg.sendMediaGroup(chat_id, medias)
 }
 

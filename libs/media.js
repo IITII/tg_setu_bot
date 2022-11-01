@@ -48,9 +48,9 @@ function singleMedia(source, caption = undefined) {
   return res
 }
 
-async function getGroupMedia(sources, caption = 'caption') {
+function getGroupMedia(sources, caption = 'caption') {
   let res
-  const arr = await currMapLimit(sources, 1, singleMedia)
+  const arr = sources.map(_ => singleMedia(_))
   if (arr.length > 0) {
     arr[0].caption = caption
   }
