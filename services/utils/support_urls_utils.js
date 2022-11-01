@@ -117,6 +117,17 @@ const special_url = [
   [/^https?:\/\/buondua\.com\/hot\/?$/, 13],
 ]
 
+let distinct_host = supRaw_flat.map(u => new URL(u))
+  .map(u => `${u.protocol}//${u.username}:${u.password}@${u.host}`)
+  .map(u => new URL(u).toString())
+distinct_host = [...new Set(distinct_host)].sort()
+
+function filter_deny_urls(arr, deny = []) {
+  return arr.filter(u => {
+    return !(distinct_host.some(d => d === u) || deny.some(d => d === u))
+  })
+}
+
 function isSupport(text) {
   return text && supRaw_flat.some(_ => text.includes(_))
 }
@@ -171,4 +182,5 @@ module.exports = {
   handle_sup_url,
   getLimitByUrl,
   getIndexByUrl,
+  filter_deny_urls,
 }
