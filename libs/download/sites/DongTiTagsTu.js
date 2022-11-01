@@ -26,7 +26,7 @@ async function handle_dom($, original) {
   const imgsR = $('.main .sec-panel-body .item .item-thumb').map((i, el) => {
       const url = el.attribs.href
       const text = el.attribs.title
-      const poster = $(el).find('img').get(0).attribs['data-original']
+      const poster = $(el).find('img').get(0)?.attribs['data-original']
       return {url, text, poster}
     }).get(),
     imgs = urlTextsToAbs(imgsR, original)

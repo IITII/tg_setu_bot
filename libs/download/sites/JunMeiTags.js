@@ -17,7 +17,7 @@ async function getTagUrls(url) {
 async function handle_dom($, original) {
   const title = titleFormat($($('.position a').get(2)).text())
   const url_text_r = $('.pic-list li a').map((i, el) => {
-      const poster = $(el).find('img').get(0).attribs.src
+      const poster = $(el).find('img').get(0)?.attribs?.src
       return {url: el.attribs.href, text: $(el).text(), poster}
     }).get(),
     imgs = urlTextsToAbs(url_text_r, original)

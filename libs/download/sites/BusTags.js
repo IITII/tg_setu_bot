@@ -12,7 +12,7 @@ async function getTagUrls(url) {
 async function handle_dom($, original) {
   const title = 'Bus'
   const movies = $('#waterfall .movie-box').map((i, el) => {
-      const poster = $(el).find('img').get(0).attribs.src
+      const poster = $(el).find('img').get(0)?.attribs?.src
       const url = el.attribs.href
       let text = $(el).text()
         .split('\n')

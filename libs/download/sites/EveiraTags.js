@@ -31,7 +31,7 @@ module.exports = class EveiraTags extends AbsDownloader {
   async handle_dom($, original) {
     const title = titleFormat($('.nv-page-title').text())
     let images = $('.posts-wrapper .nv-post-thumbnail-wrap a').map((_, el) => {
-      const poster = $(el).find('img').get(0).attribs.src
+      const poster = $(el).find('img').get(0)?.attribs?.src
       const text = el.attribs.title
       return {url: el.attribs.href, text, poster}
     }).get()
