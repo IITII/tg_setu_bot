@@ -242,6 +242,7 @@ async function handle_400(handler, msg, tg) {
         case TypeEnum.DEL_FILE:
           msg.type = TypeEnum.TEXT
           msg.text = `${failed_head}${msg.text}`
+          msg.parse_mode = ''
           await handle_text(msg, tg)
           break;
         case TypeEnum.PHOTO:
@@ -249,6 +250,7 @@ async function handle_400(handler, msg, tg) {
           msg.type = TypeEnum.TEXT
           msg.text = `${failed_head}${msg.cap}\n${em}\n\n${msg.sub.join('\n')}`
           msg.sub = undefined
+          msg.parse_mode = ''
           await handle_text(msg, tg)
           break;
         case TypeEnum.SUBSCRIBE:
@@ -258,7 +260,7 @@ async function handle_400(handler, msg, tg) {
           break;
         default:
           let resend = `${failed_head}${em}\n\n${JSON.stringify(msg)}`
-          await send_text(msg.chat_id, resend)
+          await send_text(msg.chat_id, resend, undefined, false, '')
           logger.error(msg, e)
       }
     }
