@@ -3,8 +3,8 @@
  * @date 2022/05/26
  */
 'use strict'
-const fs = require('fs'),
-  path = require('path')
+const fs = require('fs')
+const {currMapLimit} = require('./utils')
 
 function sendPhoto(source) {
   const res = {}
@@ -38,28 +38,24 @@ function singleMedia(source, caption = undefined) {
         res.media = {source}
       }
       break
-    case 'object':
-      res.media = {source: fs.createReadStream(source)}
-      break
+    // 不存在 case
+    // case 'object':
+    //   res.media = {source: fs.createReadStream(source)}
+    //   break
     default:
       throw new Error('Invalid source type')
   }
   return res
 }
 
-function getGroupMedia(sources, captionType = 'filename') {
+async function getGroupMedia(sources, caption = 'caption') {
   let res
-  if (captionType === 'filename') {
-    res = sources.map(_ => singleMedia(_, path.basename(_)))
-  } else {
-    const arr = sources.map(_ => singleMedia(_))
-    if (arr.length > 0) {
-      arr[0].caption = captionType
-    }
-    res = arr
+  const arr = await currMapLimit(sources, 1, singleMedia)
+  if (arr.length > 0) {
+    arr[0].caption = caption
   }
+  res = arr
   return res
-  // return chunk(res, maxMediaGroupLength)
 }
 
 module.exports = {

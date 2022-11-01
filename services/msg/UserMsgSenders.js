@@ -17,7 +17,7 @@ const {
   handle_text,
   handle_media_group,
   handle_del_file,
-  handle_429, handle_text_msg, handle_done_text,
+  handle_429, handle_text_msg, handle_done_text, send_text,
 } = require('../utils/msg_utils')
 const {actions} = require('../../bot_command')
 let picWorkers = null
@@ -91,28 +91,31 @@ async function handle_429_wrapper(msg) {
 }
 
 async function msg_common_handle(msg, tg = mainBot?.telegram) {
-  let res
-  switch (msg.type) {
-    case TypeEnum.TEXT:
-      res = await handle_text(msg, tg)
-      break
-    case TypeEnum.MARK_AS_DONE:
-      res = await handle_done_text(msg, tg)
-      break
-    case TypeEnum.PHOTO:
-      res = await handle_photo(msg, tg)
-      break
-    case TypeEnum.SUBSCRIBE:
-      res = await handle_sub(msg)
-      break
-    case TypeEnum.MEDIA_GROUP:
-      res = await handle_media_group(msg, tg)
-      break
-    case TypeEnum.DEL_FILE:
-      res = await handle_del_file(msg, tg)
-      break
+  async function handle(msg, tg) {
+    let res
+    switch (msg.type) {
+      case TypeEnum.TEXT:
+        res = await handle_text(msg, tg)
+        break
+      case TypeEnum.MARK_AS_DONE:
+        res = await handle_done_text(msg, tg)
+        break
+      case TypeEnum.PHOTO:
+        res = await handle_photo(msg, tg)
+        break
+      case TypeEnum.SUBSCRIBE:
+        res = await handle_sub(msg)
+        break
+      case TypeEnum.MEDIA_GROUP:
+        res = await handle_media_group(msg, tg)
+        break
+      case TypeEnum.DEL_FILE:
+        res = await handle_del_file(msg, tg)
+        break
+    }
+    return res
   }
-  return res
+  return handle_400(handle, msg, tg)
 }
 
 async function handle_batch_msg(bot, msg) {
@@ -211,6 +214,54 @@ async function handle_any(handler, msg) {
   } catch (e) {
     logger.error(e)
     // res = e.message
+  }
+  return res
+}
+
+async function handle_400(handler, msg, tg) {
+  const msg_400 = [
+    "Wrong type of the web page content",
+    "Failed to get HTTP URL content",
+    "IMAGE_PROCESS_FAILED",
+    "bytes is too big for a",
+  ].map(_ => _.toLowerCase())
+  const failed_head = '#Failed\n'
+  let res
+  try {
+    res = await handler(msg, tg)
+  } catch (e) {
+    const em = e.message
+    const eml = em.toLowerCase()
+    if (eml.includes("TelegramError: 429".toLowerCase())) {
+      throw e
+    }
+    if (msg_400.some(_ => eml.includes(_))) {
+      switch (msg.type) {
+        case TypeEnum.TEXT:
+        case TypeEnum.MARK_AS_DONE:
+        case TypeEnum.DEL_FILE:
+          msg.type = TypeEnum.TEXT
+          msg.text = `${failed_head}${msg.text}`
+          await handle_text(msg, tg)
+          break;
+        case TypeEnum.PHOTO:
+        case TypeEnum.MEDIA_GROUP:
+          msg.type = TypeEnum.TEXT
+          msg.text = `${failed_head}${msg.cap}\n${em}\n\n${msg.sub.join('\n')}`
+          msg.sub = undefined
+          await handle_text(msg, tg)
+          break;
+        case TypeEnum.SUBSCRIBE:
+          msg.cap = `${failed_head}${msg.cap}\n${em}\n\n${msg.sub.join('\n')}`
+          msg.sub = undefined
+          await handle_sub(msg, tg)
+          break;
+        default:
+          let resend = `${failed_head}${em}\n\n${JSON.stringify(msg)}`
+          await send_text(msg.chat_id, resend)
+          logger.error(msg, e)
+      }
+    }
   }
   return res
 }

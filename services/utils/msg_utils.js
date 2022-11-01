@@ -179,8 +179,8 @@ async function handle_done_text(msg, tg = telegram) {
     ...Markup.inlineKeyboard([
       ...done_arr.map(([hint, t]) => {
         return Markup.button.callback(hint, t)
-      })
-    ])
+      }),
+    ]),
   }
   opts.disable_web_page_preview = !preview
   return tg.sendMessage(chat_id, text, opts)
@@ -263,7 +263,8 @@ async function handle_photo(msg, tg = telegram) {
 
 async function handle_media_group(msg, tg = telegram) {
   const {chat_id, sub, cap} = msg
-  return tg.sendMediaGroup(chat_id, getGroupMedia(sub, cap))
+  const medias = await getGroupMedia(sub, cap)
+  return tg.sendMediaGroup(chat_id, medias)
 }
 
 
