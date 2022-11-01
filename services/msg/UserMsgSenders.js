@@ -75,11 +75,12 @@ function hasPicBot() {
 }
 
 async function handle_sub(msg) {
-  let res
-  if (subBot) {
-    res = handle_photo(msg, subBot.telegram)
+  let res, telegram
+  telegram = subBot ? subBot.telegram : mainBot.telegram
+  if (msg.sub) {
+    res = handle_photo(msg, telegram)
   } else {
-    res = handle_photo(msg)
+    res = handle_text_msg(msg.chat_id, msg.cap, undefined, true, '\n', telegram)
   }
   return res
 }
@@ -201,6 +202,17 @@ async function worker_handle(i, msgArr) {
   } finally {
     picWorkers[i].busy = false
   }
+}
+
+async function handle_any(handler, msg) {
+  let res
+  try {
+    res = await handler(msg)
+  } catch (e) {
+    logger.error(e)
+    // res = e.message
+  }
+  return res
 }
 
 module.exports = {
