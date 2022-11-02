@@ -106,14 +106,16 @@ async function handle_download(prefixMsg, imgs, saveDir, refers,
   const headCost = time_human_readable(Date.now() - start)
   await send_text(chat_id, `${prefixMsg} ${url_saves.length} in ${headCost}, 下载开始...`)
 
-  let download_failed = []
+  let download_failed = [], hostname
+  const anti_strict = ['wp.com', 'kul.mrcong.com']
   async function handle(json) {
     try {
       const res = await downloadFile(json.url, json.savePath, refers)
       if (sleepTime > 0) {
         await sleep(sleepTime)
       }
-      if (new URL(json.url).hostname.includes('wp.com')) {
+      hostname = new URL(json.url).hostname
+      if (anti_strict.some(at => hostname.includes(at))) {
         sleepTime = 900
         logger.debug(`sleep another ${sleepTime}ms for wp.com...`)
         await sleep(sleepTime)
@@ -137,7 +139,7 @@ async function handle_download(prefixMsg, imgs, saveDir, refers,
       if (download_failed.length > 0) {
         prefixMsg += `下载失败: ${download_failed.length}条\n`
         prefixMsg += download_failed.map(_ => _.join(' -> ')).join('\n')
-        prefixMsg += '\n'
+        prefixMsg += '\n#下载失败\n'
       }
       logger.info(prefixMsg)
       return send_text(chat_id, prefixMsg, message_id)
