@@ -107,14 +107,18 @@ async function handle_download(prefixMsg, imgs, saveDir, refers,
   await send_text(chat_id, `${prefixMsg} ${url_saves.length} in ${headCost}, 下载开始...`)
 
   let download_failed = [], hostname
-  const anti_strict = ['wp.com', 'kul.mrcong.com']
+  let anti_strict, url_prefer_refers
+  // anti_strict = ['wp.com', 'kul.mrcong.com']
+  anti_strict = ['wp.com']
+  url_prefer_refers = [['mrcong.com', 'https://www.mrcong.com/'], ['', refers]]
   async function handle(json) {
     try {
+      hostname = new URL(json.url).hostname
+      refers = url_prefer_refers.find(_ => hostname.includes(_[0]))[1]
       const res = await downloadFile(json.url, json.savePath, refers)
       if (sleepTime > 0) {
         await sleep(sleepTime)
       }
-      hostname = new URL(json.url).hostname
       if (anti_strict.some(at => hostname.includes(at))) {
         sleepTime = 900
         logger.debug(`sleep another ${sleepTime}ms for wp.com...`)
