@@ -106,17 +106,22 @@ async function handle_download(prefixMsg, imgs, saveDir, refers,
   const headCost = time_human_readable(Date.now() - start)
   await send_text(chat_id, `${prefixMsg} ${url_saves.length} in ${headCost}, 下载开始...`)
 
+  let download_failed = []
   async function handle(json) {
-    const res = await downloadFile(json.url, json.savePath, refers)
-    if (sleepTime > 0) {
-      await sleep(sleepTime)
+    try {
+      const res = await downloadFile(json.url, json.savePath, refers)
+      if (sleepTime > 0) {
+        await sleep(sleepTime)
+      }
+      if (new URL(json.url).hostname.includes('wp.com')) {
+        sleepTime = 900
+        logger.debug(`sleep another ${sleepTime}ms for wp.com...`)
+        await sleep(sleepTime)
+      }
+      return res
+    } catch (e) {
+      download_failed.push([json.url, e.message])
     }
-    if (new URL(json.url).hostname.includes('wp.com')) {
-      sleepTime = 900
-      logger.debug(`sleep another ${sleepTime}ms for wp.com...`)
-      await sleep(sleepTime)
-    }
-    return res
   }
 
   return currMapLimit(url_saves, limit, handle)
@@ -129,105 +134,15 @@ async function handle_download(prefixMsg, imgs, saveDir, refers,
       logger.error(e)
     })
     .finally(async () => {
+      if (download_failed.length > 0) {
+        prefixMsg += `下载失败: ${download_failed.length}条\n`
+        prefixMsg += download_failed.map(_ => _.join(' -> ')).join('\n')
+        prefixMsg += '\n'
+      }
       logger.info(prefixMsg)
       return send_text(chat_id, prefixMsg, message_id)
     })
 }
-
-// async function handle_queue(bot, msg) {
-//   const {chat_id, message_id, session, urls} = msg
-//   const crawlStart = new Date()
-//   let photos = await currMapLimit(urls, clip.webLimit, handle_sup_url)
-//   photos = photos.flat(Infinity).filter(_ => _.imgs.length > 0)
-//   let handle_summary = `**嗅探详情: ${photos.length} in ${time_human_readable(new Date() - crawlStart)}\n\n**`
-//   handle_summary += log_ph(photos)
-//   const diff = difference(photos.map(_ => _.original), urls)
-//     .map(u => photos.find(_ => _.original === u))
-//   if (diff.length > 0) {
-//     handle_summary += `\n**额外新增链接条数：${diff.length}\n**`
-//     handle_summary += log_ph(diff)
-//   }
-//   await send_text(chat_id, handle_summary, message_id)
-//
-//   let need_del = []
-//   let reviewMsg = ''
-//   for (let i = 0; i < photos.length; i++) {
-//     const ph = photos[i]
-//     const {title, meta, tags, imgs, original} = ph
-//     const mkHead = `[${title}](${original}) `
-//     // const sMsg = `${mkHead}download started`
-//     const sMsg = `${mkHead}下载开始`
-//
-//     need_del = []
-//     reviewMsg = `${mkHead}\n`
-//
-//     logger.info(sMsg)
-//     await send_text(chat_id, sMsg)
-//     await downloadImgs(mkHead, imgs, original, getLimitByUrl(original))
-//     if (session && session.review === 2) {
-//       const need_send = imgs.map(_ => _.savePath).flat(Infinity)
-//       await sendCopyDel(need_send, title)
-//     }
-//     let endMsg = `#MarkAsDone\n${reviewMsg}`
-//     endMsg += log_meta_tag(meta, true)
-//     endMsg += log_meta_tag(tags, false)
-//     logger.debug(endMsg)
-//     await send_del_file(chat_id, need_del, endMsg, message_id)
-//   }
-//   const related_msg = log_related(photos)
-//   if (related_msg) {
-//     await send_text(chat_id, related_msg, message_id)
-//   }
-//
-//   async function downloadImgs(dlMsg, imgs,
-//                               refers = '',
-//                               limit = clip.telegrafLimit,
-//                               start = new Date()) {
-//     if (DEBUG) return
-//
-//     async function handle(json) {
-//       return downloadFile(json.url, json.savePath, refers)
-//     }
-//
-//     return currMapLimit(imgs, limit, handle)
-//       .then(_ => {
-//         const cost = time_human_readable(new Date() - start)
-//         // dlMsg += `download done, ${imgs.length} in ${cost}s\n`
-//         dlMsg += `下载完成, ${imgs.length} in ${cost}\n`
-//         logger.info(dlMsg)
-//       })
-//       .catch(e => {
-//         // dlMsg += `download failed, ${e.message}\n`
-//         dlMsg += `下载失败, ${e.message}\n`
-//         logger.error(e)
-//       })
-//       .finally(async () => {
-//         return send_text(chat_id, dlMsg)
-//       })
-//   }
-//
-//   async function sendCopyDel(need_send, title) {
-//     if (DEBUG) return
-//     await sendMediaGroup(chat_id, need_send, title)
-//       .then(_ => {
-//         // reviewMsg += `Send total: ${need_send.length}\n`
-//         reviewMsg += `共发送图片: ${need_send.length}\n`
-//       })
-//       .catch(e => {
-//         // reviewMsg += `Send failed, ${e.message}\n`
-//         reviewMsg += `发送失败, ${e.message}\n`
-//         logger.error(reviewMsg)
-//         logger.error(e)
-//       })
-//       .finally(async () => {
-//         if (session && session.del === 1) {
-//           need_del = uniq(need_send.map(_ => path.dirname(_)))
-//           // reviewMsg += `Clean total: ${need_del.length}\n`
-//           reviewMsg += `删除文件夹数目: ${need_del.length}\n`
-//         }
-//       })
-//   }
-// }
 
 module.exports = {
   start,
