@@ -39,7 +39,7 @@ const config = {
     // baseURL: 'https://api.telegram.org/bot',
     // proxy: process.env.PROXY,
     proxy: undefined,
-    timeout: 1000 * 30,
+    timeout: 1000 * 20,
     headers: {
       'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/101.0.4951.64 Safari/537.36',
     },
@@ -52,11 +52,15 @@ const config = {
   queueName: {
     pic_add: 'bot_pic_queue',
     msg_send: 'bot_msg_queue',
+    sub_send: 'bot_sub_queue',
+    download: 'bot_download_queue',
     action_worker: 'bot_worker_action_queue',
   },
   eventName: {
     pic_add: 'pic_add',
     msg_send: 'msg_send',
+    sub_send: 'sub_send',
+    download: 'download',
     action_worker: 'bot_worker_action',
   },
   check: {
@@ -72,7 +76,7 @@ const config = {
     // 最近URL条数
     latest: 3,
     // 第一次运行时最多发送条数
-    firstMax: 20,
+    firstMax: 50,
     // 订阅已发送链接过期时间, 5years
     sub_expire: 60 * 60 * 24 * 30 * 12 * 5,
     // 订阅已发送链接
@@ -83,6 +87,13 @@ const config = {
   },
   redis: {
     url: process.env.REDIS_URL || 'redis://:review_pic@127.0.0.1:6379',
+  },
+  cookies: {
+    // cookie 设置
+    acgBox: {
+      cookie: 'abb76c49380724ba45b0b8adb589f243protectPassword=acgbox',
+      postBody: {protectPassword: 'acgbox'},
+    },
   },
   // 并发限制
   clip: {
@@ -111,6 +122,9 @@ const config = {
     // dua
     duaLimit: 1,
     duaTagsLimit: 1,
+    // meiz
+    meiLimit: 1,
+    meiTagsLimit: 1,
     // 图片 header
     headLimit: 20,
     // 上/下一页
@@ -137,7 +151,7 @@ mkdir(path.dirname(config.db.database))
 
 function mkdir(dir) {
   if (!fs.existsSync(dir)) {
-    fs.mkdirSync(dir, { recursive: true })
+    fs.mkdirSync(dir, {recursive: true})
     console.log(`mkdir ${dir}`)
   }
 }

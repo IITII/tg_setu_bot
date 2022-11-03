@@ -7,7 +7,7 @@ const fs = require('fs'),
   path = require('path'),
   {mapLimit} = require('async'),
   dayjs = require('dayjs')
-const axios = require('./axios_client')
+const {axios} = require('./axios_client')
 const {fileTypeFromUrlHead, fileTypeFromUrl, NO_CONTENT_TYPE_E_MSG} = require('./file_type')
 const {logger} = require('../middlewares/logger')
 
@@ -131,6 +131,7 @@ function format_sub_title(raw, multiSpace = '') {
   res = res.replace(/福利(姬)?/g, ' ')
   res = res.replace(/COS(ER)?/ig, ' ')
   res = res.replace(/写真(集|套图)/g, ' ')
+  res = res.replace(/标题：?/g, ' ')
   res = res.replace(/(网红|套图)/g, ' ')
   res = res.replace(/email\s?protected/g, ' ')
   // res = res.replace(/\d+\s?photos/g, ' ')
@@ -139,7 +140,7 @@ function format_sub_title(raw, multiSpace = '') {
   // res = res.replace(/\s\d+P(\d+[MG]B)?(\d+V)?/ig, ' ')
   res = res.replace(/P(\d+[MG]B)?(\d+V)?/ig, 'P')
   res = res.replace(/\s+/g, multiSpace)
-  return res
+  return res.trim()
 }
 
 async function extFormat(imgUrl, allowTypes = /\.(jpe?g|png|webp|jiff)/) {

@@ -19,6 +19,7 @@ env.sh
 .DS_Store
 tg.dict.txt
 dict.js
+*.0x
 
 # Runtime data
 pids

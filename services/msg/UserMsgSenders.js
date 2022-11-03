@@ -254,7 +254,7 @@ async function handle_400(handler, msg, tg) {
           await handle_text(msg, tg)
           break;
         case TypeEnum.SUBSCRIBE:
-          msg.cap = `${failed_head}${msg.cap}\n${em}\n\n${msg.sub.join('\n')}`
+          msg.cap = `${failed_head}${msg.cap}\n${em}\n\n${msg.sub}`
           msg.sub = undefined
           await handle_sub(msg, tg)
           break;
@@ -262,7 +262,12 @@ async function handle_400(handler, msg, tg) {
           let resend = `${failed_head}${em}\n\n${JSON.stringify(msg)}`
           await send_text(msg.chat_id, resend, undefined, false, '')
           logger.error(msg, e)
+          break;
       }
+    } else {
+      let resend = `${failed_head}${em}\n\n${JSON.stringify(msg)}`
+      await send_text(msg.chat_id, resend, undefined, false, '')
+      logger.error(msg, e)
     }
   }
   return res

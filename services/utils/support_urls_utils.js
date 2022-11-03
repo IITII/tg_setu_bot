@@ -88,6 +88,20 @@ const supRaw = [
     [
       'https://buondua.com/'
     ],
+    [
+      'https://tu.acgbox.org/index.php/category/',
+      'https://tu.acgbox.org/index.php/search/',
+    ],
+    [
+      'https://tu.acgbox.org/index.php/archives/',
+    ],
+    [
+      'https://www.jdlingyu.com/collection/',
+      'https://www.jdlingyu.com/tag/',
+    ],
+    [
+      'https://www.jdlingyu.com/',
+    ],
   ],
   supRaw_flat = supRaw.flat(Infinity),
   handle_limit = [
@@ -106,6 +120,10 @@ const supRaw = [
     [download.asiaG, clip.asiaGLimit],
     [download.duaTags, clip.duaTagsLimit],
     [download.dua, clip.duaLimit],
+    [download.AcgBoxTags, clip.meiTagsLimit],
+    [download.AcgBox, clip.meiLimit],
+    [download.JdyTags, clip.meiLimit],
+    [download.Jdy, clip.meiLimit],
   ]
 const special_url = [
   [/^https?:\/\/everia\.club\/?$/, 1],
@@ -115,6 +133,8 @@ const special_url = [
   [/^https?:\/\/theasiagirl\.com\/?$/, 11],
   [/^https?:\/\/buondua\.com\/?$/, 13],
   [/^https?:\/\/buondua\.com\/hot\/?$/, 13],
+  [/^https?:\/\/tu\.acgbox\.org\/index\.ph\/?p$/, 15],
+  [/^https?:\/\/tu\.acgbox\.org\/?p$/, 15],
 ]
 
 let distinct_host = supRaw_flat.map(u => new URL(u))
@@ -137,10 +157,10 @@ function filterSupStart(arr, img_or_tags = 'mix') {
   let allowArr = []
   switch (img_or_tags) {
     case 'img':
-      allowArr = [0, 2, 4, 6, 10, 12, 14]
+      allowArr = [0, 2, 4, 6, 10, 12, 14, 16, 18]
       break
     case 'tags':
-      allowArr = [1, 3, 5, 8, 9, 11, 13]
+      allowArr = [1, 3, 5, 8, 9, 11, 13, 15, 17]
       break
     case 'mix':
     default:

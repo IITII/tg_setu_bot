@@ -5,5 +5,15 @@
 'use strict'
 const Axios = require('axios'),
   {axios: axiosConf} = require('../config/config')
+const {CookieJar} = require('tough-cookie'),
+  {wrapper} = require('axios-cookiejar-support'),
+  jar = new CookieJar(),
+  axios = Axios.create(axiosConf)
 
-module.exports = Axios.create(axiosConf)
+axiosConf.httpsAgent = undefined
+const axiosJar = wrapper(Axios.create({...axiosConf, jar}))
+
+module.exports = {
+  axios,
+  axiosJar,
+}

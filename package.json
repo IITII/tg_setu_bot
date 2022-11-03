@@ -9,9 +9,13 @@
   },
   "author": "IITII (https://github.com/IITII)",
   "license": "ISC",
+  "devDependencies": {
+    "0x": "^5.4.1"
+  },
   "dependencies": {
     "async": "^3.2.3",
     "axios": "^0.27.2",
+    "axios-cookiejar-support": "^4.0.3",
     "cheerio": "^1.0.0-rc.11",
     "dayjs": "^1.11.3",
     "file-type": "^17.1.2",
@@ -20,6 +24,7 @@
     "log4js": "^6.5.2",
     "redis": "^4.1.0",
     "telegraf": "^4.8.2",
-    "telegraf-session-local": "^2.1.0"
+    "telegraf-session-local": "^2.1.0",
+    "tough-cookie": "^4.1.2"
   }
 }

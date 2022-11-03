@@ -6,7 +6,7 @@
 const path = require('path'),
   {uniq, uniqBy} = require('lodash'),
   {load} = require('cheerio')
-const axios = require('../axios_client'),
+const {axios, axiosJar} = require('../axios_client'),
   {clip} = require('../../config/config'),
   {logger} = require('../../middlewares/logger')
 const {
@@ -21,6 +21,7 @@ const {
 
 module.exports = {
   get_dom,
+  post_dom,
   getImgArr,
   getTagImgArr,
   zipUrlExt,
@@ -30,6 +31,7 @@ module.exports = {
   uniqUrlTexts,
   getSaveDir,
   droppedPage,
+  format_origin,
 }
 
 async function get_dom(url, handle_dom) {
@@ -65,6 +67,59 @@ async function get_dom(url, handle_dom) {
       })
   })
 }
+
+async function post_dom(url, postBody, handle_dom, handle_error, parse, retry, original, cookies = undefined) {
+  original = original || url
+  return await new Promise(async resolve => {
+    const start = new Date()
+    let res = {
+      title: '', imgs: [], original, cost: 0,
+      meta: undefined, tags: undefined,
+    }
+    logger.debug(`Getting image urls from ${url}`)
+    await axios.post(url, postBody,{
+      responseType: 'document',
+      headers: {
+        'referer': original,
+        Host: new URL(url).host,
+        Connection: 'keep-alive',
+        Cookie: cookies,
+      },
+    })
+      .then(res => load(res?.data))
+      .then(async $ => res = await handle_dom($, url))
+      .catch(async e => {
+        if (handle_error && retry < 3 && e?.response?.status === 403) {
+          let e_dom = parse ? await load(e.response.data) : e
+          logger.debug(`Get --------------, url: ${e.response.data.split('\n').filter(_ => _.includes('gallery')).length}`)
+          res = await handle_error(e_dom, url, e, retry)
+        } else {
+          logger.debug(`Get ImageArray failed, url: ${url}`)
+          logger.debug(e)
+        }
+      })
+      .finally(() => {
+        const cost = new Date() - start
+        const h_cost = time_human_readable(cost)
+        logger.debug(`Get ImageArray: ${res.imgs.length} from ${url} cost: ${h_cost}`)
+        res.cost = cost
+        res.original = url
+        return resolve(res)
+      })
+  })
+}
+
+function format_origin(url, protectKey = '_') {
+  let u, origin = url
+  u = new URL(url)
+  if (u.searchParams.has(protectKey)) {
+    u.searchParams.delete(protectKey)
+    origin = u.toString()
+    logger.info(`[AcgBox] format_origin: ${url} -> ${origin}`)
+  }
+  return origin
+}
+
 
 async function getImgArr(url, handle_dom, handle_other_pages = undefined) {
   if (!handle_other_pages) {

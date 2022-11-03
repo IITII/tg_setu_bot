@@ -3,7 +3,7 @@
  * @date 2022/06/24
  */
 'use strict'
-const axios = require('./axios_client')
+const {axios} = require('./axios_client')
 const NO_CONTENT_TYPE_E_MSG = 'no-content-type'
 let file_type = null
 

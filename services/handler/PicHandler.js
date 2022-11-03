@@ -7,6 +7,9 @@ const {uniq} = require('lodash')
 const {queueName, eventName, clip, DEBUG} = require('../../config/config'),
   eventBus = require('../../libs/event_bus'),
   Storage = require('../../libs/storage'),
+  download_queue = queueName.download,
+  download_event = eventName.download,
+  download_storage = new Storage(queueName.download),
   queue = queueName.pic_add,
   event = eventName.pic_add,
   storage = new Storage(queue)
@@ -20,12 +23,15 @@ const {run_out_mq} = require('../utils/mq_utils'),
 const {set_sent_sub} = require('../utils/redis_utils')
 
 async function start() {
-  eventBus.on(event, consume)
-  eventBus.emit(event, 'start')
+  await consume(event, storage, queue)
+  await consume(download_event, download_storage, download_queue)
 }
 
-async function consume() {
-  await run_out_mq(storage, queue, handle_msg)
+async function consume(event, storage, queue) {
+  eventBus.on(event, async v => {
+    await run_out_mq(storage, queue, handle_msg)
+  })
+  eventBus.emit(event, 'start')
 }
 
 async function handle_msg(bot, msg) {

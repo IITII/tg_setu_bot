@@ -7,6 +7,10 @@ const {queueName, eventName} = require('../../config/config'),
   eventBus = require('../../libs/event_bus'),
   Storage = require('../../libs/storage'),
   {telegram} = require('../../libs/telegram_bot'),
+  // sub_send_event = eventName.sub_send,
+  // sub_send_storage = new Storage(queueName.sub_send),
+  download_event = eventName.download,
+  download_storage = new Storage(queueName.download),
   queue = queueName.pic_add,
   event = eventName.pic_add,
   storage = new Storage(queue)
@@ -61,9 +65,8 @@ async function debounce(urlInfo) {
 async function timeout(chat_id, message_id, session, k, info) {
   const s = `#Add_Queue\n#${session.pic.mode}\n添加 ${info.count} 条链接到队列`
   const v = {chat_id, message_id, session, urls: info.urls}
-  await storage.rpush(v)
+  await split_storage_event(v)
   debMap.delete(k)
-  eventBus.emit(event, v)
   try {
     const url_t = info.urls.join('\n')
     const msg = `${s}\n${url_t}`
@@ -80,6 +83,27 @@ async function timeout(chat_id, message_id, session, k, info) {
       await send_text(chat_id, s, message_id)
     }
   }
+}
+
+async function split_storage_event(message) {
+  if (!message) return Promise.reject('no message')
+  let mode, st, eve, msg
+  msg = Array.isArray(message) ? message[0] : message
+  mode = msg?.session?.pic?.mode
+  switch (mode) {
+    case 'download':
+      st = download_storage
+      eve = download_event
+      break
+    case 'copy':
+    case 'init':
+    default:
+      st = storage
+      eve = event
+      break
+  }
+  logger.debug('split_storage_event', {mode, eve, msg})
+  return st.rpush(message).then(_ => eventBus.emit(eve, _))
 }
 
 module.exports = handle_ctx

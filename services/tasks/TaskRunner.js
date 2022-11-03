@@ -82,6 +82,14 @@ const supRaw = [
       'https://buondua.com/?search=',
       'https://buondua.com/tag/',
     ],
+    [
+      'https://tu.acgbox.org/index.php/category/',
+      'https://tu.acgbox.org/index.php/search/',
+    ],
+    [
+      'https://www.jdlingyu.com/collection/',
+      'https://www.jdlingyu.com/tag/',
+    ],
   ],
   supRaw_flat = supRaw.flat(Infinity),
   handle_limit = [
@@ -94,6 +102,8 @@ const supRaw = [
     [download.dongTiTags, check.all],
     [download.asiaGTags, check.all],
     [download.duaTags, check.all],
+    [download.AcgBoxTags, check.all],
+    [download.JdyTags, check.all],
   ]
 const special_url = [
   [/^https?:\/\/everia.club\/?$/, 0],
@@ -102,6 +112,8 @@ const special_url = [
   [/^https?:\/\/www\.javbus\.com\/?$/, 3],
   [/^https?:\/\/theasiagirl\.com\/?$/, 7],
   [/^https?:\/\/buondua\.com\/hot\/?$/, 8],
+  [/^https?:\/\/tu\.acgbox\.org\/index\.ph\/?p$/, 9],
+  [/^https?:\/\/tu\.acgbox\.org\/?p$/, 9],
 ]
 
 function filterTagsOnly(arr, formatHost = true) {
@@ -124,18 +136,34 @@ async function start() {
   setInterval(run, check.period)
 }
 
+let busy = false
+let busyTimer = null
+
 async function run() {
-  const hall = await HGETALL(taskName)
-  for (const url in hall) {
-    const info = hall[url]
-    if (info.nextTime < Date.now()) {
-      const idx = getTaskIndexByUrl(url)
-      const [handle, breakTime] = handle_limit[idx]
-      if (!(handle && breakTime)) {
-        throw new Error(`No support handle for this url: ${url}`)
+  if (busy) {
+    logger.warn('sub task busy, skip')
+    return
+  }
+  try {
+    busy = true
+    const hall = await HGETALL(taskName)
+    for (const url in hall) {
+      const info = hall[url]
+      if (info.nextTime < Date.now()) {
+        const idx = getTaskIndexByUrl(url)
+        const [handle, breakTime] = handle_limit[idx]
+        if (!(handle && breakTime)) {
+          throw new Error(`No support handle for this url: ${url}`)
+        }
+        await task(url, info, handle, breakTime)
       }
-      await task(url, info, handle, breakTime)
     }
+  } finally {
+    // 0.5s 内重复触发，不再执行
+    busyTimer = setTimeout(() => {
+      busy = false
+      busyTimer = null
+    }, 500)
   }
 }
 
