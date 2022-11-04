@@ -90,6 +90,10 @@ const supRaw = [
       'https://www.jdlingyu.com/collection/',
       'https://www.jdlingyu.com/tag/',
     ],
+    [
+      'https://www.muweishe.com/meizitu/',
+      'https://www.muweishe.com/tag/',
+    ],
   ],
   supRaw_flat = supRaw.flat(Infinity),
   handle_limit = [
@@ -104,6 +108,7 @@ const supRaw = [
     [download.duaTags, check.all],
     [download.AcgBoxTags, check.all],
     [download.JdyTags, check.all],
+    [download.MuWeiTags, check.all],
   ]
 const special_url = [
   [/^https?:\/\/everia.club\/?$/, 0],
@@ -216,14 +221,14 @@ async function filterNonSent(old) {
 async function send_to_subscriber(prefix, uidArr, url_texts, addi = '') {
   // TODO: send to admin only
   const addiMsg = addi ? getTextMsg(uidArr[0], `${prefix}\n${addi}`, undefined, false) : []
-  const msgArr = uidArr.map(u => {
-    return url_texts.map(url_text => {
+  const msgArr = url_texts.map(url_text => {
+    return uidArr.map(u => {
       const {url, text, poster} = url_text
       const m = `${prefix}\n[${text}](${url})`
       return getPhotoMsg(u, poster, m, true)
     })
-  }).concat(addiMsg).flat(Infinity)
-  return sendBatchMsg(msgArr)
+  }).concat([addiMsg]).filter(_ => _.length > 0)
+  return Promise.allSettled(msgArr.map(_ => sendBatchMsg(_)))
 }
 
 module.exports = {

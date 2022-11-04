@@ -8,6 +8,6 @@ module.exports = {
   'AcgBoxTags': require('./AcgBoxTags'),
   'Jdy': require('./Jdy'),
   'JdyTags': require('./JdyTags'),
-  // 'MuWei': require('./MuWei'),
-  // 'MuWeiTags': require('./MuWeiTags'),
+  'MuWei': require('./MuWei'),
+  'MuWeiTags': require('./MuWeiTags'),
 }

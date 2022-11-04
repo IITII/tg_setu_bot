@@ -232,7 +232,8 @@ async function handle_400(handler, msg, tg) {
   } catch (e) {
     const em = e.message
     const eml = em.toLowerCase()
-    if (eml.includes("TelegramError: 429".toLowerCase())) {
+    logger.debug(`handle_400`, e.code, e.description, e.parameters)
+    if (eml.includes("Too Many Requests".toLowerCase()) || e?.code === 429 || e?.response?.error_code === 429) {
       throw e
     }
     if (msg_400.some(_ => eml.includes(_))) {

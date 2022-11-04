@@ -7,3 +7,4 @@
 * [将之前的 redis 里面的信息按新逻辑重新格式化](reformatTitle.js)
 * [文件夹名称格式化, 将之前的文件夹按新逻辑重新格式化](renameLocalDir.js)
 * [用于站点域名更换的情况](site_rename.js)
+* [删除 redis 里不符合要求的信息](delete_queu_message.js)

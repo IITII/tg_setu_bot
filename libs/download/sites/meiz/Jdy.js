@@ -1,6 +1,7 @@
 /**
  * @author IITII <ccmejx@gmail.com>
  * @date 2022/11/03
+ * @deprecated 网站响应太慢，放弃
  */
 'use strict'
 

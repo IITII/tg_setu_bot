@@ -102,6 +102,13 @@ const supRaw = [
     [
       'https://www.jdlingyu.com/',
     ],
+    [
+      'https://www.muweishe.com/meizitu/',
+      'https://www.muweishe.com/tag/',
+    ],
+    [
+      'https://www.muweishe.com/',
+    ],
   ],
   supRaw_flat = supRaw.flat(Infinity),
   handle_limit = [
@@ -124,6 +131,8 @@ const supRaw = [
     [download.AcgBox, clip.meiLimit],
     [download.JdyTags, clip.meiLimit],
     [download.Jdy, clip.meiLimit],
+    [download.MuWeiTags, clip.meiLimit],
+    [download.MuWei, clip.meiLimit],
   ]
 const special_url = [
   [/^https?:\/\/everia\.club\/?$/, 1],
@@ -157,10 +166,10 @@ function filterSupStart(arr, img_or_tags = 'mix') {
   let allowArr = []
   switch (img_or_tags) {
     case 'img':
-      allowArr = [0, 2, 4, 6, 10, 12, 14, 16, 18]
+      allowArr = [0, 2, 4, 6, 10, 12, 14, 16, 18, 20]
       break
     case 'tags':
-      allowArr = [1, 3, 5, 8, 9, 11, 13, 15, 17]
+      allowArr = [1, 3, 5, 8, 9, 11, 13, 15, 17, 19]
       break
     case 'mix':
     default:
