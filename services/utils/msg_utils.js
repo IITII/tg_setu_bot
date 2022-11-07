@@ -77,14 +77,14 @@ function getTextMsg(chat_id, text, message_id = undefined, preview = false, pars
   return [{chat_id, type, text, message_id, preview, parse_mode}]
 }
 
-async function send_done_text(chat_id, text, message_id = undefined, preview = false, parse_mode = undefined) {
-  const msg = getDoneTextMsg(chat_id, text, message_id, preview, parse_mode)
-  return storage.rpush(msg).then(_ => emit(_))
-}
+// async function send_done_text(chat_id, text, tags = undefined, message_id = undefined, preview = false, parse_mode = undefined) {
+//   const msg = getDoneTextMsg(chat_id, text, tags, message_id, preview, parse_mode)
+//   return storage.rpush(msg).then(_ => emit(_))
+// }
 
-function getDoneTextMsg(chat_id, text, message_id = undefined, preview = false, parse_mode = undefined) {
+function getDoneTextMsg(chat_id, text, tags = undefined, message_id = undefined, preview = false, parse_mode = undefined) {
   const type = TypeEnum.MARK_AS_DONE
-  return [{chat_id, type, text, message_id, preview, parse_mode}]
+  return [{chat_id, type, text, tags, message_id, preview, parse_mode}]
 }
 
 async function send_photo(chat_id, sub, cap, isSub = false) {
@@ -170,15 +170,18 @@ async function handle_text(msg, tg = telegram) {
 }
 
 async function handle_done_text(msg, tg = telegram) {
-  let {chat_id, text, message_id, preview, parse_mode} = msg
+  let {chat_id, text, tags, message_id, preview, parse_mode} = msg
   const opts = {
     reply_to_message_id: message_id,
     parse_mode: parse_mode === undefined ? 'Markdown' : parse_mode,
     // disable_notification: true,
     // protect_content: true,
     ...Markup.inlineKeyboard([
-      ...done_arr.map(([hint, t]) => {
+      done_arr.map(([hint, t]) => {
         return Markup.button.callback(hint, t)
+      }),
+      tags.map(({text, url}) => {
+        return Markup.button.callback(`订阅: ${text}`, url)
       }),
     ]),
   }
@@ -322,7 +325,7 @@ module.exports = {
   getMediaGroupMsg,
   handle_429,
   send_action,
-  send_done_text,
+  // send_done_text,
   getDoneTextMsg,
   handle_done_text,
 }

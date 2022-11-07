@@ -5,7 +5,7 @@
 'use strict'
 const {ids, queueName, eventName, tokens} = require('../../config/config'),
   {logger} = require('../../middlewares/logger'),
-  {done_arr_end, handle_429} = require('../utils/msg_utils'),
+  {done_arr_end, handle_429, send_text} = require('../utils/msg_utils'),
   {run_out_mq} = require('../utils/mq_utils'),
   {message_decode} = require('../utils/service_utils'),
   TelegramBot = require('../../libs/bots/TelegramBot'),
@@ -18,6 +18,7 @@ const {ids, queueName, eventName, tokens} = require('../../config/config'),
   action_worker_queue = queueName.action_worker,
   action_worker_event = eventName.action_worker,
   action_worker_storage = new Storage(action_worker_queue)
+const {redis_add_sub} = require('../utils/redis_utils')
 
 module.exports = {
   start,
@@ -40,15 +41,22 @@ async function handle_msg(bot, msg) {
     logger.debug(`Match is empty, ignore`)
     return
   }
-  // forward to channel
-  if (ids.forwardId) {
-    await handle_429(forward_channel, message)
-  }
   // add to pic_add_queue
   const chat_id = message.chat.id
   // action 事件可能从 worker 触发, message id 无意义
   const message_id = undefined
-  const action = match[0].replace(done_arr_end, '')
+  let action = match[0].replace(done_arr_end, '')
+  // tags -> subscribe
+  const magic = 'http'
+  if (action.startsWith(magic)) {
+    let s = `#订阅\n${action}`
+    await redis_add_sub(action, chat_id)
+    return send_text(chat_id, s)
+  }
+  // forward to channel
+  if (ids.forwardId) {
+    await handle_429(forward_channel, message)
+  }
   const urls = message_decode(message, action)
   if (urls.length === 0) {
     logger.debug(`No url in message: ${JSON.stringify(message)}`)

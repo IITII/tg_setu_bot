@@ -69,7 +69,8 @@ async function handle_msg(bot, msg) {
     endMsg += log_meta_tag(tags, false)
     logger.debug(endMsg)
     if (batchMsg.length > 0) {
-      batchMsg = [batchMsg, getDoneTextMsg(chat_id, endMsg, message_id)].flat(Infinity)
+      let mt = [meta, tags].flat(Infinity).filter(_ => !!_)
+      batchMsg = [batchMsg, getDoneTextMsg(chat_id, endMsg, mt, message_id)].flat(Infinity)
       await sendBatchMsg(batchMsg)
     } else {
       await send_text(chat_id, endMsg, message_id)

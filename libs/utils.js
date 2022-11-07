@@ -208,6 +208,14 @@ function format_date(curr = Date.now()) {
   return dayjs(curr).format(format)
 }
 
+function base64_encode(str, magic = 'base64_') {
+  return magic + Buffer.from(str).toString('base64')
+}
+
+function base64_decode(str, magic = 'base64_') {
+  return Buffer.from(str.replace(magic, ''), 'base64').toString()
+}
+
 module.exports = {
   mkdir,
   downloadFile,
@@ -222,4 +230,6 @@ module.exports = {
   zipWithIndex,
   url_resolve,
   format_date,
+  base64_encode,
+  base64_decode,
 }
