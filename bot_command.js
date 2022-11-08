@@ -25,7 +25,7 @@ const commands = [
   ['/u_sub', start_end_sub,],
 ]
 const actions = [
-  ...img_or_tags_arr.map(([_, ac]) => [ac, action_img_or_tags]),
+  // ...img_or_tags_arr.map(([_, ac]) => [ac, action_img_or_tags]),
   [/.+/, action_async_handler],
 ]
 
@@ -128,8 +128,9 @@ async function action_async_handler(ctx) {
   const message = update?.callback_query?.message
   // const message = update?.callback_query
   await send_action({match, message})
-  const [text, _] = done_arr.find(([_, ac]) => ac === ctx.match[0])
-  return ctx.answerCbQuery(`${text || '我要什么来着???'}!!!`)
+  let text = done_arr.find(([_, ac]) => ac === match[0]) || []
+  text = text[0]
+  return ctx.answerCbQuery(`${text || match[0]}!!!`)
 }
 
 // sub commands
