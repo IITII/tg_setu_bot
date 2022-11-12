@@ -6,7 +6,7 @@
 const path = require('path'),
   {uniq, uniqBy} = require('lodash'),
   {load} = require('cheerio')
-const {axios, axiosJar} = require('../axios_client'),
+const {axios} = require('../axios_client'),
   {clip} = require('../../config/config'),
   {logger} = require('../../middlewares/logger')
 const {
