@@ -200,6 +200,11 @@ async function task(url, info, handle, breakTime, start = format_date()) {
     let prefix = `#Subscribed\n#${title}\nStart: ${start}`
     await send_to_subscriber(prefix, info.uid, filtered, addiMsg)
     await set_sent_sub(url_texts.map(({url, text}) => ({url, text: format_sub_title(text)})))
+  } else if (imgs.length === 0 && info.latest.length > 0) {
+    let prefix, msg
+    prefix = `#订阅失效\n`
+    msg = `以下订阅无法获取任何套图，疑似失效\n[${title}](${url})`
+    await send_to_subscriber(prefix, info.uid, [], msg)
   }
   const nextTime = get_random_next(breakTime)
   info.nextTime = nextTime
