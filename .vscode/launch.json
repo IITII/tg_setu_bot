@@ -2,6 +2,12 @@
   "version": "0.2.0",
   "configurations": [
     {
+      "command": "npm start",
+      "name": "DebugTerminal",
+      "request": "launch",
+      "type": "node-terminal"
+    },
+    {
       "name": "start",
       "program": "${workspaceFolder}/App.js",
       "request": "launch",
