@@ -3,7 +3,7 @@
  * @date 2022/09/27
  */
 'use strict'
-const {ids, queueName, eventName, tokens} = require('../../config/config'),
+const {ids, queueName, eventName, tokens, taskLimit} = require('../../config/config'),
   {logger} = require('../../middlewares/logger'),
   {done_arr_end, handle_429, send_text} = require('../utils/msg_utils'),
   {run_out_mq} = require('../utils/mq_utils'),
@@ -18,7 +18,7 @@ const {ids, queueName, eventName, tokens} = require('../../config/config'),
   action_worker_queue = queueName.action_worker,
   action_worker_event = eventName.action_worker,
   action_worker_storage = new Storage(action_worker_queue)
-const {redis_add_sub} = require('../utils/redis_utils')
+const {redis_add_sub, HGET} = require('../utils/redis_utils')
 
 module.exports = {
   start,
@@ -46,6 +46,9 @@ async function handle_msg(bot, msg) {
   // action 事件可能从 worker 触发, message id 无意义
   const message_id = undefined
   let action = match[0].replace(done_arr_end, '')
+  if (action.startsWith(taskLimit.sub_prefix.markup.cb)) {
+    action = await HGET(action, taskLimit.sub_prefix.markup.cb)
+  }
   // tags -> subscribe
   const magic = 'http'
   if (action.startsWith(magic)) {

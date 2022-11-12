@@ -127,6 +127,7 @@ async function action_async_handler(ctx) {
   const {match, update} = ctx
   const message = update?.callback_query?.message
   // const message = update?.callback_query
+  // send all action to action_handler
   await send_action({match, message})
   let text = done_arr.find(([_, ac]) => ac === match[0]) || []
   text = text[0]

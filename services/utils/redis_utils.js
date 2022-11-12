@@ -62,6 +62,11 @@ async function HSET(url, json, taskKey = taskName) {
   return await redis.HSET(taskKey, url, JSON.stringify(json))
 }
 
+async function HGET(url, taskKey = taskName) {
+  await redis_init()
+  return await redis.HGET(taskKey, url)
+}
+
 async function HGETALL(taskKey = taskName) {
   await redis_init()
   let res = {}
@@ -77,9 +82,11 @@ async function HGETALL(taskKey = taskName) {
 
 async function HSETALL(data, taskKey = taskName) {
   await redis_init()
+  const mul = redis.multi()
   for (const k in data) {
-    await redis.HSET(taskKey, k, JSON.stringify(data[k]))
+    mul.HSET(taskKey, k, JSON.stringify(data[k]))
   }
+  await mul.exec()
 }
 
 /**
@@ -118,6 +125,7 @@ async function set_sent_sub(url_texts, prefix = taskLimit.sub_prefix, expire = t
 module.exports = {
   redis_add_sub,
   redis_remove_sub,
+  HGET,
   HSET,
   HGETALL,
   HSETALL,

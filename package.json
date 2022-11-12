@@ -25,6 +25,7 @@
     "redis": "^4.1.0",
     "telegraf": "^4.8.2",
     "telegraf-session-local": "^2.1.0",
-    "tough-cookie": "^4.1.2"
+    "tough-cookie": "^4.1.2",
+    "uuid": "^9.0.0"
   }
 }

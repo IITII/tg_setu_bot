@@ -83,6 +83,10 @@ const config = {
     sub_prefix: {
       url: 'bot_sent_sub_url_',
       text: 'bot_sent_sub_text_',
+      markup: {
+        // 如果 redis 空间不够可以手动删除一下 DEL bot_mark_cb_
+        cb: 'bot_mark_cb_'
+      },
     },
   },
   redis: {

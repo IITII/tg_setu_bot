@@ -9,7 +9,7 @@ const fs = require('fs'),
   {Markup} = require('telegraf'),
   {chunk} = require('lodash')
 
-const {queueName, eventName} = require('../../config/config'),
+const {queueName, eventName, taskLimit} = require('../../config/config'),
   eventBus = require('../../libs/event_bus'),
   Storage = require('../../libs/storage'),
   action_worker_queue = queueName.action_worker,
@@ -22,9 +22,11 @@ const {clip, telegram: telegramConf} = require('../../config/config'),
   {maxMediaGroupLength, maxMessageLength} = telegramConf,
   {logger} = require('../../middlewares/logger'),
   {sendPhoto, getGroupMedia} = require('../../libs/media'),
+  {uuidWithTime} = require('../../libs/uuid_utils'),
   {reqRateLimit, sleep} = require('../../libs/utils'),
   bot = require('../../libs/telegram_bot'),
   telegram = bot.telegram
+const {HSETALL} = require("./redis_utils");
 
 const TypeEnum = {
   TEXT: 'text',
@@ -171,6 +173,13 @@ async function handle_text(msg, tg = telegram) {
 
 async function handle_done_text(msg, tg = telegram) {
   let {chat_id, text, tags, message_id, preview, parse_mode} = msg
+  let uuidTags = {}, uuidArr = []
+  for (const tag of tags) {
+    let uuid = uuidWithTime(taskLimit.sub_prefix.markup.cb)
+    uuidTags[uuid] = tag
+    uuidArr.push({...tag, url: uuid})
+  }
+  await HSETALL(uuidTags, taskLimit.sub_prefix.markup.cb)
   const opts = {
     reply_to_message_id: message_id,
     parse_mode: parse_mode === undefined ? 'Markdown' : parse_mode,
@@ -180,7 +189,9 @@ async function handle_done_text(msg, tg = telegram) {
       done_arr.map(([hint, t]) => {
         return Markup.button.callback(hint, t)
       }),
-      tags.map(({text, url}) => {
+      uuidArr.map(({text, url}) => {
+        // Markup callback must be 1-64 bytes
+        // https://core.telegram.org/bots/api#inlinekeyboardmarkup
         return Markup.button.callback(`订阅: ${text}`, url)
       }),
     ]),
