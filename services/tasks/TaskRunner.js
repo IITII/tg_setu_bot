@@ -173,7 +173,7 @@ async function run() {
 }
 
 async function task(url, info, handle, breakTime, start = format_date()) {
-  const {title, imgs} = await handle.getTagUrls(url)
+  const {title, imgs, cost} = await handle.getTagUrls(url)
   if (imgs && imgs.length > 0) {
     let index = imgs.length
     if (info.latest.length === 0) {
@@ -203,7 +203,7 @@ async function task(url, info, handle, breakTime, start = format_date()) {
   } else if (imgs.length === 0 && info.latest.length > 0) {
     let prefix, msg
     prefix = `#订阅失效\n`
-    msg = `以下订阅无法获取任何套图，疑似失效\n[${title}](${url})`
+    msg = `以下订阅无法获取任何套图，疑似失效\n[${title}](${url})\n\n总耗时：${time_human_readable(cost || 0)}`
     await send_to_subscriber(prefix, info.uid, [], msg)
   }
   const nextTime = get_random_next(breakTime)

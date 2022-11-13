@@ -39,6 +39,7 @@ const config = {
     // baseURL: 'https://api.telegram.org/bot',
     // proxy: process.env.PROXY,
     proxy: undefined,
+    // 时间设置不合理可能会导致订阅超时失败
     timeout: 1000 * 20,
     headers: {
       'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/101.0.4951.64 Safari/537.36',
