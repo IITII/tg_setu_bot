@@ -74,6 +74,9 @@ const config = {
   },
   taskName: 'bot_schedule_task',
   taskLimit: {
+    message: {
+      sub_clean: false,
+    },
     // 最近URL条数
     latest: 3,
     // 第一次运行时最多发送条数

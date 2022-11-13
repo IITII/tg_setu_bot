@@ -192,7 +192,7 @@ async function task(url, info, handle, breakTime, start = format_date()) {
     // add filtered msg
     let addiMsg = ''
     const dup = differenceBy(url_texts, filtered, 'url')
-    if (dup.length > 0) {
+    if (dup.length > 0 && taskLimit.message.sub_clean) {
       addiMsg = `#Clean\n移除重复链接：${dup.length}条`
       addiMsg += `\n${log_url_texts(dup)}`
     }
