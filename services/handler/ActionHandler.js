@@ -48,6 +48,7 @@ async function handle_msg(bot, msg) {
   let action = match[0].replace(done_arr_end, '')
   if (action.startsWith(taskLimit.sub_prefix.markup.cb)) {
     action = await HGET(action, taskLimit.sub_prefix.markup.cb)
+    action = action.url
   }
   // tags -> subscribe
   const magic = 'http'
