@@ -231,7 +231,7 @@ async function send_to_subscriber(prefix, uidArr, url_texts, addi = '') {
       const {url, text, poster} = url_text
       const m = `${prefix}\n[${text}](${url})`
       return getPhotoMsg(u, poster, m, true)
-    })
+    }).flat(Infinity)
   }).concat([addiMsg]).filter(_ => _.length > 0)
   return Promise.allSettled(msgArr.map(_ => sendBatchMsg(_)))
 }
