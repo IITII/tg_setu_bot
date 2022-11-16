@@ -64,7 +64,7 @@ async function HSET(url, json, taskKey = taskName) {
 
 async function HGET(url, taskKey = taskName) {
   await redis_init()
-  return await redis.HGET(taskKey, url)
+  return JSON.parse(await redis.HGET(taskKey, url))
 }
 
 async function HGETALL(taskKey = taskName) {
