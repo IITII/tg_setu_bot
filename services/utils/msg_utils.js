@@ -26,7 +26,7 @@ const {clip, telegram: telegramConf} = require('../../config/config'),
   {reqRateLimit, sleep} = require('../../libs/utils'),
   bot = require('../../libs/telegram_bot'),
   telegram = bot.telegram
-const {HSETALL} = require("./redis_utils");
+const {HSETALL} = require("./redis_utils")
 
 const TypeEnum = {
   TEXT: 'text',
@@ -186,15 +186,15 @@ async function handle_done_text(msg, tg = telegram) {
     // disable_notification: true,
     // protect_content: true,
     ...Markup.inlineKeyboard([
-      done_arr.map(([hint, t]) => {
+      ...done_arr.map(([hint, t]) => {
         return Markup.button.callback(hint, t)
       }),
-      uuidArr.map(({text, url}) => {
+      ...uuidArr.map(({text, url}) => {
         // Markup callback must be 1-64 bytes
         // https://core.telegram.org/bots/api#inlinekeyboardmarkup
         return Markup.button.callback(`订阅: ${text}`, url)
       }),
-    ]),
+    ], {columns: done_arr.length}),
   }
   opts.disable_web_page_preview = !preview
   return tg.sendMessage(chat_id, text, opts)
