@@ -182,6 +182,7 @@ function toAbsUrl(url, origin) {
 }
 
 function urlTextsToAbs(url_texts, original, uniq = false) {
+  url_texts = url_texts.filter(_ => _.url && _.text)
   let dup = url_texts.map(raw => {
     let {url, text, poster} = raw
     url = toAbsUrl(url, original)
