@@ -176,7 +176,7 @@ function isSupport(text) {
 function filterSupStart(arr, img_or_tags = 'mix') {
   let mix
   mix = arr.filter(_ => supRaw_flat.some(s => _.startsWith(s)))
-  mix = mix.push(...arr.filter(_ => special_url.some(s => s[0].test(_))))
+  mix.push(...arr.filter(_ => special_url.some(s => s[0].test(_))))
   let allowArr = []
   switch (img_or_tags) {
     case 'img':
