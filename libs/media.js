@@ -9,7 +9,14 @@ const axios = require('axios')
 
 async function webpBuffer(url) {
   let res, sleepTime = 900
-  res = await axios.get(url, {responseType: 'stream', referer: url}).then(_ => _.data)
+  res = await axios.get(url, {
+    responseType: 'stream', headers: {
+      ...axios.defaults.headers,
+      'referer': url,
+      Host: new URL(url).host,
+      Connection: 'keep-alive',
+    },
+  }).then(_ => _.data)
   if (new URL(url).hostname.includes('wp.com')) {
     await sleep(sleepTime)
   }
