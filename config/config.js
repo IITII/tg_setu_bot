@@ -133,6 +133,9 @@ const config = {
     // meiz
     meiLimit: 1,
     meiTagsLimit: 1,
+    // tmd
+    tmdLimit: 1,
+    tmdTagsLimit: 1,
     // 图片 header
     headLimit: 20,
     // 上/下一页

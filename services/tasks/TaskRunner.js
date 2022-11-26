@@ -94,6 +94,10 @@ const supRaw = [
       'https://www.muweishe.com/meizitu/',
       'https://www.muweishe.com/tag/',
     ],
+    [
+      'https://tmdpic.com/category/',
+      'https://tmdpic.com/tags/',
+    ],
   ],
   supRaw_flat = supRaw.flat(Infinity),
   handle_limit = [
@@ -109,6 +113,7 @@ const supRaw = [
     [download.AcgBoxTags, check.all],
     [download.JdyTags, check.all],
     [download.MuWeiTags, check.all],
+    [download.tmdPicTags, check.all],
   ]
 const special_url = [
   [/^https?:\/\/everia.club\/?$/, 0],
@@ -119,6 +124,8 @@ const special_url = [
   [/^https?:\/\/buondua\.com\/hot\/?$/, 8],
   [/^https?:\/\/tu\.acgbox\.org\/index\.ph\/?p$/, 9],
   [/^https?:\/\/tu\.acgbox\.org\/?p$/, 9],
+  [/^https?:\/\/tmdpic\.com\/index\.html\/?$/, 12],
+  [/^https?:\/\/tmdpic\.com\/?$/, 12],
 ]
 
 function filterTagsOnly(arr, formatHost = true) {

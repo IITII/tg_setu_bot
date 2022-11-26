@@ -24,6 +24,8 @@ const asiaG = require('./sites/AsiaG'),
 const dua = require('./sites/Dua'),
   duaTags = require('./sites/DuaTags')
 const meiz = require('./sites/meiz')
+const tmdPic = require('./sites/TmdPic'),
+  tmdPicTags = require('./sites/TmdPicTags')
 
 
 module.exports = {
@@ -43,4 +45,6 @@ module.exports = {
   dua,
   duaTags,
   ...meiz,
+  tmdPic,
+  tmdPicTags,
 }
