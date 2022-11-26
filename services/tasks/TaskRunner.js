@@ -81,6 +81,7 @@ const supRaw = [
     [
       'https://buondua.com/?search=',
       'https://buondua.com/tag/',
+      'https://buondua.com/hot',
     ],
     [
       'https://tu.acgbox.org/index.php/category/',
