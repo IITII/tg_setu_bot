@@ -117,6 +117,15 @@ const supRaw = [
     [
       'https://tmdpic.com/html/',
     ],
+    [
+      'https://xx.knit.bid/sort',
+      'https://xx.knit.bid/tag/',
+      'https://xx.knit.bid/type/',
+      'https://xx.knit.bid/search/',
+    ],
+    [
+      'https://xx.knit.bid/article/',
+    ],
   ],
   supRaw_flat = supRaw.flat(Infinity),
   handle_limit = [
@@ -143,6 +152,8 @@ const supRaw = [
     [download.MuWei, clip.meiLimit],
     [download.tmdPicTags, clip.tmdTagsLimit],
     [download.tmdPic, clip.tmdLimit],
+    [download.knitTags, clip.knitTagsLimit],
+    [download.knit, clip.knitLimit],
   ]
 const special_url = [
   [/^https?:\/\/everia\.club\/?$/, 1],
@@ -156,6 +167,7 @@ const special_url = [
   [/^https?:\/\/tu\.acgbox\.org\/?p$/, 15],
   [/^https?:\/\/tmdpic\.com\/index\.html\/?$/, 21],
   [/^https?:\/\/tmdpic\.com\/?$/, 21],
+  [/^https?:\/\/xx\.knit\.bid\/?$/, 23],
 ]
 
 let distinct_host = supRaw_flat.map(u => new URL(u))
@@ -180,10 +192,10 @@ function filterSupStart(arr, img_or_tags = 'mix') {
   let allowArr = []
   switch (img_or_tags) {
     case 'img':
-      allowArr = [0, 2, 4, 6, 10, 12, 14, 16, 18, 20, 22]
+      allowArr = [0, 2, 4, 6, 10, 12, 14, 16, 18, 20, 22, 24]
       break
     case 'tags':
-      allowArr = [1, 3, 5, 8, 9, 11, 13, 15, 17, 19, 21]
+      allowArr = [1, 3, 5, 8, 9, 11, 13, 15, 17, 19, 21, 23]
       break
     case 'mix':
     default:

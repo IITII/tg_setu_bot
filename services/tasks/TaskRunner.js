@@ -99,6 +99,12 @@ const supRaw = [
       'https://tmdpic.com/category/',
       'https://tmdpic.com/tags/',
     ],
+    [
+      'https://xx.knit.bid/sort',
+      'https://xx.knit.bid/tag/',
+      'https://xx.knit.bid/type/',
+      'https://xx.knit.bid/search/',
+    ],
   ],
   supRaw_flat = supRaw.flat(Infinity),
   handle_limit = [
@@ -115,6 +121,7 @@ const supRaw = [
     [download.JdyTags, check.all],
     [download.MuWeiTags, check.all],
     [download.tmdPicTags, check.all],
+    [download.knitTags, check.all],
   ]
 const special_url = [
   [/^https?:\/\/everia.club\/?$/, 0],
@@ -127,6 +134,7 @@ const special_url = [
   [/^https?:\/\/tu\.acgbox\.org\/?p$/, 9],
   [/^https?:\/\/tmdpic\.com\/index\.html\/?$/, 12],
   [/^https?:\/\/tmdpic\.com\/?$/, 12],
+  [/^https?:\/\/xx\.knit\.bid\/?$/, 13],
 ]
 
 function filterTagsOnly(arr, formatHost = true) {
