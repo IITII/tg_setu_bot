@@ -131,14 +131,25 @@ async function getImgArr(url, handle_dom, handle_other_pages = undefined) {
     return Promise.resolve(firstPage)
   }
   logger.debug(`Find another ${otherPages.length} pages, Get Image from other pages...`)
-  const otherUrls = uniq(otherPages.map(p => p.url))
-  const otherInfos = await currMapLimit(otherUrls, clip.pageLimit, handle_other_pages)
-  imgs = uniq(imgs.concat(otherInfos.map(i => i.imgs)).flat(Infinity))
-  if (related) {
-    related = related.concat(otherInfos.map(i => i.related)).flat(Infinity)
-    related = uniqBy(related, 'url')
-  }
-  cost += otherInfos.reduce((acc, i) => acc + i.cost, 0)
+  let otherInfos, visited = new Map(), unvisited = []
+  visited.set(original, true)
+  // update unvisited
+  unvisited = uniq(otherPages.map(p => p.url))
+  do {
+    // request to get other pages
+    otherInfos = await currMapLimit(unvisited, clip.pageLimit, handle_other_pages)
+    imgs = uniq(imgs.concat(otherInfos.map(i => i.imgs)).flat(Infinity))
+    if (related) {
+      related = related.concat(otherInfos.map(i => i.related)).flat(Infinity)
+      related = uniqBy(related, 'url')
+    }
+    cost += otherInfos.reduce((acc, i) => acc + i.cost, 0)
+    // update visited
+    unvisited.forEach(u => visited.set(u, true))
+    let otherInfoUrls = uniq(otherInfos.map(i => i.otherPages).flat(Infinity).map(p => p.url)).sort()
+    // update unvisited
+    unvisited = otherInfoUrls.filter(u => !visited.has(u))
+  } while (unvisited.length > 0)
   const res = {title, imgs, related, cost, original, tags}
   return Promise.resolve(res)
 }
@@ -177,7 +188,7 @@ function arrToAbsUrl(urls, origin) {
 }
 
 function toAbsUrl(url, origin) {
-  const base = new URL(origin).origin
+  let base = url.startsWith('/') ? new URL(origin).origin : origin
   return url_resolve(base, url)
 }
 
