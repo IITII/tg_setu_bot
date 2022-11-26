@@ -4,22 +4,37 @@
  */
 'use strict'
 const fs = require('fs')
-const {currMapLimit} = require('./utils')
+const {currMapLimit, sleep} = require('./utils')
+const axios = require('axios')
 
-function sendPhoto(source) {
+async function webpBuffer(url) {
+  let res, sleepTime = 900
+  res = await axios.get(url, {responseType: 'stream', referer: url}).then(_ => _.data)
+  if (new URL(url).hostname.includes('wp.com')) {
+    await sleep(sleepTime)
+  }
+  return res
+}
+
+async function sendPhoto(source) {
   const res = {}
   // if (caption) {
   //   res['caption'] = {caption}
   // }
   switch (typeof source) {
     case 'string':
-      let key
+      let key, value
       if (source.startsWith('http')) {
-        key = 'url'
+        if (source.endsWith('.webp')) {
+          key = 'source'
+          value = await webpBuffer(source)
+        } else {
+          key = 'url'
+        }
       } else {
         key = 'source'
       }
-      res[key] = source
+      res[key] = value || source
       break
     case 'object':
       res['source'] = fs.createReadStream(source)
@@ -27,14 +42,19 @@ function sendPhoto(source) {
     default:
       throw new Error(`Invalid source type: ${source}`)
   }
-  return res
+  return Promise.resolve(res)
 }
 
-function singleMedia(source, caption = undefined) {
+async function singleMedia(source, caption = undefined) {
   let res = {media: source, caption, parse_mode: 'Markdown', type: 'photo'}
   switch (typeof source) {
     case 'string':
-      if (!source.startsWith('http')) {
+      if (source.startsWith('http')) {
+        if (source.endsWith('.webp')) {
+          let res = await webpBuffer(source)
+          res.media = {source: res}
+        }
+      } else {
         res.media = {source}
       }
       break
@@ -45,12 +65,12 @@ function singleMedia(source, caption = undefined) {
     default:
       throw new Error('Invalid source type')
   }
-  return res
+  return Promise.resolve(res)
 }
 
-function getGroupMedia(sources, caption = 'caption') {
+async function getGroupMedia(sources, caption = 'caption') {
   let res
-  const arr = sources.map(_ => singleMedia(_))
+  const arr = await currMapLimit(sources, 1, singleMedia)
   if (arr.length > 0) {
     arr[0].caption = caption
   }

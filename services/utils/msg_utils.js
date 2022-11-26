@@ -269,7 +269,8 @@ async function handle_text_msg(chat_id, text, message_id, preview, sep = '\n', t
 
 async function handle_photo(msg, tg = telegram) {
   const {chat_id, sub, cap} = msg
-  return tg.sendPhoto(chat_id, sendPhoto(sub), {
+  const photo = await sendPhoto(sub)
+  return tg.sendPhoto(chat_id, photo, {
     caption: cap,
     parse_mode: 'Markdown',
   })
@@ -277,7 +278,7 @@ async function handle_photo(msg, tg = telegram) {
 
 async function handle_media_group(msg, tg = telegram) {
   const {chat_id, sub, cap} = msg
-  const medias = getGroupMedia(sub, cap)
+  const medias = await getGroupMedia(sub, cap)
   return tg.sendMediaGroup(chat_id, medias)
 }
 
