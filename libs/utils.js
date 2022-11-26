@@ -121,7 +121,8 @@ async function reqRateLimit(func, array, duration = 1000,
 }
 
 function titleFormat(title) {
-  return format_sub_title(title, ' ').trim()
+  let res = format_sub_title(title, ' ').trim()
+  return res ? res : title
 }
 
 function format_sub_title(raw, multiSpace = '') {
