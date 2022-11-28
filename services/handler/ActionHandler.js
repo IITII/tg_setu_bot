@@ -87,14 +87,16 @@ async function forward_channel(message) {
     disable_web_page_preview: true,
   }
   const text = rebuildTextMsg(message)
-  return subBot.telegram.sendMessage(ids.forwardId, text, opts)
+  if (text) {
+    return subBot.telegram.sendMessage(ids.forwardId, text, opts)
+  }
 }
 
-function rebuildTextMsg(message) {
+function rebuildTextMsg(message, entity = true) {
   const text = message.text || message.caption
   const entities = message.entities || message.caption_entities
   if (!entities || entities.length === 0) {
-    return text
+    return entity ? '' : text
   }
   let newText = ''
   let url_text = ''

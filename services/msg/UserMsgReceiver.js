@@ -3,7 +3,7 @@
  * @date 2022/06/26
  */
 'use strict'
-const {queueName, eventName} = require('../../config/config'),
+const {queueName, eventName, taskLimit} = require('../../config/config'),
   eventBus = require('../../libs/event_bus'),
   Storage = require('../../libs/storage'),
   {telegram} = require('../../libs/telegram_bot'),
@@ -14,7 +14,7 @@ const {queueName, eventName} = require('../../config/config'),
   queue = queueName.pic_add,
   event = eventName.pic_add,
   storage = new Storage(queue)
-const {uniq} = require('lodash'),
+const {uniq, chunk} = require('lodash'),
   {logger} = require('../../middlewares/logger'),
   {message_decode} = require('../utils/service_utils'),
   {send_text} = require('../utils/msg_utils'),
@@ -64,8 +64,11 @@ async function debounce(urlInfo) {
 
 async function timeout(chat_id, message_id, session, k, info) {
   const s = `#Add_Queue\n#${session.pic.mode}\n添加 ${info.count} 条链接到队列`
-  const v = {chat_id, message_id, session, urls: info.urls}
-  await split_storage_event(v)
+  const grouped = chunk(info.urls, taskLimit.message.batch_add_max)
+  for (const urls of grouped) {
+    const v = {chat_id, message_id, session, urls}
+    await split_storage_event(v)
+  }
   debMap.delete(k)
   try {
     const url_t = info.urls.join('\n')

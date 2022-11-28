@@ -75,6 +75,9 @@ const config = {
   taskName: 'bot_schedule_task',
   taskLimit: {
     message: {
+      // 每批次最大消息数, copy, download, 避免因为后续操作失败而导致大量消息丢失
+      batch_add_max: 3,
+      // 是否发送因为去重而过滤掉的消息
       sub_clean: false,
     },
     // 最近URL条数
