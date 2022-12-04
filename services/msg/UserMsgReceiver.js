@@ -45,17 +45,18 @@ async function handle_ctx(ctx) {
 // 按 message id 精细化区分
 async function debounce(urlInfo) {
   const {chat_id, message_id, session, urls} = urlInfo
+  // urls: [{msg_id: '', url: ''}]
   let timerInfo = {timer: null, count: 0, urls: [], delay: 500}
+  let msg_urls = urls.map(url => ({message_id, url}))
   const mapKey = `${chat_id}_${JSON.stringify(session)}`
   if (debMap.has(mapKey)) {
     timerInfo = debMap.get(mapKey)
     clearTimeout(timerInfo.timer)
-    timerInfo.urls = timerInfo.urls.concat(urls)
-  } else {
-    timerInfo.urls = urls
   }
-  timerInfo.urls = uniq(timerInfo.urls)
-  timerInfo.count = timerInfo.urls.length
+  msg_urls = msg_urls.filter(({message_id, url}) => !timerInfo.urls.some(u => u.url === url))
+  timerInfo.urls = timerInfo.urls.concat(msg_urls)
+  // timerInfo.urls = uniq(timerInfo.urls)
+  timerInfo.count += msg_urls.length
   timerInfo.timer = setTimeout(async () => {
     await timeout(chat_id, message_id, session, mapKey, timerInfo)
   }, timerInfo.delay)
@@ -65,13 +66,16 @@ async function debounce(urlInfo) {
 async function timeout(chat_id, message_id, session, k, info) {
   const s = `#Add_Queue\n#${session.pic.mode}\n添加 ${info.count} 条链接到队列`
   const grouped = chunk(info.urls, taskLimit.message.batch_add_max)
-  for (const urls of grouped) {
-    const v = {chat_id, message_id, session, urls}
+  for (const msg_url of grouped) {
+    let msg_id, urls
+    msg_id = msg_url[msg_url.length - 1].message_id
+    urls = msg_url.map(u => u.url)
+    const v = {chat_id, message_id: msg_id, session, urls}
     await split_storage_event(v)
   }
   debMap.delete(k)
   try {
-    const url_t = info.urls.join('\n')
+    const url_t = info.urls.map(_ => _.url).join('\n')
     const msg = `${s}\n${url_t}`
     if (msg.length >= 3000) {
       await send_text(chat_id, msg, message_id, false, '')
