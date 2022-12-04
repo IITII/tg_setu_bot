@@ -146,7 +146,10 @@ async function getImgArr(url, handle_dom, handle_other_pages = undefined) {
     cost += otherInfos.reduce((acc, i) => acc + i.cost, 0)
     // update visited
     unvisited.forEach(u => visited.set(u, true))
-    let otherInfoUrls = uniq(otherInfos.map(i => i.otherPages).flat(Infinity).map(p => p.url)).sort()
+    let otherInfoUrls = otherInfos.map(i => i.otherPages).flat(Infinity)
+    otherInfoUrls = otherInfoUrls.filter(_ => !!_ && !!_.url)
+    otherInfoUrls = otherInfoUrls.map(p => p.url)
+    otherInfoUrls = uniq(otherInfoUrls).sort()
     // update unvisited
     unvisited = otherInfoUrls.filter(u => !visited.has(u))
   } while (unvisited.length > 0)
