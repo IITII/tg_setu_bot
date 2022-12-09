@@ -26,7 +26,7 @@ const {clip, telegram: telegramConf} = require('../../config/config'),
   {reqRateLimit, sleep} = require('../../libs/utils'),
   bot = require('../../libs/telegram_bot'),
   telegram = bot.telegram
-const {HSETALL} = require("./redis_utils")
+const {HSETALL} = require('./redis_utils')
 
 const TypeEnum = {
   TEXT: 'text',
@@ -278,8 +278,24 @@ async function handle_photo(msg, tg = telegram) {
 
 async function handle_media_group(msg, tg = telegram) {
   const {chat_id, sub, cap} = msg
-  const medias = await getGroupMedia(sub, cap)
-  return tg.sendMediaGroup(chat_id, medias)
+  try {
+    const medias = await getGroupMedia(sub, cap, false)
+    return tg.sendMediaGroup(chat_id, medias)
+  } catch (e) {
+    // FIXME: 这里的错误判断还是不完善
+    if (e.message.includes("Failed to get HTTP URL content")) {
+      logger.error(`handle_media_group error: ${e.message}, try re-send...`)
+      const medias = await getGroupMedia(sub, cap, true)
+      if (medias.length > 0) {
+        return tg.sendMediaGroup(chat_id, medias)
+      } else {
+        logger.warn(`handle_media_group error: ${e.message}, re-send failed, all medias get failed`)
+        return Promise.resolve()
+      }
+    } else {
+      throw e
+    }
+  }
 }
 
 

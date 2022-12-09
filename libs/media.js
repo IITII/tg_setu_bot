@@ -6,6 +6,7 @@
 const fs = require('fs')
 const {currMapLimit, sleep} = require('./utils')
 const axios = require('axios')
+const {logger} = require('../middlewares/logger.js')
 
 async function webpBuffer(url) {
   let res, sleepTime = 900
@@ -52,32 +53,30 @@ async function sendPhoto(source) {
   return Promise.resolve(res)
 }
 
-async function singleMedia(source, caption = undefined) {
-  let res = {media: source, caption, parse_mode: 'Markdown', type: 'photo'}
-  switch (typeof source) {
-    case 'string':
-      if (source.startsWith('http')) {
-        if (source.endsWith('.webp')) {
-          let res = await webpBuffer(source)
-          res.media = {source: res}
-        }
+async function getGroupMedia(sources, caption = 'caption', buffer = false) {
+  async function singleMedia(source, caption = undefined) {
+    try {
+      let res, isWebp
+      res = {media: source, caption, parse_mode: 'Markdown', type: 'photo'}
+      isWebp = source.startsWith('http') && source.endsWith('.webp')
+
+      if (isWebp || buffer) {
+        let res = await webpBuffer(source)
+        res.media = {source: res}
       } else {
         res.media = {source}
       }
-      break
-    // 不存在 case
-    // case 'object':
-    //   res.media = {source: fs.createReadStream(source)}
-    //   break
-    default:
-      throw new Error('Invalid source type')
-  }
-  return Promise.resolve(res)
-}
 
-async function getGroupMedia(sources, caption = 'caption') {
-  let res
-  const arr = await currMapLimit(sources, 1, singleMedia)
+      return Promise.resolve(res)
+    } catch (e) {
+      logger.error(`Get single media failed, source: ${source}, e: ${e.message}`, e)
+      return Promise.resolve(-1)
+    }
+  }
+
+  let res, arr
+  arr = await currMapLimit(sources, 1, singleMedia)
+  arr = arr.filter(_ => _ === -1)
   if (arr.length > 0) {
     arr[0].caption = caption
   }
