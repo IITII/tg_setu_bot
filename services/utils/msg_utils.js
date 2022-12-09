@@ -280,7 +280,7 @@ async function handle_media_group(msg, tg = telegram) {
   const {chat_id, sub, cap} = msg
   try {
     const medias = await getGroupMedia(sub, cap, false)
-    return tg.sendMediaGroup(chat_id, medias)
+    return await tg.sendMediaGroup(chat_id, medias)
   } catch (e) {
     // FIXME: 这里的错误判断还是不完善
     const msg_400 = [

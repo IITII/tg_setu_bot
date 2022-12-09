@@ -9,6 +9,7 @@ const axios = require('axios')
 const {logger} = require('../middlewares/logger.js')
 
 async function webpBuffer(url) {
+  logger.info(`Get webp buffer from ${url}`)
   let res, sleepTime = 900
   res = await axios.get(url, {
     responseType: 'stream', headers: {
