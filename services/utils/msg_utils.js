@@ -283,7 +283,12 @@ async function handle_media_group(msg, tg = telegram) {
     return tg.sendMediaGroup(chat_id, medias)
   } catch (e) {
     // FIXME: 这里的错误判断还是不完善
-    if (e.message.includes("Failed to get HTTP URL content")) {
+    const msg_400 = [
+      'Wrong type of the web page content',
+      'Failed to get HTTP URL content',
+      'IMAGE_PROCESS_FAILED',
+    ].map(_ => _.toLowerCase())
+    if (msg_400.some(_ => e.message.toLowerCase().includes(_))) {
       logger.error(`handle_media_group error: ${e.message}, try re-send...`)
       const medias = await getGroupMedia(sub, cap, true)
       if (medias.length > 0) {
