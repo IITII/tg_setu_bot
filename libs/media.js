@@ -64,8 +64,8 @@ async function getGroupMedia(sources, caption = 'caption', buffer = false) {
 
       if (isHttp) {
         if (isWebp || buffer) {
-          let res = await webpBuffer(source)
-          res.media = {source: res}
+          let buf = await webpBuffer(source)
+          res.media = {source: buf}
         }
       } else {
         res.media = {source}
