@@ -56,13 +56,16 @@ async function sendPhoto(source) {
 async function getGroupMedia(sources, caption = 'caption', buffer = false) {
   async function singleMedia(source, caption = undefined) {
     try {
-      let res, isWebp
+      let res, isHttp, isWebp
       res = {media: source, caption, parse_mode: 'Markdown', type: 'photo'}
-      isWebp = source.startsWith('http') && source.endsWith('.webp')
+      isHttp = source.startsWith('http')
+      isWebp = isHttp && source.endsWith('.webp')
 
-      if (isWebp || buffer) {
-        let res = await webpBuffer(source)
-        res.media = {source: res}
+      if (isHttp) {
+        if (isWebp || buffer) {
+          let res = await webpBuffer(source)
+          res.media = {source: res}
+        }
       } else {
         res.media = {source}
       }
@@ -76,7 +79,7 @@ async function getGroupMedia(sources, caption = 'caption', buffer = false) {
 
   let res, arr
   arr = await currMapLimit(sources, 1, singleMedia)
-  arr = arr.filter(_ => _ === -1)
+  arr = arr.filter(_ => _ !== -1)
   if (arr.length > 0) {
     arr[0].caption = caption
   }
