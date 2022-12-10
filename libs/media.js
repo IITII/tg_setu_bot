@@ -16,7 +16,7 @@ async function webpBuffer(url, origin = '') {
     responseType: 'stream', headers: {
       ...axios.defaults.headers,
       'referer': origin,
-      Host: new URL(origin).host,
+      Host: new URL(url).host,
       Connection: 'keep-alive',
     },
   }).then(_ => _.data)
