@@ -39,12 +39,3 @@ async function handle_dom($, original) {
   const res = {title, imgs: url_texts}
   return Promise.resolve(res)
 }
-
-
-let url
-// url = 'https://asiantolick.com/post-2161/%E7%99%BD%E8%A5%AA%E8%A5%AA%E6%A0%BC%E7%BE%85%E4%B8%AB-big-boobs-sister-42p'
-url = 'https://asiantolick.com/category-93/%E6%80%A7%E6%84%9F%E7%9A%84'
-url = 'https://asiantolick.com/tag-1106/big-boobs'
-url = 'https://asiantolick.com/'
-// getImageArray(url).then(console.log)
-getTagUrls(url).then(console.log)
