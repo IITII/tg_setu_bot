@@ -142,6 +142,9 @@ const config = {
     // knit
     knitLimit: 1,
     knitTagsLimit: 1,
+    // jable
+    jableLimit: 2,
+    jableTagsLimit: 1,
     // 图片 header
     headLimit: 20,
     // 上/下一页

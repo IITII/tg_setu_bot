@@ -105,6 +105,13 @@ const supRaw = [
       'https://xx.knit.bid/type/',
       'https://xx.knit.bid/search/',
     ],
+    [
+      'https://jablehk.com/hongkonggirls',
+      'https://jablehk.com/taiwangirls',
+      'https://jablehk.com/koreanjapangirls',
+      'https://jablehk.com/southeastasiangirls',
+      'https://jablehk.com/adult',
+    ],
   ],
   supRaw_flat = supRaw.flat(Infinity),
   handle_limit = [
@@ -122,6 +129,7 @@ const supRaw = [
     [download.MuWeiTags, check.all],
     [download.tmdPicTags, check.all],
     [download.knitTags, check.all],
+    [download.jableTags, check.all],
   ]
 const special_url = [
   [/^https?:\/\/everia.club\/?$/, 0],
@@ -135,6 +143,7 @@ const special_url = [
   [/^https?:\/\/tmdpic\.com\/index\.html\/?$/, 12],
   [/^https?:\/\/tmdpic\.com\/?$/, 12],
   [/^https?:\/\/xx\.knit\.bid\/?$/, 13],
+  [/^https?:\/\/jablehk\.com\/?$/, 14],
 ]
 
 function filterTagsOnly(arr, formatHost = true) {

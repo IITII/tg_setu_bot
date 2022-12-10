@@ -28,6 +28,8 @@ const tmdPic = require('./sites/TmdPic'),
   tmdPicTags = require('./sites/TmdPicTags')
 const knit = require('./sites/Knit'),
   knitTags = require('./sites/KnitTags')
+const jable = require('./sites/Jable'),
+  jableTags = require('./sites/JableTags')
 
 
 module.exports = {
@@ -51,4 +53,6 @@ module.exports = {
   tmdPicTags,
   knit,
   knitTags,
+  jable,
+  jableTags,
 }

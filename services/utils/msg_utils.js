@@ -84,9 +84,9 @@ function getTextMsg(chat_id, text, message_id = undefined, preview = false, pars
 //   return storage.rpush(msg).then(_ => emit(_))
 // }
 
-function getDoneTextMsg(chat_id, text, tags = undefined, message_id = undefined, preview = false, parse_mode = undefined) {
+function getDoneTextMsg(chat_id, text, tags = undefined, message_id = undefined, external = [], preview = false, parse_mode = undefined) {
   const type = TypeEnum.MARK_AS_DONE
-  return [{chat_id, type, text, tags, message_id, preview, parse_mode}]
+  return [{chat_id, type, text, tags, message_id, external, preview, parse_mode}]
 }
 
 async function send_photo(chat_id, sub, cap, isSub = false) {
@@ -172,8 +172,9 @@ async function handle_text(msg, tg = telegram) {
 }
 
 async function handle_done_text(msg, tg = telegram) {
-  let {chat_id, text, tags, message_id, preview, parse_mode} = msg
+  let {chat_id, text, tags, message_id, preview, parse_mode, external} = msg
   let uuidTags = {}, uuidArr = []
+  external = external || []
   for (const tag of tags) {
     let uuid = uuidWithTime(taskLimit.sub_prefix.markup.cb)
     uuidTags[uuid] = tag
@@ -193,6 +194,9 @@ async function handle_done_text(msg, tg = telegram) {
         // Markup callback must be 1-64 bytes
         // https://core.telegram.org/bots/api#inlinekeyboardmarkup
         return Markup.button.callback(`订阅: ${text}`, url)
+      }),
+      ...external.map(({text, url}) => {
+        return Markup.button.url(text, url)
       }),
     ], {columns: done_arr.length}),
   }

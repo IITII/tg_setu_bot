@@ -45,7 +45,7 @@ async function handle_msg(bot, msg) {
   }
   for (const ph of photos) {
     if (DEBUG) continue
-    let {title, meta, tags, imgs, original} = ph
+    let {title, meta, tags, imgs, original, external} = ph
     const prefixMsg = `[${title}](${original})`
     let batchMsg = []
     switch (mode) {
@@ -70,7 +70,7 @@ async function handle_msg(bot, msg) {
     logger.debug(endMsg)
     if (batchMsg.length > 0) {
       let mt = [meta, tags].flat(Infinity).filter(_ => !!_)
-      batchMsg = [batchMsg, getDoneTextMsg(chat_id, endMsg, mt, message_id)].flat(Infinity)
+      batchMsg = [batchMsg, getDoneTextMsg(chat_id, endMsg, mt, message_id, external)].flat(Infinity)
       await sendBatchMsg(batchMsg)
     } else {
       await send_text(chat_id, endMsg, message_id)

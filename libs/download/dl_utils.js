@@ -126,7 +126,7 @@ async function getImgArr(url, handle_dom, handle_other_pages = undefined) {
     handle_other_pages = u => get_dom(u, handle_dom)
   }
   const firstPage = await get_dom(url, handle_dom)
-  let {title, imgs, otherPages, related, cost, original, tags} = firstPage
+  let {title, imgs, otherPages, related, cost, original, tags, external} = firstPage
   if (!otherPages || otherPages.length === 0) {
     return Promise.resolve(firstPage)
   }
@@ -153,7 +153,7 @@ async function getImgArr(url, handle_dom, handle_other_pages = undefined) {
     // update unvisited
     unvisited = otherInfoUrls.filter(u => !visited.has(u))
   } while (unvisited.length > 0)
-  const res = {title, imgs, related, cost, original, tags}
+  const res = {title, imgs, related, cost, original, tags, external}
   return Promise.resolve(res)
 }
 
@@ -186,8 +186,7 @@ async function zipUrlExt(imgArr, saveDir, limit = clip.headLimit) {
 }
 
 function arrToAbsUrl(urls, origin) {
-  const base = new URL(origin).origin
-  return urls.map(u => url_resolve(base, u))
+  return urls.map(u => toAbsUrl(u, origin))
 }
 
 function toAbsUrl(url, origin) {
