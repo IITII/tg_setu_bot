@@ -115,6 +115,7 @@ async function msg_common_handle(msg, tg = mainBot?.telegram) {
     }
     return res
   }
+
   return handle_400(handle, msg, tg)
 }
 
@@ -220,10 +221,12 @@ async function handle_any(handler, msg) {
 
 async function handle_400(handler, msg, tg) {
   const msg_400 = [
-    "Wrong type of the web page content",
-    "Failed to get HTTP URL content",
-    "IMAGE_PROCESS_FAILED",
-    "bytes is too big for a",
+    'Wrong type of the web page content',
+    'Failed to get HTTP URL content',
+    'IMAGE_PROCESS_FAILED',
+    'bytes is too big for a',
+    // failed when sendPhoto with url 404
+    'file must be non-empty',
   ].map(_ => _.toLowerCase())
   const failed_head = '#Failed\n'
   let res
@@ -233,7 +236,7 @@ async function handle_400(handler, msg, tg) {
     const em = e.message
     const eml = em.toLowerCase()
     logger.debug(`handle_400`, e.code, e.description, e.parameters)
-    if (eml.includes("Too Many Requests".toLowerCase()) || e?.code === 429 || e?.response?.error_code === 429) {
+    if (eml.includes('Too Many Requests'.toLowerCase()) || e?.code === 429 || e?.response?.error_code === 429) {
       throw e
     }
     if (msg_400.some(_ => eml.includes(_))) {
