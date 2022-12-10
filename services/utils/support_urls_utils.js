@@ -127,11 +127,11 @@ const supRaw = [
       'https://xx.knit.bid/article/',
     ],
     [
-      'https://jablehk.com/hongkonggirls',
-      'https://jablehk.com/taiwangirls',
-      'https://jablehk.com/koreanjapangirls',
-      'https://jablehk.com/southeastasiangirls',
-      'https://jablehk.com/adult',
+      // 'https://jablehk.com/hongkonggirls',
+      // 'https://jablehk.com/taiwangirls',
+      // 'https://jablehk.com/koreanjapangirls',
+      // 'https://jablehk.com/southeastasiangirls',
+      // 'https://jablehk.com/adult',
     ],
     [
       'https://jablehk.com/'
@@ -181,6 +181,11 @@ const special_url = [
   [/^https?:\/\/tmdpic\.com\/?$/, 21],
   [/^https?:\/\/xx\.knit\.bid\/?$/, 23],
   [/^https?:\/\/jablehk\.com\/?$/, 25],
+  [/^https?:\/\/jablehk\.com\/hongkonggirls\d\/?$/, 25],
+  [/^https?:\/\/jablehk\.com\/taiwangirls\d\/?$/, 25],
+  [/^https?:\/\/jablehk\.com\/koreanjapangirls\d\/?$/, 25],
+  [/^https?:\/\/jablehk\.com\/southeastasiangirls\d\/?$/, 25],
+  [/^https?:\/\/jablehk\.com\/adult(-tw)?\/?$/, 25],
 ]
 
 let distinct_host = supRaw_flat.map(u => new URL(u))

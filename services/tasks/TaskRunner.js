@@ -144,6 +144,11 @@ const special_url = [
   [/^https?:\/\/tmdpic\.com\/?$/, 12],
   [/^https?:\/\/xx\.knit\.bid\/?$/, 13],
   [/^https?:\/\/jablehk\.com\/?$/, 14],
+  [/^https?:\/\/jablehk\.com\/hongkonggirls\d\/?$/, 14],
+  [/^https?:\/\/jablehk\.com\/taiwangirls\d\/?$/, 14],
+  [/^https?:\/\/jablehk\.com\/koreanjapangirls\d\/?$/, 14],
+  [/^https?:\/\/jablehk\.com\/southeastasiangirls\d\/?$/, 14],
+  [/^https?:\/\/jablehk\.com\/adult(-tw)?\/?$/, 14],
 ]
 
 function filterTagsOnly(arr, formatHost = true) {

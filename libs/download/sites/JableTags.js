@@ -45,10 +45,3 @@ async function handle_dom($, original) {
   const res = {title, imgs: url_texts}
   return Promise.resolve(res)
 }
-
-// let url
-// url = 'https://jablehk.com/snexxxxxxx-fantia-collection'
-// url = 'https://jablehk.com/hongkonggirls7'
-// url = 'https://jablehk.com/southeastasiangirls'
-// url = 'https://jablehk.com'
-// getTagUrls(url).then(console.log)
