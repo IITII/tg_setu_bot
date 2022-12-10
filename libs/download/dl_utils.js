@@ -18,6 +18,7 @@ const {
   mkdir,
   titleFormat,
 } = require('../utils')
+const encoding = require('encoding')
 
 module.exports = {
   get_dom,
@@ -43,15 +44,30 @@ async function get_dom(url, handle_dom) {
     }
     logger.debug(`Getting image urls from ${url}`)
     await axios.get(url, {
-      responseType: 'document',
+      responseType: 'arraybuffer',
       headers: {
         'referer': url,
         Host: new URL(url).host,
         Connection: 'keep-alive',
       },
     })
-      .then(res => res.data)
-      .then(doc => load(doc))
+      .then(res => {
+        let buf = res.data
+        let utf8 = 'utf8'
+        let try_utf8 = buf.toString()
+        let $ = load(try_utf8)
+        let content = $('meta[http-equiv="Content-Type" i]').attr('content').split(';').pop().split('=').pop()
+        content = content.replace(/-_/g, '').toLowerCase()
+        if (content !== utf8) {
+          try {
+            buf = encoding.convert(buf, utf8, content)
+          } catch (e) {
+            buf = encoding.convert(buf, utf8, 'GBK')
+          }
+          $ = load(buf.toString())
+        }
+        return $
+      })
       .then(async $ => res = await handle_dom($, url))
       .catch(e => {
         logger.debug(`Get ImageArray failed, url: ${url}`)
