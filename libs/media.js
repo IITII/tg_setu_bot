@@ -8,14 +8,15 @@ const {currMapLimit, sleep} = require('./utils')
 const axios = require('axios')
 const {logger} = require('../middlewares/logger.js')
 
-async function webpBuffer(url) {
+async function webpBuffer(url, origin = '') {
   logger.info(`Get webp buffer from ${url}`)
   let res, sleepTime = 900
+  origin = origin || map_origin(url)
   res = await axios.get(url, {
     responseType: 'stream', headers: {
       ...axios.defaults.headers,
-      'referer': url,
-      Host: new URL(url).host,
+      'referer': origin,
+      Host: new URL(origin).host,
       Connection: 'keep-alive',
     },
   }).then(_ => _.data)
@@ -25,6 +26,17 @@ async function webpBuffer(url) {
   return res
 }
 
+function map_origin(url) {
+  const map = [
+    ['hnllsy.com', 'https://www.mmm131.com']
+  ]
+  let hostname, match
+   hostname = new URL(url).hostname
+  match = map.find(_ => hostname.includes(_[0]))
+  match = match ? match[1] : url
+  return match
+}
+
 async function sendPhoto(source) {
   const res = {}
   // if (caption) {
@@ -32,9 +44,10 @@ async function sendPhoto(source) {
   // }
   switch (typeof source) {
     case 'string':
-      let key, value
+      let key, value, map_ori
       if (source.startsWith('http')) {
-        if (source.endsWith('.webp')) {
+        map_ori = map_origin(source) !== source
+        if (source.endsWith('.webp') || map_ori) {
           key = 'source'
           value = await webpBuffer(source)
         } else {
@@ -57,13 +70,14 @@ async function sendPhoto(source) {
 async function getGroupMedia(sources, caption = 'caption', buffer = false) {
   async function singleMedia(source, caption = undefined) {
     try {
-      let res, isHttp, isWebp
+      let res, isHttp, isWebp, map_ori
       res = {media: source, caption, parse_mode: 'Markdown', type: 'photo'}
       isHttp = source.startsWith('http')
       isWebp = isHttp && source.endsWith('.webp')
+      map_ori = map_origin(source) !== source
 
       if (isHttp) {
-        if (isWebp || buffer) {
+        if (isWebp || buffer || map_ori) {
           let buf = await webpBuffer(source)
           res.media = {source: buf}
         }
