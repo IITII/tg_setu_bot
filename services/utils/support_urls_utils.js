@@ -140,6 +140,7 @@ const supRaw = [
       'https://asiantolick.com/category',
       'https://asiantolick.com/tag',
       'https://asiantolick.com/search/',
+      'https://asiantolick.com/page/',
     ],
     [
       'https://asiantolick.com/post',
