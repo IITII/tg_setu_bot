@@ -118,6 +118,7 @@ const supRaw = [
       'https://asiantolick.com/search/',
       'https://asiantolick.com/page/',
     ],
+    [],
   ],
   supRaw_flat = supRaw.flat(Infinity),
   handle_limit = [
@@ -137,6 +138,7 @@ const supRaw = [
     [download.knitTags, check.all],
     [download.jableTags, check.all],
     [download.asianTags, check.all],
+    [download.m131Tags, check.all],
   ]
 const special_url = [
   [/^https?:\/\/everia.club\/?$/, 0],
@@ -157,6 +159,12 @@ const special_url = [
   [/^https?:\/\/jablehk\.com\/southeastasiangirls\d\/?$/, 14],
   [/^https?:\/\/jablehk\.com\/adult(-tw)?\/?$/, 14],
   [/^https?:\/\/asiantolick\.com\/?$/, 15],
+  [/^https?:\/\/www\.mmm131\.com\/xinggan\/?$/, 16],
+  [/^https?:\/\/www\.mmm131\.com\/qingchun\/?$/, 16],
+  [/^https?:\/\/www\.mmm131\.com\/xiaohua\/?$/, 16],
+  [/^https?:\/\/www\.mmm131\.com\/chemo\/?$/, 16],
+  [/^https?:\/\/www\.mmm131\.com\/qipao\/?$/, 16],
+  [/^https?:\/\/www\.mmm131\.com\/mingxing\/?$/, 16],
 ]
 
 function filterTagsOnly(arr, formatHost = true) {

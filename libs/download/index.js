@@ -32,6 +32,8 @@ const jable = require('./sites/Jable'),
   jableTags = require('./sites/JableTags')
 const asian = require('./sites/Asian'),
   asianTags = require('./sites/AsianTags')
+const m131 = require('./sites/M131'),
+  m131Tags = require('./sites/M131Tags')
 
 
 module.exports = {
@@ -59,4 +61,6 @@ module.exports = {
   jableTags,
   asian,
   asianTags,
+  m131,
+  m131Tags,
 }

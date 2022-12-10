@@ -148,6 +148,9 @@ const config = {
     // asian
     asianLimit: 2,
     asianTagsLimit: 1,
+    // m131
+    m131Limit: 2,
+    m131TagsLimit: 1,
     // 图片 header
     headLimit: 20,
     // 上/下一页
