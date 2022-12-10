@@ -112,6 +112,11 @@ const supRaw = [
       'https://jablehk.com/southeastasiangirls',
       'https://jablehk.com/adult',
     ],
+    [
+      'https://asiantolick.com/category',
+      'https://asiantolick.com/tag',
+      'https://asiantolick.com/search/',
+    ],
   ],
   supRaw_flat = supRaw.flat(Infinity),
   handle_limit = [
@@ -130,6 +135,7 @@ const supRaw = [
     [download.tmdPicTags, check.all],
     [download.knitTags, check.all],
     [download.jableTags, check.all],
+    [download.asianTags, check.all],
   ]
 const special_url = [
   [/^https?:\/\/everia.club\/?$/, 0],
@@ -149,6 +155,7 @@ const special_url = [
   [/^https?:\/\/jablehk\.com\/koreanjapangirls\d\/?$/, 14],
   [/^https?:\/\/jablehk\.com\/southeastasiangirls\d\/?$/, 14],
   [/^https?:\/\/jablehk\.com\/adult(-tw)?\/?$/, 14],
+  [/^https?:\/\/asiantolick\.com\/?$/, 15],
 ]
 
 function filterTagsOnly(arr, formatHost = true) {

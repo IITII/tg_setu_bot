@@ -145,6 +145,9 @@ const config = {
     // jable
     jableLimit: 2,
     jableTagsLimit: 1,
+    // asian
+    asianLimit: 2,
+    asianTagsLimit: 1,
     // 图片 header
     headLimit: 20,
     // 上/下一页

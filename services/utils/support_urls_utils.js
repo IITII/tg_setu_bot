@@ -136,6 +136,14 @@ const supRaw = [
     [
       'https://jablehk.com/'
     ],
+    [
+      'https://asiantolick.com/category',
+      'https://asiantolick.com/tag',
+      'https://asiantolick.com/search/',
+    ],
+    [
+      'https://asiantolick.com/post',
+    ],
   ],
   supRaw_flat = supRaw.flat(Infinity),
   handle_limit = [
@@ -166,6 +174,8 @@ const supRaw = [
     [download.knit, clip.knitLimit],
     [download.jableTags, clip.jableTagsLimit],
     [download.jable, clip.jableLimit],
+    [download.asianTags, clip.asianTagsLimit],
+    [download.asian, clip.asianLimit],
   ]
 const special_url = [
   [/^https?:\/\/everia\.club\/?$/, 1],
@@ -186,6 +196,7 @@ const special_url = [
   [/^https?:\/\/jablehk\.com\/koreanjapangirls\d\/?$/, 25],
   [/^https?:\/\/jablehk\.com\/southeastasiangirls\d\/?$/, 25],
   [/^https?:\/\/jablehk\.com\/adult(-tw)?\/?$/, 25],
+  [/^https?:\/\/asiantolick\.com\/?$/, 27],
 ]
 
 let distinct_host = supRaw_flat.map(u => new URL(u))
@@ -210,10 +221,10 @@ function filterSupStart(arr, img_or_tags = 'mix') {
   let allowArr = []
   switch (img_or_tags) {
     case 'img':
-      allowArr = [0, 2, 4, 6, 10, 12, 14, 16, 18, 20, 22, 24, 26]
+      allowArr = [0, 2, 4, 6, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28]
       break
     case 'tags':
-      allowArr = [1, 3, 5, 8, 9, 11, 13, 15, 17, 19, 21, 23, 25]
+      allowArr = [1, 3, 5, 8, 9, 11, 13, 15, 17, 19, 21, 23, 25, 27]
       break
     case 'mix':
     default:

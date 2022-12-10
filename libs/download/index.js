@@ -30,6 +30,8 @@ const knit = require('./sites/Knit'),
   knitTags = require('./sites/KnitTags')
 const jable = require('./sites/Jable'),
   jableTags = require('./sites/JableTags')
+const asian = require('./sites/Asian'),
+  asianTags = require('./sites/AsianTags')
 
 
 module.exports = {
@@ -55,4 +57,6 @@ module.exports = {
   knitTags,
   jable,
   jableTags,
+  asian,
+  asianTags,
 }
