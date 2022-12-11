@@ -56,9 +56,9 @@ async function get_dom(url, handle_dom) {
         let utf8 = 'utf8'
         let try_utf8 = buf.toString()
         let $ = load(try_utf8)
-        let content = $('meta[http-equiv="Content-Type" i]').attr('content').split(';').pop().split('=').pop()
-        content = content.replace(/-_/g, '').toLowerCase()
-        if (content !== utf8) {
+        let content = $('meta[http-equiv="Content-Type" i]').attr('content')?.split(';').pop().split('=').pop()
+        content = content?.replace(/-_/g, '').toLowerCase()
+        if (content && content !== utf8) {
           try {
             buf = encoding.convert(buf, utf8, content)
           } catch (e) {
