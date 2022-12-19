@@ -38,8 +38,6 @@ async function handle_ctx(ctx) {
     const msg = `请检查当前模式,无法解析消息: ${JSON.stringify(message)}`
     return ctx.reply(msg, {reply_to_message_id: message_id})
   }
-  // encode url for request
-  urls = urls.map(u => u.includes('%') ? u : encodeURI(u))
   const urlInfo = {chat_id, message_id, session, urls}
   return debounce(urlInfo)
 }
@@ -72,6 +70,8 @@ async function timeout(chat_id, message_id, session, k, info) {
     let msg_id, urls
     msg_id = msg_url[msg_url.length - 1].message_id
     urls = msg_url.map(u => u.url)
+    // encode url for request
+    urls = urls.map(u => u.includes('%') ? u : encodeURI(u))
     const v = {chat_id, message_id: msg_id, session, urls}
     await split_storage_event(v)
   }

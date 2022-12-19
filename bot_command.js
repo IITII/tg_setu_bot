@@ -160,6 +160,8 @@ async function end_sub(ctx) {
   const uid = ctx.message.from.id
   let urls = subMap.get(uid) || []
   urls = uniq(urls)
+  // encode url for request
+  urls = urls.map(u => u.includes('%') ? u : encodeURI(u))
   let s = `${isSub ? '' : '取消'}订阅 ${urls.length} 条链接`
   for (const url of urls) {
     const redis_handle = isSub ? redis_add_sub : redis_remove_sub
@@ -177,8 +179,6 @@ async function add_to_sub(ctx) {
   const message = ctx.message || ctx.update.message
   const uid = ctx.message.from.id
   let urls = message_decode(message, 'mix')
-  // encode url for request
-  urls = urls.map(u => u.includes('%') ? u : encodeURI(u))
   urls = filterTagsOnly(urls)
   const preUrls = subMap.get(uid) || []
   logger.debug(`${uid} add ${urls.length}, pre: ${preUrls.length}`, urls)
