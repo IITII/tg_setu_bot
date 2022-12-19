@@ -177,6 +177,8 @@ async function add_to_sub(ctx) {
   const message = ctx.message || ctx.update.message
   const uid = ctx.message.from.id
   let urls = message_decode(message, 'mix')
+  // encode url for request
+  urls = urls.map(u => u.includes('%') ? u : encodeURI(u))
   urls = filterTagsOnly(urls)
   const preUrls = subMap.get(uid) || []
   logger.debug(`${uid} add ${urls.length}, pre: ${preUrls.length}`, urls)

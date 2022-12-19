@@ -26,7 +26,7 @@ async function handle_ctx(ctx) {
     message_id = message.message_id,
     session = ctx.session
   const {img_or_tags} = session.opts
-  const urls = message_decode(message, img_or_tags)
+  let urls = message_decode(message, img_or_tags)
   if (urls.length === 0) {
     // 在转发 mediaGroup 的时候, 机器人会接受到和 media 数量相同个 msg,
     // 每一个 msg 里面的 photo 都是同一张图片的不同分辨率,
@@ -38,6 +38,8 @@ async function handle_ctx(ctx) {
     const msg = `请检查当前模式,无法解析消息: ${JSON.stringify(message)}`
     return ctx.reply(msg, {reply_to_message_id: message_id})
   }
+  // encode url for request
+  urls = urls.map(u => u.includes('%') ? u : encodeURI(u))
   const urlInfo = {chat_id, message_id, session, urls}
   return debounce(urlInfo)
 }
