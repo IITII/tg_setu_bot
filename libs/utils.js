@@ -140,6 +140,7 @@ function format_sub_title(raw, multiSpace = '') {
   res = res.replace(/Page\s\d+/g, ' ')
   // res = res.replace(/\s\d+P(\d+[MG]B)?(\d+V)?/ig, ' ')
   res = res.replace(/P(\d+[MG]B)?(\d+V)?/ig, 'P')
+  res = allowChars(res)
   res = res.replace(/\s+/g, multiSpace)
   return res.trim()
 }
@@ -217,6 +218,56 @@ function base64_decode(str, magic = 'base64_') {
   return Buffer.from(str.replace(magic, ''), 'base64').toString()
 }
 
+/**
+ * 筛选特殊字符
+ * @example escape('1aA-_@中é') => 1aA-_@%u4E2D%E9
+ */
+function allowChars(str, log = logger) {
+  let res = ''
+  for (const c of str) {
+    let uni = escape(c), c16, url_max = 0x7e, rep = false
+    switch (uni.length) {
+      case 1:
+        // ascii chars
+        break
+      case 3:
+        // URL encode
+        // https://blog.csdn.net/guoquanyou/article/details/3268939
+        c16 = uni.slice(1)
+        c16 = parseInt(c16, 16)
+        if (c16 > url_max) {
+          rep = true
+          log.warn(`URL encode char '${c}' => ${uni} is not allowed`, str)
+        }
+        break
+      case 6:
+        // unicode
+        // allow 中文 & ascii: /(\w|[\u4E00-\u9FA5])*/
+        const notAll = ['%u0301']
+        if (notAll.indexOf(uni) >= 0) {
+          rep = true
+          log.warn(`URL encode char '${c}' => ${uni} is not allowed`, str)
+        } else {
+          //
+        }
+        break
+      case 12:
+        // unicode emoji
+        rep = true
+        log.warn(`emoji '${c}' => ${uni} is not allowed`, str)
+        break
+      default:
+        rep = true
+        log.warn(`char '${c}' => ${uni} too long: ${uni.length}`, str)
+        break
+    }
+    if (!rep) {
+      res += c
+    }
+  }
+  return res
+}
+
 module.exports = {
   mkdir,
   downloadFile,
@@ -233,4 +284,5 @@ module.exports = {
   format_date,
   base64_encode,
   base64_decode,
+  allowChars,
 }
