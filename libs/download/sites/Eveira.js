@@ -19,7 +19,7 @@ module.exports = class Eveira extends AbsDownloader {
         return {url: el.attribs.href, text: $(el).text()}
       }).get(),
       tags = urlTextsToAbs(tagsR, original)
-    const rawImgs = $('.entry-content img').map((i, el) => el.attribs.src).get()
+    const rawImgs = $('.entry-content img').map((i, el) => el.attribs['data-src']).get()
     const absImgs = arrToAbsUrl(rawImgs, original),
       imgs = uniq(absImgs)
     // const imgs = await zipUrlExt(absImgs, getSaveDir(title))
