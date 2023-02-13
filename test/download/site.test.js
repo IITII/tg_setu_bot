@@ -8,16 +8,18 @@ const sites = require('../../libs/download')
 
 let site, url, siteTags
 
-site = sites.eveira
-// siteTags = sites.eveiraTags
+// site = sites.kup
+siteTags = sites.kupTags
 
 
 if (site) {
-  url = 'https://everia.club/2023/02/08/karen-yuzuriha-%e6%a5%aa%e3%82%ab%e3%83%ac%e3%83%b3-graphis-gals-%e3%80%8cunveil%e3%80%8d-vol-03/'
+  url = 'https://www.4kup.net/2023/01/coserg44-vol076.html'
   site.getImageArray(url).then(console.log).catch(console.error)
 }
 
 if (siteTags) {
- // url =
+  url = 'https://www.4kup.net/search?q=Jeon%20Bo-Yeon%20(%EC%A0%84%EB%B3%B4%EC%97%B0)&max-results=18'
+  siteTags.getTagUrls(url).then(console.log).catch(console.error)
+  url = 'https://www.4kup.net/'
   siteTags.getTagUrls(url).then(console.log).catch(console.error)
 }

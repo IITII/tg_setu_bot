@@ -151,6 +151,9 @@ const config = {
     // m131
     m131Limit: 2,
     m131TagsLimit: 1,
+    // 4kup
+    kupLimit: 3,
+    kupTagsLimit: 1,
     // 图片 header
     headLimit: 20,
     // 上/下一页

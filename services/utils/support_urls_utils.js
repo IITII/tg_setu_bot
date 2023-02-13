@@ -7,16 +7,12 @@ const {clip} = require('../../config/config'),
   download = require('../../libs/download')
 
 const supRaw = [
-    [
-      'https://telegra.ph/',
-    ],
+    ['https://telegra.ph/',],
     [
       'https://everia.club/tag/',
       'https://everia.club/category/',
     ],
-    [
-      'https://everia.club/',
-    ],
+    ['https://everia.club/',],
     [
       'https://www.24fa.com/search.aspx',
       'https://www.268w.cc/search.aspx',
@@ -78,17 +74,13 @@ const supRaw = [
       'https://theasiagirl.com/tag/',
       'https://theasiagirl.com/?s=',
     ],
-    [
-      'https://theasiagirl.com/',
-    ],
+    ['https://theasiagirl.com/',],
     [
       'https://buondua.com/?search=',
       'https://buondua.com/tag/',
       'https://buondua.com/hot',
     ],
-    [
-      'https://buondua.com/',
-    ],
+    ['https://buondua.com/',],
     [
       'https://tu.acgbox.org/index.php/category/',
       'https://tu.acgbox.org/index.php/search/',
@@ -100,32 +92,24 @@ const supRaw = [
       'https://www.jdlingyu.com/collection/',
       'https://www.jdlingyu.com/tag/',
     ],
-    [
-      'https://www.jdlingyu.com/',
-    ],
+    ['https://www.jdlingyu.com/',],
     [
       'https://www.muweishe.com/meizitu/',
       'https://www.muweishe.com/tag/',
     ],
-    [
-      'https://www.muweishe.com/',
-    ],
+    ['https://www.muweishe.com/',],
     [
       'https://tmdpic.com/category/',
       'https://tmdpic.com/tags/',
     ],
-    [
-      'https://tmdpic.com/html/',
-    ],
+    ['https://tmdpic.com/html/',],
     [
       'https://xx.knit.bid/sort',
       'https://xx.knit.bid/tag/',
       'https://xx.knit.bid/type/',
       'https://xx.knit.bid/search/',
     ],
-    [
-      'https://xx.knit.bid/article/',
-    ],
+    ['https://xx.knit.bid/article/',],
     [
       // 'https://jablehk.com/hongkonggirls',
       // 'https://jablehk.com/taiwangirls',
@@ -133,20 +117,18 @@ const supRaw = [
       // 'https://jablehk.com/southeastasiangirls',
       // 'https://jablehk.com/adult',
     ],
-    [
-      'https://jablehk.com/'
-    ],
+    ['https://jablehk.com/'],
     [
       'https://asiantolick.com/category',
       'https://asiantolick.com/tag',
       'https://asiantolick.com/search/',
       'https://asiantolick.com/page/',
     ],
-    [
-      'https://asiantolick.com/post',
-    ],
+    ['https://asiantolick.com/post',],
     [],
     ['https://www.mmm131.com/',],
+    ['https://www.4kup.net/search?q='],
+    ['https://www.4kup.net/',],
   ],
   supRaw_flat = supRaw.flat(Infinity),
   handle_limit = [
@@ -181,6 +163,8 @@ const supRaw = [
     [download.asian, clip.asianLimit],
     [download.m131Tags, clip.m131TagsLimit],
     [download.m131, clip.m131Limit],
+    [download.kupTags, clip.kupTagsLimit],
+    [download.kup, clip.kupLimit],
   ]
 const special_url = [
   [/^https?:\/\/everia\.club\/?$/, 1],
@@ -208,6 +192,7 @@ const special_url = [
   [/^https?:\/\/www\.mmm131\.com\/chemo\/?$/, 29],
   [/^https?:\/\/www\.mmm131\.com\/qipao\/?$/, 29],
   [/^https?:\/\/www\.mmm131\.com\/mingxing\/?$/, 29],
+  [/^https?:\/\/www\.4kup\.net\/?$/, 31],
 ]
 
 let distinct_host = supRaw_flat.map(u => new URL(u))
@@ -232,10 +217,10 @@ function filterSupStart(arr, img_or_tags = 'mix') {
   let allowArr = []
   switch (img_or_tags) {
     case 'img':
-      allowArr = [0, 2, 4, 6, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30]
+      allowArr = [0, 2, 4, 6, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32]
       break
     case 'tags':
-      allowArr = [1, 3, 5, 8, 9, 11, 13, 15, 17, 19, 21, 23, 25, 27, 29]
+      allowArr = [1, 3, 5, 8, 9, 11, 13, 15, 17, 19, 21, 23, 25, 27, 29, 31]
       break
     case 'mix':
     default:

@@ -5,6 +5,7 @@
 'use strict'
 const path = require('path'),
   {uniq, uniqBy} = require('lodash'),
+  cloudscraper = require('cloudscraper'),
   {load} = require('cheerio')
 const {axios} = require('../axios_client'),
   {clip} = require('../../config/config'),
@@ -35,7 +36,7 @@ module.exports = {
   format_origin,
 }
 
-async function get_dom(url, handle_dom) {
+async function get_dom(url, handle_dom, cf) {
   return await new Promise(async (resolve) => {
     const start = new Date()
     let res = {
@@ -43,31 +44,39 @@ async function get_dom(url, handle_dom) {
       meta: undefined, tags: undefined,
     }
     logger.debug(`Getting image urls from ${url}`)
-    await axios.get(url, {
-      responseType: 'arraybuffer',
-      headers: {
-        'referer': url,
-        Host: new URL(url).host,
-        Connection: 'keep-alive',
-      },
-    })
-      .then(res => {
-        let buf = res.data
-        let utf8 = 'utf8'
-        let try_utf8 = buf.toString()
-        let $ = load(try_utf8)
-        let content = $('meta[http-equiv="Content-Type" i]').attr('content')?.split(';').pop().split('=').pop()
-        content = content?.replace(/-_/g, '').toLowerCase()
-        if (content && content !== utf8) {
-          try {
-            buf = encoding.convert(buf, utf8, content)
-          } catch (e) {
-            buf = encoding.convert(buf, utf8, 'GBK')
-          }
-          $ = load(buf.toString())
-        }
-        return $
+    let dom
+    if (cf) {
+      // no support proxy
+      dom = await cloudscraper(url)
+        .then(res => load(res))
+    } else {
+      dom = await axios.get(url, {
+        responseType: 'arraybuffer',
+        headers: {
+          'referer': url,
+          Host: new URL(url).host,
+          Connection: 'keep-alive',
+        },
       })
+        .then(res => {
+          let buf = res.data
+          let utf8 = 'utf8'
+          let try_utf8 = buf.toString()
+          let $ = load(try_utf8)
+          let content = $('meta[http-equiv="Content-Type" i]').attr('content')?.split(';').pop().split('=').pop()
+          content = content?.replace(/-_/g, '').toLowerCase()
+          if (content && content !== utf8) {
+            try {
+              buf = encoding.convert(buf, utf8, content)
+            } catch (e) {
+              buf = encoding.convert(buf, utf8, 'GBK')
+            }
+            $ = load(buf.toString())
+          }
+          return $
+        })
+    }
+    Promise.resolve(dom)
       .then(async $ => res = await handle_dom($, url))
       .catch(e => {
         logger.debug(`Get ImageArray failed, url: ${url}`)
@@ -93,7 +102,7 @@ async function post_dom(url, postBody, handle_dom, handle_error, parse, retry, o
       meta: undefined, tags: undefined,
     }
     logger.debug(`Getting image urls from ${url}`)
-    await axios.post(url, postBody,{
+    await axios.post(url, postBody, {
       responseType: 'document',
       headers: {
         'referer': original,
@@ -137,11 +146,11 @@ function format_origin(url, protectKey = '_') {
 }
 
 
-async function getImgArr(url, handle_dom, handle_other_pages = undefined) {
+async function getImgArr(url, handle_dom, handle_other_pages = undefined, cf = false) {
   if (!handle_other_pages) {
-    handle_other_pages = u => get_dom(u, handle_dom)
+    handle_other_pages = u => get_dom(u, handle_dom, cf)
   }
-  const firstPage = await get_dom(url, handle_dom)
+  const firstPage = await get_dom(url, handle_dom, cf)
   let {title, imgs, otherPages, related, cost, original, tags, external} = firstPage
   if (!otherPages || otherPages.length === 0) {
     return Promise.resolve(firstPage)
@@ -193,8 +202,8 @@ async function zipUrlExt(imgArr, saveDir, limit = clip.headLimit) {
       const savePath = path.resolve(saveDir + path.sep + (i + 1) + ext)
       return {url, savePath}
     } catch (e) {
-      logger.error("zipHandle", e)
-      return {url, savePath: ""}
+      logger.error('zipHandle', e)
+      return {url, savePath: ''}
     }
   }
 
@@ -223,7 +232,7 @@ function urlTextsToAbs(url_texts, original, uniq = false) {
   })
   if (uniq) {
     'url'
-    // 'url,text'
+      // 'url,text'
       .split(',').forEach(e => {
       dup = uniqBy(dup, e)
     })

@@ -119,6 +119,7 @@ const supRaw = [
       'https://asiantolick.com/page/',
     ],
     [],
+    ['https://www.4kup.net/search?q='],
   ],
   supRaw_flat = supRaw.flat(Infinity),
   handle_limit = [
@@ -139,6 +140,7 @@ const supRaw = [
     [download.jableTags, check.all],
     [download.asianTags, check.all],
     [download.m131Tags, check.all],
+    [download.kupTags, check.all],
   ]
 const special_url = [
   [/^https?:\/\/everia.club\/?$/, 0],
@@ -165,6 +167,7 @@ const special_url = [
   [/^https?:\/\/www\.mmm131\.com\/chemo\/?$/, 16],
   [/^https?:\/\/www\.mmm131\.com\/qipao\/?$/, 16],
   [/^https?:\/\/www\.mmm131\.com\/mingxing\/?$/, 16],
+  [/^https?:\/\/www\.4kup\.net\/?$/, 17],
 ]
 
 function filterTagsOnly(arr, formatHost = true) {

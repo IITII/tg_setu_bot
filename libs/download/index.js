@@ -34,6 +34,8 @@ const asian = require('./sites/Asian'),
   asianTags = require('./sites/AsianTags')
 const m131 = require('./sites/M131'),
   m131Tags = require('./sites/M131Tags')
+const kup = require('./sites/kup.js'),
+  kupTags = require('./sites/kupTags.js')
 
 
 module.exports = {
@@ -63,4 +65,6 @@ module.exports = {
   asianTags,
   m131,
   m131Tags,
+  kup,
+  kupTags,
 }

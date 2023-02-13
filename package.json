@@ -17,6 +17,7 @@
     "axios": "^0.27.2",
     "axios-cookiejar-support": "^4.0.3",
     "cheerio": "^1.0.0-rc.11",
+    "cloudscraper": "^4.6.0",
     "dayjs": "^1.11.3",
     "encoding": "^0.1.13",
     "file-type": "^17.1.2",
