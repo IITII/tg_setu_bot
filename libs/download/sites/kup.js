@@ -9,13 +9,14 @@ const {titleFormat} = require('../../utils.js')
 const {urlTextsToAbs, arrToAbsUrl} = require('../dl_utils.js')
 const {uniq} = require('lodash'),
   {load} = require('cheerio')
+const {logger} = require("../../../middlewares/logger");
 
 async function getImageArray(url) {
  return getImgArr(url, handle_dom, undefined, false)
 }
 
 async function handle_dom($, original) {
- let title, imgs, otherPages, related, tags, denyPages, urls, external, script
+ let title, imgs, otherPages, related, tags, denyPages, urls, external, script, regex
  denyPages = '«,»'.split(',')
 
  title = $('.post-content .post-title').text()
@@ -32,6 +33,25 @@ async function handle_dom($, original) {
  // external = $('#download a').map((i, el) => {
  //  return {url: el.attribs.href, text: $(el).text()}
  // }).get()
+
+ regex = /h\d+(-e\d+)?/
+ imgs = imgs.map(i => {
+  try {
+   const targetPx = 'h4096'
+   let arr = i.split('/'), res
+   arr = arr[arr.length-2]
+   if (regex.test(arr)) {
+    res = i.replace(arr, targetPx)
+    logger.debug(`replace ${arr} to ${targetPx}: ${i} -> ${res}`)
+   } else {
+    res = i
+   }
+   return res
+  } catch (e) {
+   logger.error(`parse error: ${i}`, e)
+   return i
+  }
+ })
 
  title = titleFormat(title)
  imgs = uniq(imgs)

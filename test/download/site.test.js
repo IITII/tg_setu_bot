@@ -8,8 +8,8 @@ const sites = require('../../libs/download')
 
 let site, url, siteTags
 
-// site = sites.kup
-siteTags = sites.kupTags
+site = sites.kup
+// siteTags = sites.kupTags
 
 
 if (site) {
