@@ -197,6 +197,7 @@ let busyTimer = null
 async function run() {
   if (busy) {
     logger.warn('sub task busy, skip', currentTask)
+    await send_to_subscriber(`#busy\n\nsub task busy, skip\n`, currentTask.info.uid, [], JSON.stringify(currentTask))
     return
   }
   try {
