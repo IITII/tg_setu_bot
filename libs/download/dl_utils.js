@@ -76,7 +76,7 @@ async function get_dom(url, handle_dom, cf) {
           return $
         })
     }
-    dom.then(async $ => res = await handle_dom($, url))
+    await dom.then(async $ => res = await handle_dom($, url))
       .catch(e => {
         logger.debug(`Get ImageArray failed, url: ${url}`)
         logger.debug(e)
