@@ -47,10 +47,10 @@ async function get_dom(url, handle_dom, cf) {
     let dom
     if (cf) {
       // no support proxy
-      dom = await cloudscraper(url)
+      dom = cloudscraper(url)
         .then(res => load(res))
     } else {
-      dom = await axios.get(url, {
+      dom = axios.get(url, {
         responseType: 'arraybuffer',
         headers: {
           'referer': url,
@@ -76,8 +76,7 @@ async function get_dom(url, handle_dom, cf) {
           return $
         })
     }
-    Promise.resolve(dom)
-      .then(async $ => res = await handle_dom($, url))
+    dom.then(async $ => res = await handle_dom($, url))
       .catch(e => {
         logger.debug(`Get ImageArray failed, url: ${url}`)
         logger.debug(e)

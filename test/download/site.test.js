@@ -8,8 +8,8 @@ const sites = require('../../libs/download')
 
 let site, url, siteTags
 
-site = sites.kup
-// siteTags = sites.kupTags
+// site = sites.kup
+siteTags = sites.asiaGTags
 
 
 if (site) {
@@ -18,8 +18,6 @@ if (site) {
 }
 
 if (siteTags) {
-  url = 'https://www.4kup.net/search?q=Jeon%20Bo-Yeon%20(%EC%A0%84%EB%B3%B4%EC%97%B0)&max-results=18'
-  siteTags.getTagUrls(url).then(console.log).catch(console.error)
-  url = 'https://www.4kup.net/'
+  url = 'https://theasiagirl.com/tag/sia_s22/'
   siteTags.getTagUrls(url).then(console.log).catch(console.error)
 }

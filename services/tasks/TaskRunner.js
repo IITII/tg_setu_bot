@@ -211,7 +211,7 @@ async function run() {
         if (!(handle && breakTime)) {
           throw new Error(`No support handle for this url: ${url}`)
         }
-        logger.debug(`start task: ${url}, info: ${info}`)
+        logger.debug(`start task: ${url}, info:`, info)
         currentTask = {url, info}
         await task(url, info, handle, breakTime)
       }
