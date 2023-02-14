@@ -191,11 +191,12 @@ async function start() {
 }
 
 let busy = false
+let currentTask = null
 let busyTimer = null
 
 async function run() {
   if (busy) {
-    logger.warn('sub task busy, skip')
+    logger.warn('sub task busy, skip', currentTask)
     return
   }
   try {
@@ -209,6 +210,8 @@ async function run() {
         if (!(handle && breakTime)) {
           throw new Error(`No support handle for this url: ${url}`)
         }
+        logger.debug(`start task: ${url}, info: ${info}`)
+        currentTask = {url, info}
         await task(url, info, handle, breakTime)
       }
     }
@@ -216,6 +219,7 @@ async function run() {
     // 0.5s 内重复触发，不再执行
     busyTimer = setTimeout(() => {
       busy = false
+      currentTask = null
       busyTimer = null
     }, 500)
   }
