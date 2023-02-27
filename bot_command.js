@@ -13,6 +13,7 @@ const {loggerMiddleware, logger} = require('./middlewares/logger'),
   {message_decode} = require('./services/utils/service_utils'),
   {filterTagsOnly} = require('./services/tasks/TaskRunner'),
   picMsgRec = require('./services/msg/UserMsgReceiver'),
+  {searchMsgRec} = require('./services/msg/UnionSearch.js'),
   {redis_add_sub, redis_remove_sub} = require('./services/utils/redis_utils')
 
 const commands = [
@@ -23,6 +24,7 @@ const commands = [
   ['/download', download,],
   ['/sub', start_end_sub,],
   ['/u_sub', start_end_sub,],
+  ['/search', search,],
 ]
 const actions = [
   // ...img_or_tags_arr.map(([_, ac]) => [ac, action_img_or_tags]),
@@ -30,7 +32,7 @@ const actions = [
 ]
 
 function init_session(ctx) {
-  let {curr, pic, sub, opts} = ctx.session || default_session
+  let {curr, pic, sub, search, opts} = ctx.session || default_session
   ctx.session = {
     curr: curr || default_session.curr,
     pic: {
@@ -40,6 +42,10 @@ function init_session(ctx) {
     sub: {
       ...default_session.sub,
       ...sub,
+    },
+    search: {
+      ...default_session.search,
+      ...search,
     },
     opts: {
       ...default_session.opts,
@@ -134,6 +140,17 @@ async function action_async_handler(ctx) {
   return ctx.answerCbQuery(`${text || match[0]}!!!`)
 }
 
+async function search(ctx) {
+  ctx = init_session(ctx)
+  if (ctx.session.curr === 'search') {
+    ctx = pic_init(ctx)
+    return ctx.reply('退出搜索模式...')
+  } else {
+    ctx.session.curr = 'search'
+    return ctx.reply('输入关键词以搜索...')
+  }
+}
+
 // sub commands
 async function start_end_sub(ctx) {
   ctx = sub_init(ctx)
@@ -197,6 +214,9 @@ async function message_forward(ctx) {
       break
     case 'sub':
       await add_to_sub(ctx)
+      break
+    case 'search':
+      await searchMsgRec(ctx)
       break
     case 'init':
     case 'opts':

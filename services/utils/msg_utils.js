@@ -52,6 +52,9 @@ const default_session = {
      */
     urls: [],
   },
+  search: {
+    mode: '',
+  },
   opts: {
     // img, tags, mix
     img_or_tags: 'img',
