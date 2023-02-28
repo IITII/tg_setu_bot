@@ -112,6 +112,9 @@ async function msg_common_handle(msg, tg = mainBot?.telegram) {
       case TypeEnum.DEL_FILE:
         res = await handle_del_file(msg, tg)
         break
+      default:
+        logger.error(`unknown msg type: ${msg.type}, maybe msg is array?`, msg)
+        break
     }
     return res
   }
