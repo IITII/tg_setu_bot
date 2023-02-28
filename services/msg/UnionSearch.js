@@ -14,8 +14,8 @@ const {logger} = require('../../middlewares/logger.js')
 async function searchMsgRec(ctx) {
   let chatId, msg, text, reply_to_message_id, tags, tagsArr, tagUrls, search_count = 0, search_res,
     start_time = Date.now(), batchMsg
-  chatId = ctx.chat.id
   msg = ctx.message || ctx.update.message || ctx.editedMessage
+  chatId = msg.chat.id
   reply_to_message_id = msg.message_id
   text = msg.text
   if (!text) {
@@ -57,6 +57,7 @@ async function searchMsgRec(ctx) {
       batchMsg.push(msg)
     })
   }
+  batchMsg = batchMsg.flat(Infinity)
   return await sendBatchMsg(batchMsg)
 }
 
