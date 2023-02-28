@@ -265,7 +265,7 @@ function getLimitByUrl(url) {
 }
 
 module.exports = {
-  supRaw,
+  supportUrlArr: supRaw,
   isSupport,
   filterSupStart,
   handle_sup_url,

@@ -7,7 +7,7 @@
 const {uniq, uniqBy, differenceBy} = require('lodash'),
   {check, taskName, taskLimit} = require('../../config/config'),
   {format_date, spendTime, time_human_readable, format_sub_title} = require('../../libs/utils'),
-  {getIndexByUrl} = require('../utils/support_urls_utils'),
+  {supportUrlArr, getIndexByUrl} = require('../utils/support_urls_utils'),
   {getPhotoMsg, sendBatchMsg, getTextMsg} = require('../utils/msg_utils'),
   {get_random_next, HSET, HGETALL, get_sent_sub, set_sent_sub} = require('../utils/redis_utils')
 const EveiraTags = require('../../libs/download/sites/EveiraTags'),
@@ -22,28 +22,34 @@ const {log_url_texts} = require('../utils/service_utils')
 const {logger} = require('../../middlewares/logger')
 
 const supRaw = [
+    [...supportUrlArr[1]],
+    [...supportUrlArr[3]],
     [
       'https://www.24fa.com/c49.aspx',
       'https://www.268w.cc/c49.aspx',
       'https://www.116w.cc/c49.aspx',
     ],
-    [...supRaw[1]],
-    [...supRaw[3]],
-    [...supRaw[5]],
-    [...supRaw[7]],
-    [...supRaw[8]],
-    [...supRaw[9]],
-    [...supRaw[11]],
-    [...supRaw[13]],
-    [...supRaw[15]],
-    [...supRaw[17]],
-    [...supRaw[19]],
-    [...supRaw[21]],
-    [...supRaw[23]],
-    [...supRaw[25]],
-    [...supRaw[27]],
-    [...supRaw[29]],
-    [...supRaw[31]],
+    [...supportUrlArr[5]],
+    [...supportUrlArr[7]],
+    [...supportUrlArr[8]],
+    [...supportUrlArr[9]],
+    [...supportUrlArr[11]],
+    [...supportUrlArr[13]],
+    [...supportUrlArr[15]],
+    [...supportUrlArr[17]],
+    [...supportUrlArr[19]],
+    [...supportUrlArr[21]],
+    [...supportUrlArr[23]],
+    [
+      'https://jablehk.com/hongkonggirls',
+      'https://jablehk.com/taiwangirls',
+      'https://jablehk.com/koreanjapangirls',
+      'https://jablehk.com/southeastasiangirls',
+      'https://jablehk.com/adult',
+    ],
+    [...supportUrlArr[27]],
+    [...supportUrlArr[29]],
+    [...supportUrlArr[31]],
   ],
   supRaw_flat = supRaw.flat(Infinity),
   handle_limit = [
@@ -66,6 +72,7 @@ const supRaw = [
     [download.m131Tags, check.all],
     [download.kupTags, check.all],
   ]
+// const special_url_raw = [0,3,3,3,7,8,9,9,12,12,13,14,14,14,14,14,14,15,16,16,16]
 const special_url = [
   [/^https?:\/\/everia.club\/?$/, 0],
   [/^https?:\/\/junmeitu\.com\/beauty\/?$/, 3],
