@@ -19,7 +19,7 @@ const {run_out_mq} = require('../utils/mq_utils'),
   {zipUrlExt, getSaveDir} = require('../../libs/download/dl_utils'),
   {send_text, getMediaGroupMsg, sendBatchMsg, getDoneTextMsg} = require('../utils/msg_utils'),
   {log_ph, log_related, log_meta_tag} = require('../utils/service_utils'),
-  {getLimitByUrl, handle_sup_url, filter_deny_urls} = require('../utils/support_urls_utils')
+  {getLimitByUrl, handleImgUrl, filter_deny_urls} = require('../utils/support_urls_utils')
 const {set_sent_sub} = require('../utils/redis_utils')
 
 async function start() {
@@ -88,7 +88,7 @@ End: ${format_date()}`
 
 async function fetchPhotos(urls) {
   const crawlStart = new Date()
-  let photos = await currMapLimit(urls, clip.webLimit, handle_sup_url)
+  let photos = await currMapLimit(urls, clip.webLimit, handleImgUrl)
   photos = photos.flat(Infinity)
     .map(_ => {
       _.imgs = filter_deny_urls(_.imgs)

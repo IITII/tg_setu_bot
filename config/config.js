@@ -21,6 +21,10 @@ const config = {
     adminId: process.env.ADMIN_ID,
     forwardId: process.env.FORWARD_ID,
   },
+  search: {
+    // 是否将搜索结果发送到订阅频道, 默认 false
+    send_to_sub: process.env.SEND_TO_SUB === 'true',
+  },
   PROXY: process.env.PROXY,
   db: {
     database: process.env.DB_FILE || '../db/db.json',

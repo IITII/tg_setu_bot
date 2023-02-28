@@ -202,6 +202,17 @@ const special_url = [
   [/^https?:\/\/www\.mmm131\.com\/mingxing\/?$/, 29],
   [/^https?:\/\/www\.4kup\.net\/?$/, 31],
 ]
+const searchArr = [
+  'https://www.24fa.com/search.aspx?keyword={##}&where=title',
+  'https://junmeitu.com/search/{##}-1.html',
+  'https://dongti2023.com/?s={##}',
+  'https://theasiagirl.com/?s={##}',
+  'https://buondua.com/?search={##}',
+  'https://tu.acgbox.org/index.php/search/{##}/',
+  'https://xx.knit.bid/search/?s={##}',
+  'https://asiantolick.com/search/{##}',
+  'https://www.4kup.net/search?q={##}&max-results=18'
+]
 
 let distinct_host = supRaw_flat.map(u => new URL(u))
   .map(u => `${u.protocol}//${u.username}:${u.password}@${u.host}`)
@@ -254,9 +265,14 @@ function getIndexByUrl(url,
   return idx
 }
 
-async function handle_sup_url(url) {
+async function handleImgUrl(url) {
   let idx = getIndexByUrl(url)
   return handle_limit[idx][0].getImageArray(url)
+}
+
+async function handleTagUrl(url) {
+  let idx = getIndexByUrl(url)
+  return handle_limit[idx][0].getTagUrls(url)
 }
 
 function getLimitByUrl(url) {
@@ -266,9 +282,11 @@ function getLimitByUrl(url) {
 
 module.exports = {
   supportUrlArr: supRaw,
+  searchArr,
   isSupport,
   filterSupStart,
-  handle_sup_url,
+  handleImgUrl,
+  handleTagUrl,
   getLimitByUrl,
   getIndexByUrl,
   filter_deny_urls,
