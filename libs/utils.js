@@ -128,9 +128,9 @@ function titleFormat(title) {
 function format_sub_title(raw, multiSpace = '') {
   let res = raw
   res = res.replace(/[\[\]()+*.\\/\-—–?${}@!&\n\r~`|=#…%;；:：'"<>。，,《》【】「」、！￥（）～]/g, ' ')
-  res = res.replace(/\d+月\d+日?会员(资源)?/g, ' ')
+  // res = res.replace(/\d+月\d+日?会员(资源)?/g, ' ')
   res = res.replace(/福利(姬)?/g, ' ')
-  res = res.replace(/COS(ER)?/ig, ' ')
+  // res = res.replace(/COS(ER)?/ig, ' ')
   res = res.replace(/写真(集|套图)/g, ' ')
   res = res.replace(/标题：?/g, ' ')
   res = res.replace(/(网红|套图)/g, ' ')
