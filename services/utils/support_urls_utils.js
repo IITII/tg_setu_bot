@@ -6,6 +6,10 @@
 const {clip} = require('../../config/config'),
   download = require('../../libs/download')
 
+/**
+ * 二维数组形式, 按 tag/搜索, 详情页 格式排序.
+ * tag/搜索 之类的网址放前面
+ */
 const supRaw = [
     ['https://telegra.ph/',],
     [
@@ -114,8 +118,12 @@ const supRaw = [
     ['https://www.mmm131.com/',],
     ['https://www.4kup.net/search?q='],
     ['https://www.4kup.net/',],
+    ['https://www.hentaicomic.ru/search/?q=', 'https://www.hentaicomic.ru/albums-index-cate-3.html'],
+    ['https://www.hentaicomic.ru/',],
   ],
+  // flat 之后方便判断用户输入的网址是否支持
   supRaw_flat = supRaw.flat(Infinity),
+  // 和网址一一对应, 指定 handler 和 limit
   handle_limit = [
     [download.telegraph, clip.telegrafLimit],
     [download.eveiraTags, clip.eveLimit],
@@ -150,7 +158,10 @@ const supRaw = [
     [download.m131, clip.m131Limit],
     [download.kupTags, clip.kupTagsLimit],
     [download.kup, clip.kupLimit],
+    [download.hentaiComicTags, clip.hentaiComicTagsLimit],
+    [download.hentaiComic, clip.hentaiComicLimit],
   ]
+// 特定 url 完全匹配, 指定 handler
 const special_url = [
   [/^https?:\/\/everia\.club\/?$/, 1],
   [/^https?:\/\/junmeitu\.com\/beauty\/?$/, 5],
@@ -179,6 +190,7 @@ const special_url = [
   [/^https?:\/\/www\.mmm131\.com\/mingxing\/?$/, 29],
   [/^https?:\/\/www\.4kup\.net\/?$/, 31],
 ]
+// 聚合网址搜索, 字符串替换关键字
 const searchArr = [
   'https://www.24fa.com/search.aspx?keyword={##}&where=title',
   'https://junmeitu.com/search/{##}-1.html',
@@ -188,7 +200,8 @@ const searchArr = [
   'https://tu.acgbox.org/index.php/search/{##}/',
   'https://xx.knit.bid/search/?s={##}',
   'https://asiantolick.com/search/{##}',
-  'https://www.4kup.net/search?q={##}&max-results=18'
+  'https://www.4kup.net/search?q={##}&max-results=18',
+  'https://www.hentaicomic.ru/search/?q={##}&f=_all&s=create_time_DESC&syn=yes',
 ]
 
 let distinct_host = supRaw_flat.map(u => new URL(u))
@@ -206,6 +219,9 @@ function isSupport(text) {
   return text && supRaw_flat.some(_ => text.includes(_))
 }
 
+/**
+ * 按类型, 提供支持的 handle_limit 的 handler 下标
+ */
 function filterSupStart(arr, img_or_tags = 'mix') {
   let mix
   mix = arr.filter(_ => supRaw_flat.some(s => _.startsWith(s)))
@@ -213,10 +229,10 @@ function filterSupStart(arr, img_or_tags = 'mix') {
   let allowArr = []
   switch (img_or_tags) {
     case 'img':
-      allowArr = [0, 2, 4, 6, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32]
+      allowArr = [0, 2, 4, 6, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32, 34]
       break
     case 'tags':
-      allowArr = [1, 3, 5, 8, 9, 11, 13, 15, 17, 19, 21, 23, 25, 27, 29, 31]
+      allowArr = [1, 3, 5, 8, 9, 11, 13, 15, 17, 19, 21, 23, 25, 27, 29, 31, 33]
       break
     case 'mix':
     default:

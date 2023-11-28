@@ -158,6 +158,9 @@ const config = {
     // 4kup
     kupLimit: 3,
     kupTagsLimit: 1,
+    // hentaiComic
+    hentaiComicLimit: 3,
+    hentaiComicTagsLimit: 1,
     // 图片 header
     headLimit: 20,
     // 上/下一页

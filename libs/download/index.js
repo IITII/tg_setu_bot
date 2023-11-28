@@ -36,6 +36,8 @@ const m131 = require('./sites/M131'),
   m131Tags = require('./sites/M131Tags')
 const kup = require('./sites/kup.js'),
   kupTags = require('./sites/kupTags.js')
+const hentaiComic = require('./sites/HentaiComic'),
+  hentaiComicTags = require('./sites/HentaiComicTags')
 
 
 module.exports = {
@@ -67,4 +69,6 @@ module.exports = {
   m131Tags,
   kup,
   kupTags,
+  hentaiComic,
+  hentaiComicTags,
 }

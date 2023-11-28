@@ -50,6 +50,7 @@ const supRaw = [
     [...supportUrlArr[27]],
     [...supportUrlArr[29]],
     [...supportUrlArr[31]],
+    [...supportUrlArr[33]],
   ],
   supRaw_flat = supRaw.flat(Infinity),
   handle_limit = [
@@ -71,6 +72,7 @@ const supRaw = [
     [download.asianTags, check.all],
     [download.m131Tags, check.all],
     [download.kupTags, check.all],
+    [download.hentaiComicTags, check.all],
   ]
 // const special_url_raw = [0,3,3,3,7,8,9,9,12,12,13,14,14,14,14,14,14,15,16,16,16]
 const special_url = [
