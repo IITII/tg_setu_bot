@@ -70,11 +70,11 @@ const config = {
   },
   check: {
     // 随机时长比例
-    randomRate: 0.20,
+    randomRate: process.env.CHECK_RANDOM_RATE,
     // 默认任务检查时间间隔, 6h
-    all: 1000 * 60 * 60 * 6,
+    all: process.env.CHECK_ALL,
     // 5 分钟检查一次 redis
-    period: 1000 * 60 * 5,
+    period: process.env.CHECK_PERIOD,
   },
   taskName: 'bot_schedule_task',
   taskLimit: {
@@ -88,8 +88,9 @@ const config = {
     latest: 3,
     // 第一次运行时最多发送条数
     firstMax: 50,
+    // 重复的太多, 不设置过期了
     // 订阅已发送链接过期时间, 5years
-    sub_expire: 60 * 60 * 24 * 30 * 12 * 5,
+    // sub_expire: 60 * 60 * 24 * 30 * 12 * 5,
     // 订阅已发送链接
     sub_prefix: {
       url: 'bot_sent_sub_url_',
@@ -101,13 +102,13 @@ const config = {
     },
   },
   redis: {
-    url: process.env.REDIS_URL || 'redis://:review_pic@127.0.0.1:6379',
+    url: process.env.REDIS_URL || 'redis://:review_pic@redis:6379',
   },
   cookies: {
     // cookie 设置
     acgBox: {
-      cookie: 'abb76c49380724ba45b0b8adb589f243protectPassword=acgbox',
-      postBody: {protectPassword: 'acgbox'},
+      cookie: process.env.ACG_BOX_COOKIE || 'abb76c49380724ba45b0b8adb589f243protectPassword=acgbox',
+      postBody: {protectPassword: process.env.ACG_BOX_PASSWORD || 'acgbox'},
     },
   },
   // 并发限制
@@ -184,6 +185,10 @@ if (!config.db.database) {
 }
 config.db.database = path.resolve(__dirname, config.db.database)
 mkdir(path.dirname(config.db.database))
+
+config.check.randomRate = parseFloat(config.check.randomRate) || 0.2
+config.check.all = (parseInt(config.check.all) || 6) * 60 * 60 * 1000
+config.check.period = (parseInt(config.check.period) || 5) * 60 * 1000
 
 function mkdir(dir) {
   if (!fs.existsSync(dir)) {

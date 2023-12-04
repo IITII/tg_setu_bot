@@ -111,13 +111,13 @@ async function get_sent_sub(prefix = taskLimit.sub_prefix.url) {
   return keys.map(k => k.replace(prefix, ''))
 }
 
-async function set_sent_sub(url_texts, prefix = taskLimit.sub_prefix, expire = taskLimit.sub_expire) {
+async function set_sent_sub(url_texts, prefix = taskLimit.sub_prefix) {
   if (Array.isArray(url_texts) && url_texts.length === 0) return
   await redis_init()
   const mul = redis.multi()
   url_texts.forEach(({url, text}) => {
-    mul.SETEX(`${prefix.url}${url}`, expire, text)
-    mul.SETEX(`${prefix.text}${text}`, expire, url)
+    mul.SET(`${prefix.url}${url}`, text)
+    mul.SET(`${prefix.text}${text}`, url)
   })
   await mul.exec()
 }

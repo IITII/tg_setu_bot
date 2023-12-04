@@ -3,7 +3,7 @@ const {get_sent_sub} = require("../services/utils/redis_utils");
 const redis = require("../libs/redis_client");
 
 
-async function reformat_keys(func, prefix, expire = taskLimit.sub_expire) {
+async function reformat_keys(func, prefix) {
     const sent_urls = await get_sent_sub(prefix)
     let diff = []
     sent_urls.forEach(s => {
@@ -19,7 +19,7 @@ async function reformat_keys(func, prefix, expire = taskLimit.sub_expire) {
     diff.forEach(d => {
         const [s, ss] = d
         mul.DEL(`${prefix}${s}`)
-        mul.SETEX(`${prefix}${ss}`, expire, v)
+        mul.SET(`${prefix}${ss}`, v)
     })
     await mul.exec()
     await redis.quit()
