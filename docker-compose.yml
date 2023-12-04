@@ -1,0 +1,65 @@
+version: "3"
+services:
+  web:
+    image: sikii/tg_setu_bot:latest
+    restart: unless-stopped
+    network_mode: bridge
+    hostname: tg_setu_bot
+    container_name: tg_setu_bot
+    logging:
+      driver: json-file
+      options:
+        max-size: 1m
+    depends_on:
+      - redis
+    environment:
+      - TG_DEBUG=false
+      - TZ=Asia/Shanghai
+      # tg 机器人 token
+      - BOT_TOKEN=xxxxxxxx
+      # 订阅专用 token, 必填, 且加入到 forward channel 中
+      - SUBSCRIBE_TOKEN=
+      # 图片专用 token, 支持多个token, 用逗号分隔
+      - WORKERS_TOKEN=
+      # 管理员 ID
+      - ADMIN_ID=
+      # 配置后下载时自动转发消息到指定channel
+      - FORWARD_ID=
+      # 是否将搜索结果发送到订阅频道, 默认 false
+      - SEND_TO_SUB=false
+      # REDIS_URL
+      - REDIS_URL=redis://:review_pic@redis:6379
+      # 同订阅检查间隔 hour, 默认 6h
+      # - CHECK_ALL=6
+      # 检查间隔的随机范围, 默认 0.2 即 0.8 ~ 1.2 倍
+      # - CHECK_RANDOM_RATE=0.2
+      # redis 扫描周期 min, 默认 5min
+      # - CHECK_PERIOD=5
+      # tg 机器人代理
+      # - PROXY=
+      # 用户状态缓存文件
+      # - DB_FILE=
+      # acgBox cookie
+      # - ACG_BOX_COOKIE=
+      # acgBox password
+      # - ACG_BOX_PASSWORD=
+    volumes:
+      - ./runs/db:/app/db
+      - ./runs/tmp:/app/tmp
+      - ./runs/logs:/app/logs
+  redis:
+    image: redis:alpine
+    restart: unless-stopped
+    network_mode: bridge
+    hostname: redis
+    container_name: redis
+    logging:
+      driver: json-file
+      options:
+        max-size: 1m
+    command: ["redis-server", "--requirepass review_pic"]
+    # 映射Redis默认端口
+    # ports:
+    #   - "6379:6379"
+    volumes:
+      - ./runs/redis_data:/data
