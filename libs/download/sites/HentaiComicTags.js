@@ -44,7 +44,3 @@ async function handle_dom($, original) {
   const res = {title, imgs: url_texts}
   return Promise.resolve(res)
 }
-
-let url = 'https://www.hentaicomic.ru/search/?q=Kitkatkitty&f=_all&s=create_time_DESC&syn=yes'
-// url = 'https://www.hentaicomic.ru/albums-index-cate-3.html'
-getTagUrls(url).then(console.log)

@@ -14,12 +14,30 @@ async function main() {
   return await bot_command.start(bot).then(_ => bot)
 }
 
+/**
+ * reset bot commands
+ * @see https://github.com/telegraf/telegraf/issues/1589
+ * @see https://github.com/jxxghp/MoviePilot/blob/0214beb6798f161623bf294266b1121040e83a41/app/modules/telegram/telegram.py#L216
+ */
+async function resetBotCommand(bot) {
+  const commands = [
+    {command: 'search', description: '找点什么?...'},
+    {command: 'copy_del', description: '让我康康!!!'},
+    {command: 'download', description: '仅下载'},
+    {command: 'sub', description: '订阅'},
+    {command: 'u_sub', description: '取消订阅'},
+  ]
+  await bot.telegram.deleteMyCommands()
+  return bot.telegram.setMyCommands(commands)
+}
+
 // Error Handling
 Promise.resolve()
   .then(_ => msgHandle.start())
   .then(_ => picHandle.start())
   .then(_ => actionHandler.start())
   .then(_ => taskRunner.start())
+  .then(_ => resetBotCommand(bot))
   .then(_ => main())
   .then(_ => {
     // Enable graceful stop

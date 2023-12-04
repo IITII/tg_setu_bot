@@ -44,10 +44,6 @@ async function handle_dom($, original) {
   return Promise.resolve(res)
 }
 
-let url = 'https://www.hentaicomic.ru/photos-slide-aid-227644.html'
-// url = 'https://www.hentaicomic.ru/photos-gallery-aid-227644.html'
-getImageArray(url).then(console.log).catch(console.error)
-
 module.exports = {
   getImageArray,
 }
