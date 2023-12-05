@@ -39,6 +39,7 @@ module.exports = class EveiraTags extends AbsDownloader {
       const poster = $(el).find('img').get(0)?.attribs['data-src'] || $(el).find('img').get(0)?.attribs.src
       let text = $(el).find('img').get(0)
       text = text?.attribs.title || text?.attribs.alt
+      text = text.replace(/Read more about the article/, '').trim()
       return {url: el.attribs.href, text, poster}
     }).get()
     images = uniqUrlTexts(images)
