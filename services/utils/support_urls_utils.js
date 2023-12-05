@@ -15,6 +15,7 @@ const supRaw = [
     [
       'https://everia.club/tag/',
       'https://everia.club/category/',
+      'https://everia.club/?s=',
     ],
     ['https://everia.club/',],
     [
@@ -192,13 +193,14 @@ const special_url = [
 ]
 // 聚合网址搜索, 字符串替换关键字
 const searchArr = [
+  'https://everia.club/?s={##}',
   'https://www.24fa.com/search.aspx?keyword={##}&where=title',
   'https://junmeitu.com/search/{##}-1.html',
-  'https://dongti233.com/?s={##}',
+  // 'https://dongti233.com/?s={##}',
   'https://theasiagirl.com/?s={##}',
   'https://buondua.com/?search={##}',
-  'https://tu.acgbox.org/index.php/search/{##}/',
-  'https://xx.knit.bid/search/?s={##}',
+  // 'https://tu.acgbox.org/index.php/search/{##}/',
+  // 'https://xx.knit.bid/search/?s={##}',
   'https://asiantolick.com/search/{##}',
   'https://www.4kup.net/search?q={##}&max-results=18',
   'https://www.hentaicomic.ru/search/?q={##}&f=_all&s=create_time_DESC&syn=yes',
