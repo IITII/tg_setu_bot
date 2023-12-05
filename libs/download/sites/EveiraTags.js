@@ -29,10 +29,16 @@ module.exports = class EveiraTags extends AbsDownloader {
   }
 
   async handle_dom($, original) {
-    const title = titleFormat($('.nv-page-title').text())
-    let images = $('.posts-wrapper .nv-post-thumbnail-wrap a').map((_, el) => {
+    let title = $('title').text()?.replace(/– ?EVERIA\.CLUB/, '')
+    title = title.replace(/["“”]/g, '').replace('Search Results for', '')
+    title = titleFormat(title)
+    let s1 = $('#blog-entries article .thumbnail a'),
+      s2 = $('#content .thumbnail a'),
+      s3 = s1.length > 0 ? s1 : s2
+    let images = s3.map((_, el) => {
       const poster = $(el).find('img').get(0)?.attribs['data-src'] || $(el).find('img').get(0)?.attribs.src
-      const text = el.attribs.title
+      let text = $(el).find('img').get(0)
+      text = text?.attribs.title || text?.attribs.alt
       return {url: el.attribs.href, text, poster}
     }).get()
     images = uniqUrlTexts(images)

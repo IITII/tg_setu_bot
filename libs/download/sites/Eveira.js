@@ -10,20 +10,16 @@ const {uniq} = require('lodash')
 
 module.exports = class Eveira extends AbsDownloader {
   async handle_dom($, original) {
-    const title = titleFormat($('.entry-header .title').text())
-    const metaR = $('.entry-header ul a').map((i, el) => {
-        return {url: el.attribs.href, text: $(el).text()}
-      }).get(),
-      meta = urlTextsToAbs(metaR, original)
-    const tagsR = $('.nv-tags-list a').map((i, el) => {
+    const title = titleFormat($('.entry-header h1').text())
+    const tagsR = $('#content .post-tags a').map((i, el) => {
         return {url: el.attribs.href, text: $(el).text()}
       }).get(),
       tags = urlTextsToAbs(tagsR, original)
-    const rawImgs = $('.entry-content img').map((i, el) => el.attribs['data-src']).get()
+    const rawImgs = $("#content figure img").map((i, el) => el.attribs['data-src'] || el.attribs['src']).get()
     const absImgs = arrToAbsUrl(rawImgs, original),
       imgs = uniq(absImgs)
     // const imgs = await zipUrlExt(absImgs, getSaveDir(title))
-    const res = {title, meta, tags, imgs}
+    const res = {title, tags, imgs}
     return Promise.resolve(res)
   }
 }
