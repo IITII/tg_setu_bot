@@ -11,7 +11,7 @@ const {Markup} = require('telegraf'),
 const {loggerMiddleware, logger} = require('./middlewares/logger'),
   {clean, send_action, img_or_tags_arr, default_session, done_arr} = require('./services/utils/msg_utils'),
   {message_decode} = require('./services/utils/service_utils'),
-  {filterTagsOnly} = require('./services/tasks/TaskRunner'),
+  TaskRunner = require('./services/tasks/TaskRunner'),
   picMsgRec = require('./services/msg/UserMsgReceiver'),
   {searchMsgRec} = require('./services/msg/UnionSearch.js'),
   {redis_add_sub, redis_remove_sub} = require('./services/utils/redis_utils')
@@ -25,6 +25,7 @@ const commands = [
   ['/sub', start_end_sub,],
   ['/u_sub', start_end_sub,],
   ['/search', search,],
+  ['/run', TaskRunner.run,],
 ]
 const actions = [
   // ...img_or_tags_arr.map(([_, ac]) => [ac, action_img_or_tags]),
@@ -196,7 +197,7 @@ async function add_to_sub(ctx) {
   const message = ctx.message || ctx.update.message
   const uid = ctx.message.from.id
   let urls = message_decode(message, 'mix')
-  urls = filterTagsOnly(urls)
+  urls = TaskRunner.filterTagsOnly(urls)
   const preUrls = subMap.get(uid) || []
   logger.debug(`${uid} add ${urls.length}, pre: ${preUrls.length}`, urls)
   subMap.set(uid, [...preUrls, ...urls])

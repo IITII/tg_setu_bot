@@ -226,4 +226,5 @@ async function send_to_subscriber(prefix, uidArr, url_texts, addi = '') {
 module.exports = {
   start,
   filterTagsOnly,
+  run,
 }
