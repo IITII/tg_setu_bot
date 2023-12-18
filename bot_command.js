@@ -26,6 +26,7 @@ const commands = [
   ['/u_sub', start_end_sub,],
   ['/search', search,],
   ['/run', TaskRunner.run,],
+  ['/exit', exit,],
 ]
 const actions = [
   // ...img_or_tags_arr.map(([_, ac]) => [ac, action_img_or_tags]),
@@ -169,6 +170,13 @@ async function start_end_sub(ctx) {
     msg = `输入链接以${remove_hint}订阅, 重发命令以提交...`
   }
   return ctx.reply(msg)
+}
+
+function exit(ctx) {
+  setTimeout(() => {
+    process.exit(0)
+  }, 2000)
+  return ctx.reply(`尝试重启...`)
 }
 
 const subMap = new Map()

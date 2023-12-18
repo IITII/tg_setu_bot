@@ -26,6 +26,7 @@ async function resetBotCommand(bot) {
     {command: 'download', description: '仅下载'},
     {command: 'sub', description: '订阅'},
     {command: 'u_sub', description: '取消订阅'},
+    {command: 'exit', description: '尝试重启'},
     {command: 'run', description: '立即扫描'},
   ]
   await bot.telegram.deleteMyCommands()
